@@ -1,0 +1,136 @@
+:root {
+  --font-mono:
+    'IBM Plex Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  --font-display: 'VT323', 'IBM Plex Mono', monospace;
+  --desktop: #c9c3b2;
+  --panel: #d8d3c4;
+  --panel-alt: #e4dfd0;
+  --sunken: #b8b2a1;
+  --line: #1a1a18;
+  --line-soft: #8f8a7a;
+  --text: #1a1a18;
+  --muted: #6b6b60;
+  --amber: #ffb000;
+  --amber-bright: #ffd166;
+  --phosphor: #33ff66;
+  --cyan: #00d3ff;
+  --red: #ff4136;
+  --page-bg: linear-gradient(180deg, #d8d0bc 0%, #cdc4ae 100%);
+  --button-primary-bg: var(--line);
+  --button-primary-fg: var(--amber);
+  --button-primary-hover-bg: var(--amber);
+  --button-primary-hover-fg: var(--line);
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: var(--amber-bright);
+  --button-secondary-hover-fg: var(--line);
+  --button-shadow: 2px 2px 0 0 var(--line);
+}
+
+html[data-theme='classic-amber'] {
+  --desktop: #c9c3b2;
+  --panel: #d8d3c4;
+  --panel-alt: #e4dfd0;
+  --sunken: #b8b2a1;
+  --line: #1a1a18;
+  --line-soft: #8f8a7a;
+  --text: #1a1a18;
+  --muted: #6b6b60;
+  --amber: #ffb000;
+  --amber-bright: #ffd166;
+  --phosphor: #33ff66;
+  --cyan: #00d3ff;
+  --red: #ff4136;
+  --page-bg: linear-gradient(180deg, #d8d0bc 0%, #cdc4ae 100%);
+  --button-primary-bg: var(--line);
+  --button-primary-fg: var(--amber);
+  --button-primary-hover-bg: var(--amber);
+  --button-primary-hover-fg: var(--line);
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: var(--amber-bright);
+  --button-secondary-hover-fg: var(--line);
+}
+
+html[data-theme='phosphor-green'] {
+  --desktop: #c7ccb8;
+  --panel: #d5dbc7;
+  --panel-alt: #e4ead8;
+  --sunken: #aeb5a3;
+  --line: #10150f;
+  --line-soft: #6d7467;
+  --text: #10150f;
+  --muted: #566051;
+  --amber: #29c85f;
+  --amber-bright: #7effa3;
+  --phosphor: #29c85f;
+  --cyan: #4fa7c2;
+  --red: #c44d41;
+  --page-bg: linear-gradient(180deg, #cfd7c4 0%, #c1c9b4 100%);
+  --button-primary-bg: var(--line);
+  --button-primary-fg: var(--amber);
+  --button-primary-hover-bg: var(--amber);
+  --button-primary-hover-fg: var(--line);
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: #b8efc7;
+  --button-secondary-hover-fg: var(--line);
+}
+
+html[data-theme='crt-blue'] {
+  --desktop: #c6cbd0;
+  --panel: #d7dde3;
+  --panel-alt: #e7edf4;
+  --sunken: #aeb7c1;
+  --line: #12181f;
+  --line-soft: #72808f;
+  --text: #12181f;
+  --muted: #556270;
+  --amber: #2f7de1;
+  --amber-bright: #84b5ff;
+  --phosphor: #57c77c;
+  --cyan: #2f7de1;
+  --red: #c95a52;
+  --page-bg: linear-gradient(180deg, #d2d8de 0%, #c5cdd6 100%);
+  --button-primary-bg: var(--line);
+  --button-primary-fg: var(--amber-bright);
+  --button-primary-hover-bg: var(--amber);
+  --button-primary-hover-fg: #f4f8ff;
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: #c8dbf8;
+  --button-secondary-hover-fg: var(--line);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}

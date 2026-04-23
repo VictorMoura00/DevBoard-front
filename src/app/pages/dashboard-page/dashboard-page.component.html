@@ -1,0 +1,231 @@
+<div class="screen">
+  <div class="noise"></div>
+
+  <nav class="workbar frame">
+    <div class="brand-cluster">
+      <span class="brand-mark"></span>
+      <span class="brand-name">DevBoard</span>
+      <span class="brand-version">v0.3.1</span>
+    </div>
+
+    <div class="workbar-tabs">
+      <button
+        type="button"
+        class="tab"
+        [class.is-active]="activeTab === 'projects'"
+        (click)="setActiveTab('projects')"
+      >
+        Projects
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.is-active]="activeTab === 'architecture'"
+        (click)="setActiveTab('architecture')"
+      >
+        Architecture
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.is-active]="activeTab === 'tasks'"
+        (click)="setActiveTab('tasks')"
+      >
+        Tasks
+      </button>
+    </div>
+
+    <div class="workbar-status">
+      <label class="theme-switcher">
+        <span>theme</span>
+        <select [ngModel]="currentTheme()" (ngModelChange)="setTheme($event)" class="theme-select">
+          @for (theme of availableThemes; track theme.name) {
+            <option [ngValue]="theme.name">{{ theme.label }}</option>
+          }
+        </select>
+      </label>
+      <span>broker: ok</span>
+      <span>local mode</span>
+      <span>{{ now | date: 'HH:mm:ss' }}</span>
+    </div>
+  </nav>
+
+  <main class="layout">
+    @if (activeTab === 'projects') {
+      <section class="hero-grid">
+        <app-retro-window title="~/devboard/dashboard" subtitle="projects.list" [showControls]="true">
+          <div class="hero-body">
+            <div class="hero-copy">
+              <h1>hello, victor</h1>
+              <p class="hero-meta">
+                &gt; {{ activeProjects() }} projetos ativos · {{ openTasksEstimate() }} tarefas abertas ·
+                {{ doneTasksEstimate() }} concluidas neste ciclo
+              </p>
+              <p class="lede">
+                Gerenciador pessoal de projetos e OSS. Angular 21 no front, .NET 10 na API,
+                localhost sem auth por enquanto e uma UI retro inspirada em workstation antiga.
+              </p>
+            </div>
+
+            <app-retro-button variant="primary" size="md" (pressed)="openCommandModal()">
+              + New Project
+            </app-retro-button>
+          </div>
+        </app-retro-window>
+
+        <app-retro-window title="stats.json" subtitle="last 24h">
+          <div class="stats-grid">
+            <app-stat-box
+              label="Projects"
+              [value]="totalProjects()"
+              [sublabel]="activeProjects() + ' active'"
+            />
+            <app-stat-box
+              label="Open tasks"
+              [value]="openTasksEstimate()"
+              sublabel="across all repos"
+            />
+            <app-stat-box label="Events / 1h" [value]="47" sublabel="via rabbit" />
+            <app-stat-box
+              label="Uptime"
+              value="99.94%"
+              [sublabel]="apiOffline() ? 'mock pipeline' : 'gateway'"
+            />
+          </div>
+        </app-retro-window>
+      </section>
+
+      <section class="toolbar frame">
+        <app-toolbar-search
+          [value]="searchQuery"
+          placeholder="grep projects..."
+          (valueChange)="searchQuery = $event"
+        />
+
+        <div class="filter-buttons">
+          <app-retro-button
+            size="sm"
+            [variant]="selectedFilter === 'all' ? 'primary' : 'secondary'"
+            (pressed)="selectedFilter = 'all'"
+          >
+            All
+          </app-retro-button>
+          <app-retro-button
+            size="sm"
+            [variant]="selectedFilter === 'active' ? 'primary' : 'secondary'"
+            (pressed)="selectedFilter = 'active'"
+          >
+            Active
+          </app-retro-button>
+          <app-retro-button
+            size="sm"
+            [variant]="selectedFilter === 'paused' ? 'primary' : 'secondary'"
+            (pressed)="selectedFilter = 'paused'"
+          >
+            Paused
+          </app-retro-button>
+          <app-retro-button
+            size="sm"
+            [variant]="selectedFilter === 'archived' ? 'primary' : 'secondary'"
+            (pressed)="selectedFilter = 'archived'"
+          >
+            Archived
+          </app-retro-button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <label class="sort-shell">
+          <span>sort:</span>
+          <select [(ngModel)]="selectedSort" class="sort-select">
+            <option value="updated">updated</option>
+            <option value="name">name</option>
+            <option value="status">status</option>
+          </select>
+        </label>
+
+        <span class="match-count">{{ filteredProjects().length }} / {{ totalProjects() }} match</span>
+      </section>
+
+      <section class="project-grid">
+        @for (project of filteredProjects(); track trackByProject($index, project)) {
+          <app-project-card
+            [project]="project"
+            [indexLabel]="projectIndexLabel($index)"
+            [status]="statusLabel(project.status)"
+            [progress]="pseudoProgress(project)"
+          />
+        }
+      </section>
+
+      @if (!filteredProjects().length) {
+        <app-retro-window title="grep.result" subtitle="no matches">
+          <div class="empty-state">
+            <p>$ grep: nenhum projeto encontrado com esse filtro.</p>
+          </div>
+        </app-retro-window>
+      }
+    } @else if (activeTab === 'architecture') {
+      <app-retro-window title="~/devboard/architecture" subtitle="system.map">
+        <div class="section-body">
+          <h2>Architecture view</h2>
+          <p>
+            Aqui podemos evoluir para um mapa visual de API, tasks, notifications e fluxo de
+            eventos internos quando voce quiser.
+          </p>
+          <app-retro-button variant="secondary" size="md" (pressed)="openCommandModal()">
+            Open Commands
+          </app-retro-button>
+        </div>
+      </app-retro-window>
+    } @else {
+      <app-retro-window title="~/devboard/tasks" subtitle="queue.view">
+        <div class="section-body">
+          <h2>Tasks view</h2>
+          <p>
+            Esta aba ja esta funcional e pronta para receber a listagem real assim que entrarmos
+            com os endpoints de tarefas.
+          </p>
+          <app-retro-button variant="secondary" size="md" (pressed)="setActiveTab('projects')">
+            Back To Projects
+          </app-retro-button>
+        </div>
+      </app-retro-window>
+    }
+  </main>
+
+  <app-retro-modal
+    [open]="isCommandModalOpen"
+    title="cmd.k"
+    subtitle="fuzzy search"
+    size="lg"
+    (closed)="closeCommandModal()"
+  >
+    <div modal-body class="command-shell">
+      <div class="command-search-row">
+        <input class="command-search-input" type="text" placeholder="Search projects, commands..." />
+        <app-retro-button variant="secondary" size="sm" (pressed)="closeCommandModal()">
+          Esc
+        </app-retro-button>
+      </div>
+
+      <div class="command-list">
+        @for (item of commandItems; track item.title) {
+          <button type="button" class="command-item">
+            <span class="command-kind">{{ item.kind }}</span>
+            <span class="command-title">{{ item.title }}</span>
+            <span class="command-meta">{{ item.meta }}</span>
+            <span class="command-shortcut">{{ item.shortcut }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div modal-actions class="modal-actions">
+      <app-retro-button variant="ghost" size="sm" (pressed)="closeCommandModal()">
+        Close
+      </app-retro-button>
+      <app-retro-button variant="primary" size="sm">Run</app-retro-button>
+    </div>
+  </app-retro-modal>
+</div>

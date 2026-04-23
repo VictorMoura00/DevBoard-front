@@ -1,0 +1,231 @@
+<div class="library-page">
+  <div class="noise"></div>
+
+  <div class="library-layout">
+    <app-retro-window title="~/devboard/ui-library" subtitle="internal.design.system" [showControls]="true">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">visual library</p>
+          <h1>DevBoard UI</h1>
+          <p class="lead">
+            Biblioteca visual interna com componentes standalone, temas e padroes reutilizaveis.
+          </p>
+        </div>
+
+        <div class="hero-controls">
+          <label class="theme-picker">
+            <span>theme</span>
+            <select [ngModel]="currentTheme()" (ngModelChange)="setTheme($event)">
+              @for (theme of themes; track theme.name) {
+                <option [ngValue]="theme.name">{{ theme.label }}</option>
+              }
+            </select>
+          </label>
+
+          <app-retro-button variant="primary" size="md" (pressed)="openModal()">
+            Open Modal
+          </app-retro-button>
+        </div>
+      </div>
+    </app-retro-window>
+
+    <section class="showcase-shell">
+      <aside class="showcase-sidebar">
+        <app-retro-window title="catalog.index" subtitle="sections">
+          <div class="sidebar-stack">
+            @for (section of componentSections; track section.id) {
+              <a class="section-link" [href]="'#' + section.id">{{ section.label }}</a>
+            }
+          </div>
+        </app-retro-window>
+
+        <app-retro-window title="modal.config" subtitle="playground.controls">
+          <div class="control-stack">
+            <label class="field-row">
+              <span>title</span>
+              <input [(ngModel)]="modalTitle" class="control-input" type="text" />
+            </label>
+            <label class="field-row">
+              <span>subtitle</span>
+              <input [(ngModel)]="modalSubtitle" class="control-input" type="text" />
+            </label>
+            <label class="field-row">
+              <span>size</span>
+              <select [(ngModel)]="modalSize" class="control-input">
+                <option value="sm">sm</option>
+                <option value="md">md</option>
+                <option value="lg">lg</option>
+              </select>
+            </label>
+            <label class="toggle-row">
+              <input [(ngModel)]="modalCloseOnBackdrop" type="checkbox" />
+              <span>close on backdrop</span>
+            </label>
+            <label class="toggle-row">
+              <input [(ngModel)]="modalShowCloseButton" type="checkbox" />
+              <span>show close button</span>
+            </label>
+            <label class="toggle-row">
+              <input [(ngModel)]="modalShowActions" type="checkbox" />
+              <span>show footer actions</span>
+            </label>
+            <app-retro-button variant="primary" size="md" (pressed)="openModal()">
+              Preview Modal
+            </app-retro-button>
+          </div>
+        </app-retro-window>
+      </aside>
+
+      <div class="showcase-main">
+        <section id="actions" class="section-group">
+          <div class="section-header">
+            <p class="section-kicker">catalog.section</p>
+            <h2>Actions</h2>
+          </div>
+
+          <div class="preview-grid preview-grid--two">
+            <app-retro-window title="buttons.tsx" subtitle="actions.preview">
+              <div class="stack">
+                <p class="section-label">Buttons</p>
+                <div class="button-row">
+                  <app-retro-button variant="primary" size="md">Primary</app-retro-button>
+                  <app-retro-button variant="secondary" size="md">Secondary</app-retro-button>
+                  <app-retro-button variant="ghost" size="md">Ghost</app-retro-button>
+                </div>
+                <div class="button-row">
+                  <app-retro-button variant="primary" size="sm">Small</app-retro-button>
+                  <app-retro-button variant="secondary" size="sm">Filter</app-retro-button>
+                </div>
+              </div>
+            </app-retro-window>
+
+            <app-retro-window title="tokens.scss" subtitle="themes.preview">
+              <div class="stack">
+                <p class="section-label">Theme Presets</p>
+                <div class="theme-list">
+                  @for (theme of themes; track theme.name) {
+                    <button
+                      type="button"
+                      class="theme-chip"
+                      [class.is-active]="currentTheme() === theme.name"
+                      (click)="setTheme(theme.name)"
+                    >
+                      {{ theme.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </app-retro-window>
+          </div>
+        </section>
+
+        <section id="feedback" class="section-group">
+          <div class="section-header">
+            <p class="section-kicker">catalog.section</p>
+            <h2>Feedback</h2>
+          </div>
+
+          <div class="preview-grid preview-grid--two">
+            <app-retro-window title="status-pill.ts" subtitle="state.preview">
+              <div class="stack">
+                <p class="section-label">Status Pills</p>
+                <div class="pill-row">
+                  <app-status-pill status="active" />
+                  <app-status-pill status="paused" />
+                  <app-status-pill status="completed" />
+                  <app-status-pill status="archived" />
+                </div>
+              </div>
+            </app-retro-window>
+
+            <app-retro-window title="stats.ts" subtitle="metrics.preview">
+              <div class="stats-grid">
+                <app-stat-box label="Projects" [value]="6" sublabel="4 active" />
+                <app-stat-box label="Open tasks" [value]="40" sublabel="across all repos" />
+                <app-stat-box label="Events / 1h" [value]="47" sublabel="via rabbit" />
+                <app-stat-box label="Uptime" value="99.94%" sublabel="gateway" />
+              </div>
+            </app-retro-window>
+          </div>
+        </section>
+
+        <section id="content" class="section-group">
+          <div class="section-header">
+            <p class="section-kicker">catalog.section</p>
+            <h2>Content</h2>
+          </div>
+
+          <div class="preview-grid preview-grid--two">
+            <app-retro-window title="search.ts" subtitle="toolbar.preview">
+              <div class="stack">
+                <p class="section-label">Toolbar Search</p>
+                <app-toolbar-search
+                  [value]="searchPreview"
+                  placeholder="grep projects..."
+                  (valueChange)="searchPreview = $event"
+                />
+                <p class="preview-value">input: {{ searchPreview || '...' }}</p>
+              </div>
+            </app-retro-window>
+
+            <app-retro-window title="project-card.ts" subtitle="content.preview">
+              <app-project-card
+                [project]="sampleProject"
+                indexLabel="01"
+                status="active"
+                [progress]="75"
+              />
+            </app-retro-window>
+          </div>
+        </section>
+
+        <section id="playground" class="section-group">
+          <div class="section-header">
+            <p class="section-kicker">catalog.section</p>
+            <h2>Playground</h2>
+          </div>
+
+          <app-retro-window title="retro-modal.ts" subtitle="interactive.preview">
+            <div class="playground-panel">
+              <div class="playground-copy">
+                <p class="section-label">Modal Playground</p>
+                <p class="lead-inline">
+                  Ajuste os controles no painel lateral e abra o modal para validar tamanho,
+                  cabecalho e footer sem sair da showcase.
+                </p>
+              </div>
+              <div class="button-row">
+                <app-retro-button variant="secondary" size="md" (pressed)="openModal()">
+                  Open Preview
+                </app-retro-button>
+              </div>
+            </div>
+          </app-retro-window>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <app-retro-modal
+    [open]="isModalOpen"
+    [title]="modalTitle"
+    [subtitle]="modalSubtitle"
+    [size]="modalSize"
+    [closeOnBackdrop]="modalCloseOnBackdrop"
+    [showCloseButton]="modalShowCloseButton"
+    (closed)="closeModal()"
+  >
+    <div modal-body class="modal-preview">
+      <p>Este modal usa a mesma linguagem visual da biblioteca interna.</p>
+      <p>Ele suporta tamanhos, area de acoes e fechamento por `Esc` e backdrop.</p>
+      <p>Title: {{ modalTitle || '...' }} | Subtitle: {{ modalSubtitle || '...' }} | Size: {{ modalSize }}</p>
+    </div>
+
+    @if (modalShowActions) {
+      <div modal-actions class="modal-actions">
+        <app-retro-button variant="ghost" size="sm" (pressed)="closeModal()">Close</app-retro-button>
+        <app-retro-button variant="primary" size="sm" (pressed)="closeModal()">Confirm</app-retro-button>
+      </div>
+    }
+  </app-retro-modal>
+</div>

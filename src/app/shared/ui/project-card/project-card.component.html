@@ -1,0 +1,56 @@
+<app-retro-window [title]="'proj/' + indexLabel()" [subtitle]="project().name | lowercase | slice: 0 : 18">
+  <app-status-pill window-actions [status]="status()" />
+
+  <div class="project-heading">
+    <div>
+      <h3>{{ project().name }}</h3>
+      <div class="project-facts">
+        <span class="fact-chip">c#</span>
+        <span class="fact-chip">{{ project().repositoryUrl ? 'repo' : 'local' }}</span>
+        <span class="fact-meta">★ {{ project().tags.length * 17 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="project-description">
+    {{ project().description || 'Projeto sem descricao por enquanto.' }}
+  </p>
+
+  <div class="tag-row">
+    @for (tag of project().tags; track tag) {
+      <span class="tag-chip">#{{ tag }}</span>
+    }
+  </div>
+
+  <div class="progress-row">
+    <span>progress</span>
+    <div class="progress-bar">
+      <span [style.width.%]="progress()"></span>
+    </div>
+    <span>{{ progress() }}%</span>
+  </div>
+
+  <div class="mini-stats">
+    <div>
+      <strong>{{ project().tags.length + 2 }}</strong>
+      <span>todo</span>
+    </div>
+    <div>
+      <strong>{{ status() === 'active' ? 3 : 1 }}</strong>
+      <span>doing</span>
+    </div>
+    <div>
+      <strong>{{ status() === 'completed' ? 4 : 0 }}</strong>
+      <span>review</span>
+    </div>
+    <div>
+      <strong>{{ status() === 'completed' ? 14 : 8 }}</strong>
+      <span>done</span>
+    </div>
+  </div>
+
+  <footer class="project-footer">
+    <span>&gt; {{ project().repositoryUrl || 'sem repositorio definido' }}</span>
+    <span>{{ project().createdAt | date: 'yyyy-MM-dd' }}</span>
+  </footer>
+</app-retro-window>

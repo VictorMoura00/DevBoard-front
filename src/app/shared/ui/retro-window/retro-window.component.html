@@ -1,0 +1,20 @@
+<section class="retro-window frame">
+  <header class="titlebar">
+    <span class="titlebar-mark"></span>
+    <span>{{ title() }}</span>
+    @if (subtitle()) {
+      <span class="titlebar-sub">{{ subtitle() }}</span>
+    }
+    <span class="titlebar-fill"></span>
+    <ng-content select="[window-actions]"></ng-content>
+    @if (showControls()) {
+      <span class="titlebar-button">_</span>
+      <span class="titlebar-button">□</span>
+      <span class="titlebar-button">×</span>
+    }
+  </header>
+
+  <div class="window-body">
+    <ng-content />
+  </div>
+</section>

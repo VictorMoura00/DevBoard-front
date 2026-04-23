@@ -1,0 +1,104 @@
+.retro-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: start center;
+  padding: 86px 16px 24px;
+  background: color-mix(in srgb, var(--line) 22%, transparent);
+  animation: modal-backdrop-in 120ms steps(3, end);
+}
+
+.retro-modal-window {
+  width: min(100%, 560px);
+  border: 2px solid var(--line);
+  background: var(--panel);
+  box-shadow:
+    4px 4px 0 0 var(--line),
+    0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+  animation: modal-window-in 170ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.retro-modal-window[data-size='sm'] {
+  width: min(100%, 420px);
+}
+
+.retro-modal-window[data-size='lg'] {
+  width: min(100%, 760px);
+}
+
+.retro-modal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 8px;
+  background: var(--line);
+  color: var(--panel-alt);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.08) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.retro-modal-mark {
+  width: 7px;
+  height: 7px;
+  background: var(--amber);
+}
+
+.retro-modal-subtitle {
+  opacity: 0.55;
+  font-weight: 400;
+}
+
+.retro-modal-fill {
+  flex: 1;
+}
+
+.retro-modal-titlebar-button {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--panel-alt);
+  background: var(--panel-alt);
+  color: var(--line);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.retro-modal-body {
+  padding: 14px;
+}
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-window-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    filter: saturate(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: saturate(1);
+  }
+}

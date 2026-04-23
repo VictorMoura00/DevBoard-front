@@ -1,0 +1,142 @@
+:host {
+  display: block;
+}
+
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+
+.project-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.project-facts {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fact-chip,
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border: 1.5px solid var(--line);
+  background: var(--panel-alt);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.fact-meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.project-description {
+  min-height: 54px;
+  margin: 12px 0 0;
+  color: #3a3a35;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.tag-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.progress-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: lowercase;
+}
+
+.progress-bar {
+  height: 8px;
+  border: 1.5px solid var(--line);
+  background: var(--sunken);
+  overflow: hidden;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--amber);
+  background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.15) 0 3px, transparent 3px 6px);
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.mini-stats div {
+  padding: 6px 0;
+  text-align: center;
+  border: 1.5px solid var(--line);
+  background: var(--panel-alt);
+}
+
+.mini-stats strong {
+  display: block;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.mini-stats span {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line-soft);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.project-footer span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+  .project-footer {
+    flex-direction: column;
+  }
+
+  .mini-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}

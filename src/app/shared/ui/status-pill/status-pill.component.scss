@@ -1,0 +1,28 @@
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border: 1.5px solid var(--line);
+  background: var(--panel-alt);
+  color: var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pill--active {
+  background: var(--phosphor);
+}
+
+.status-pill--paused {
+  background: var(--amber-bright);
+}
+
+.status-pill--completed {
+  background: #8fd0ff;
+}
+
+.status-pill--archived {
+  background: #d0cabf;
+}
