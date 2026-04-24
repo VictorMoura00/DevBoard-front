@@ -19,14 +19,23 @@ export class RetroButtonComponent {
   readonly size = input<RetroButtonSize>('md');
   readonly type = input<ButtonType>('button');
   readonly disabled = input(false);
+  readonly loading = input(false);
+  readonly fullWidth = input(false);
   readonly pressed = output<MouseEvent>();
 
-  protected readonly classes = computed(
-    () => `retro-button retro-button--${this.variant()} retro-button--${this.size()}`,
-  );
+  protected readonly classes = computed(() => {
+    const parts = [
+      'retro-button',
+      `retro-button--${this.variant()}`,
+      `retro-button--${this.size()}`,
+    ];
+    if (this.loading()) parts.push('retro-button--loading');
+    if (this.fullWidth()) parts.push('retro-button--full');
+    return parts.join(' ');
+  });
 
   protected onClick(event: MouseEvent): void {
-    if (!this.disabled()) {
+    if (!this.disabled() && !this.loading()) {
       this.pressed.emit(event);
     }
   }

@@ -61,4 +61,14 @@
 
 .window-body {
   padding: 14px;
+
+  &--no-padding {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  &--scrollable {
+    overflow-y: auto;
+    max-height: 340px;
+  }
 }

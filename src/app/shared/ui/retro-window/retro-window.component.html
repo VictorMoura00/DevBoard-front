@@ -14,7 +14,11 @@
     }
   </header>
 
-  <div class="window-body">
+  <div
+    class="window-body"
+    [class.window-body--no-padding]="noPadding()"
+    [class.window-body--scrollable]="scrollable()"
+  >
     <ng-content />
   </div>
 </section>

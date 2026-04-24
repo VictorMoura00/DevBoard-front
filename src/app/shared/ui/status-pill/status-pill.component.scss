@@ -1,15 +1,27 @@
 .status-pill {
   display: inline-flex;
   align-items: center;
-  padding: 1px 7px;
   border: 1.5px solid var(--line);
   background: var(--panel-alt);
   color: var(--line);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
 }
+
+// ── Sizes ──────────────────────────────────────────────────────────────────
+
+.status-pill--sm {
+  padding: 1px 7px;
+  font-size: 0.66rem;
+}
+
+.status-pill--md {
+  padding: 3px 10px;
+  font-size: 0.76rem;
+}
+
+// ── Status variants ────────────────────────────────────────────────────────
 
 .status-pill--active {
   background: var(--phosphor);
@@ -20,9 +32,10 @@
 }
 
 .status-pill--completed {
-  background: #8fd0ff;
+  background: color-mix(in srgb, var(--cyan) 35%, var(--panel-alt));
 }
 
 .status-pill--archived {
-  background: #d0cabf;
+  background: var(--sunken);
+  color: var(--muted);
 }

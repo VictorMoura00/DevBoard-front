@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
+export type StatusPillSize = 'sm' | 'md';
+
 @Component({
   selector: 'app-status-pill',
   standalone: true,
@@ -9,6 +11,9 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 })
 export class StatusPillComponent {
   readonly status = input.required<string>();
+  readonly size = input<StatusPillSize>('sm');
 
-  protected readonly statusClass = computed(() => `status-pill status-pill--${this.status()}`);
+  protected readonly pillClass = computed(
+    () => `status-pill status-pill--${this.status()} status-pill--${this.size()}`,
+  );
 }

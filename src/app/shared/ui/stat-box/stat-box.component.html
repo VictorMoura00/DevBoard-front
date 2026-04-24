@@ -1,7 +1,12 @@
-<article class="stat-box">
-  <p>{{ label() }}</p>
-  <strong>{{ value() }}</strong>
+<article [class]="boxClass()">
+  <p class="stat-label">{{ label() }}</p>
+  <strong class="stat-value">
+    {{ value() }}
+    @if (trend()) {
+      <span class="stat-trend stat-trend--{{ trend() }}">{{ trendIcon() }}</span>
+    }
+  </strong>
   @if (sublabel()) {
-    <span>{{ sublabel() }}</span>
+    <span class="stat-sublabel">{{ sublabel() }}</span>
   }
 </article>

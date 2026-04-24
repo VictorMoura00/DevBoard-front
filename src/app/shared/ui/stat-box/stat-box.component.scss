@@ -4,8 +4,8 @@
   background: var(--panel-alt);
 }
 
-.stat-box p,
-.stat-box span {
+.stat-label,
+.stat-sublabel {
   margin: 0;
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -13,11 +13,48 @@
   color: var(--muted);
 }
 
-.stat-box strong {
+.stat-sublabel {
+  display: block;
+}
+
+.stat-value {
   display: block;
   margin: 6px 0 4px;
   font-family: var(--font-display);
   font-size: 2.4rem;
   line-height: 1;
   letter-spacing: 0.03em;
+}
+
+.stat-trend {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-left: 4px;
+  vertical-align: middle;
+
+  &--up    { color: var(--phosphor); }
+  &--down  { color: var(--red); }
+  &--neutral { color: var(--muted); }
+}
+
+// ── Tones ─────────────────────────────────────────────────────────────────
+
+.stat-box--default {
+  .stat-value { color: var(--text); }
+}
+
+.stat-box--success {
+  border-color: var(--phosphor);
+  .stat-value { color: var(--phosphor); }
+}
+
+.stat-box--warning {
+  border-color: var(--amber);
+  .stat-value { color: var(--amber); }
+}
+
+.stat-box--danger {
+  border-color: var(--red);
+  .stat-value { color: var(--red); }
 }

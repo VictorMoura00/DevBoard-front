@@ -1,8 +1,12 @@
 <button
   [type]="type()"
-  [disabled]="disabled()"
+  [disabled]="disabled() || loading()"
   [class]="classes()"
   (click)="onClick($event)"
 >
-  <ng-content />
+  @if (loading()) {
+    <span class="retro-button__spinner">· · ·</span>
+  } @else {
+    <ng-content />
+  }
 </button>

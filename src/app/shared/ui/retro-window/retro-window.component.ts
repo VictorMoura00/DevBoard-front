@@ -11,4 +11,6 @@ export class RetroWindowComponent {
   readonly title = input.required<string>();
   readonly subtitle = input('');
   readonly showControls = input(false);
+  readonly noPadding = input(false);
+  readonly scrollable = input(false);
 }
