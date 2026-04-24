@@ -14,14 +14,14 @@
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.4;
-  border: 1.5px solid var(--line-soft);
+  border: 1.5px solid var(--line);
   border-left-width: 4px;
 
   // ── Per-severity accent color ──────────────────────────────────────────────
-  &--info    { --_color: var(--amber);        --_bg: color-mix(in srgb, var(--amber)        18%, var(--panel-alt)); }
-  &--success { --_color: var(--phosphor);     --_bg: color-mix(in srgb, var(--phosphor)     14%, var(--panel-alt)); }
-  &--warning { --_color: var(--amber-bright); --_bg: color-mix(in srgb, var(--amber-bright) 22%, var(--panel-alt)); }
-  &--error   { --_color: var(--red);          --_bg: color-mix(in srgb, var(--red)          16%, var(--panel-alt)); }
+  &--info    { --_color: color-mix(in srgb, var(--amber)        70%, var(--text)); --_bg: color-mix(in srgb, var(--amber)        18%, var(--panel-alt)); }
+  &--success { --_color: color-mix(in srgb, var(--phosphor)     70%, var(--text)); --_bg: color-mix(in srgb, var(--phosphor)     14%, var(--panel-alt)); }
+  &--warning { --_color: color-mix(in srgb, var(--amber-bright) 70%, var(--text)); --_bg: color-mix(in srgb, var(--amber-bright) 22%, var(--panel-alt)); }
+  &--error   { --_color: color-mix(in srgb, var(--red)          70%, var(--text)); --_bg: color-mix(in srgb, var(--red)          16%, var(--panel-alt)); }
 
   // ── Variants ───────────────────────────────────────────────────────────────
 
