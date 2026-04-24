@@ -1,12 +1,37 @@
-<button
-  [type]="type()"
-  [disabled]="disabled() || loading()"
-  [class]="classes()"
-  (click)="onClick($event)"
->
+<ng-template #content>
   @if (loading()) {
     <span class="retro-button__spinner">· · ·</span>
   } @else {
+    @if (showIconLeft()) {
+      <span class="retro-button__icon" aria-hidden="true">{{ icon() }}</span>
+    }
     <ng-content />
+    @if (showIconRight()) {
+      <span class="retro-button__icon" aria-hidden="true">{{ icon() }}</span>
+    }
   }
-</button>
+  @if (hasBadge()) {
+    <span class="retro-button__badge" aria-label="badge: {{ badge() }}">{{ badge() }}</span>
+  }
+</ng-template>
+
+@if (href()) {
+  <a
+    [href]="href()"
+    [class]="classes()"
+    [attr.aria-disabled]="disabled() || loading() || null"
+    [tabindex]="disabled() ? -1 : 0"
+    (click)="onClick($event)"
+    (focus)="onFocus($event)"
+    (blur)="onBlur($event)"
+  ><ng-container [ngTemplateOutlet]="content" /></a>
+} @else {
+  <button
+    [type]="type()"
+    [disabled]="disabled() || loading()"
+    [class]="classes()"
+    (click)="onClick($event)"
+    (focus)="onFocus($event)"
+    (blur)="onBlur($event)"
+  ><ng-container [ngTemplateOutlet]="content" /></button>
+}

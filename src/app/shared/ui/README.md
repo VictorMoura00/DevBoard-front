@@ -11,6 +11,9 @@ Concentrar os componentes standalone reutilizaveis e os padroes visuais retro do
 - `RetroButtonComponent`
 - `RetroModalComponent`
 - `RetroWindowComponent`
+- `RetroInputComponent`
+- `RetroSelectComponent`
+- `RetroRangeComponent`
 - `StatusPillComponent`
 - `StatBoxComponent`
 - `ToolbarSearchComponent`

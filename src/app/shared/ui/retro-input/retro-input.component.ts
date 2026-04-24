@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 
 export type RetroInputType = 'text' | 'search' | 'number' | 'email' | 'password';
 export type RetroInputSize = 'sm' | 'md' | 'lg';
@@ -14,6 +22,8 @@ export type RetroInputSize = 'sm' | 'md' | 'lg';
   },
 })
 export class RetroInputComponent {
+  private readonly inputElement = viewChild.required<ElementRef<HTMLInputElement>>('inputEl');
+
   readonly value        = input('');
   readonly placeholder  = input('');
   readonly type         = input<RetroInputType>('text');
@@ -42,5 +52,10 @@ export class RetroInputComponent {
   protected onClear(): void {
     this.valueChange.emit('');
     this.cleared.emit();
+  }
+
+  focus(): void {
+    this.inputElement().nativeElement.focus();
+    this.inputElement().nativeElement.select();
   }
 }

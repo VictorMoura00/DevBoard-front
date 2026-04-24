@@ -1,13 +1,17 @@
+// ── Host ──────────────────────────────────────────────────────────────────
 .retro-button-host {
   display: inline-flex;
+  position: relative; // badge anchor
 
-  &:has(.retro-button--full) {
+  &--full {
     display: flex;
     width: 100%;
   }
 }
 
+// ── Base shell ────────────────────────────────────────────────────────────
 .retro-button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,84 +23,210 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none; // for <a> rendering
   transition:
     background-color 90ms ease-out,
     color 90ms ease-out,
     transform 90ms ease-out,
     box-shadow 90ms ease-out;
+
+  &:active:not(:disabled):not([aria-disabled='true']) {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 var(--line);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  &--full { width: 100%; }
+
+  &--loading { cursor: wait; }
 }
 
-.retro-button--md {
+// ── Sizes ─────────────────────────────────────────────────────────────────
+.retro-button--size-sm {
+  min-height: 26px;
+  padding: 4px 10px;
+  font-size: 10px;
+  gap: 5px;
+}
+
+.retro-button--size-md {
   min-height: 32px;
-  padding: 8px 14px;
+  padding: 6px 14px;
   font-size: 12px;
 }
 
-.retro-button--sm {
-  min-height: 28px;
-  padding: 6px 10px;
-  font-size: 11px;
+.retro-button--size-lg {
+  min-height: 40px;
+  padding: 10px 20px;
+  font-size: 13px;
+  gap: 8px;
 }
 
+// ── Variants × Tones ──────────────────────────────────────────────────────
+// Each variant (structure) combined with each tone (color intent).
+// Tones map to our design palette: phosphor=success, amber=warning, red=danger.
+
+// ── PRIMARY (filled) ──────────────────────────────────────────────────────
 .retro-button--primary {
-  background: var(--button-primary-bg);
-  color: var(--button-primary-fg);
+  &.retro-button--tone-default {
+    background: var(--button-primary-bg);
+    color: var(--button-primary-fg);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: var(--button-primary-hover-bg);
+      color: var(--button-primary-hover-fg);
+    }
+  }
+  &.retro-button--tone-success {
+    background: var(--phosphor);
+    color: #0a0e0a;
+    border-color: color-mix(in srgb, var(--phosphor) 65%, #000);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--phosphor) 55%, #000);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--phosphor) 80%, #fff);
+    }
+    &:active:not(:disabled) { box-shadow: 0 0 0 0 color-mix(in srgb, var(--phosphor) 55%, #000); }
+  }
+  &.retro-button--tone-warning {
+    background: var(--amber);
+    color: #0a0e0a;
+    border-color: color-mix(in srgb, var(--amber) 70%, #000);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--amber) 55%, #000);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--amber) 85%, #fff);
+    }
+    &:active:not(:disabled) { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 55%, #000); }
+  }
+  &.retro-button--tone-danger {
+    background: var(--red);
+    color: #fff;
+    border-color: color-mix(in srgb, var(--red) 65%, #000);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--red) 55%, #000);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--red) 80%, #fff);
+    }
+    &:active:not(:disabled) { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 55%, #000); }
+  }
 }
 
-.retro-button--primary:hover:not(:disabled),
-.retro-button--primary:focus-visible:not(:disabled) {
-  background: var(--button-primary-hover-bg);
-  color: var(--button-primary-hover-fg);
-}
-
+// ── SECONDARY (outlined) ──────────────────────────────────────────────────
 .retro-button--secondary {
-  background: var(--button-secondary-bg);
-  color: var(--button-secondary-fg);
+  &.retro-button--tone-default {
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-fg);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: var(--button-secondary-hover-bg);
+      color: var(--button-secondary-hover-fg);
+    }
+  }
+  &.retro-button--tone-success {
+    background: color-mix(in srgb, var(--phosphor) 8%, transparent);
+    color: var(--phosphor);
+    border-color: var(--phosphor);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--phosphor) 40%, #000);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--phosphor) 16%, transparent);
+    }
+    &:active:not(:disabled) { box-shadow: 0 0 0 0 color-mix(in srgb, var(--phosphor) 40%, #000); }
+  }
+  &.retro-button--tone-warning {
+    background: color-mix(in srgb, var(--amber) 8%, transparent);
+    color: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--amber) 40%, #000);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--amber) 16%, transparent);
+    }
+    &:active:not(:disabled) { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 40%, #000); }
+  }
+  &.retro-button--tone-danger {
+    background: color-mix(in srgb, var(--red) 8%, transparent);
+    color: var(--red);
+    border-color: var(--red);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--red) 40%, #000);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--red) 16%, transparent);
+    }
+    &:active:not(:disabled) { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 40%, #000); }
+  }
 }
 
-.retro-button--secondary:hover:not(:disabled),
-.retro-button--secondary:focus-visible:not(:disabled) {
-  background: var(--button-secondary-hover-bg);
-  color: var(--button-secondary-hover-fg);
-}
-
+// ── GHOST (text-only) ─────────────────────────────────────────────────────
 .retro-button--ghost {
-  background: transparent;
-  color: var(--text);
   box-shadow: none;
+  border-color: transparent;
+
+  &.retro-button--tone-default {
+    background: transparent;
+    color: var(--text);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: var(--panel-alt);
+    }
+  }
+  &.retro-button--tone-success {
+    background: transparent;
+    color: var(--phosphor);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--phosphor) 8%, transparent);
+    }
+  }
+  &.retro-button--tone-warning {
+    background: transparent;
+    color: var(--amber);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--amber) 8%, transparent);
+    }
+  }
+  &.retro-button--tone-danger {
+    background: transparent;
+    color: var(--red);
+    &:hover:not(:disabled):not([aria-disabled='true']):not(.retro-button--loading) {
+      background: color-mix(in srgb, var(--red) 8%, transparent);
+    }
+  }
 }
 
-.retro-button--ghost:hover:not(:disabled),
-.retro-button--ghost:focus-visible:not(:disabled) {
-  background: var(--panel-alt);
+// ── Icon ──────────────────────────────────────────────────────────────────
+.retro-button__icon {
+  font-style: normal;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
-.retro-button:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0 0 var(--line);
+// ── Badge ─────────────────────────────────────────────────────────────────
+.retro-button__badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  background: var(--red);
+  color: #fff;
+  border: 1.5px solid var(--panel);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
 }
 
-.retro-button:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
-}
-
-.retro-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.retro-button--full {
-  width: 100%;
-}
-
-.retro-button--loading {
-  cursor: wait;
-}
-
+// ── Loading spinner ───────────────────────────────────────────────────────
 .retro-button__spinner {
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   animation: btn-blink 900ms steps(3) infinite;
 }
 
@@ -105,4 +235,19 @@
   33%  { opacity: 0.4; }
   66%  { opacity: 0.1; }
   100% { opacity: 1; }
+}
+
+// ── Button group context ──────────────────────────────────────────────────
+// Applied when the host lives inside a .retro-button-group wrapper.
+:host-context(.retro-button-group) {
+  .retro-button {
+    box-shadow: none !important;
+    border-right-width: 0;
+
+    &:active:not(:disabled) { transform: none; }
+  }
+
+  &:last-child .retro-button {
+    border-right-width: 2px;
+  }
 }

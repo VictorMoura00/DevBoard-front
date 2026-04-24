@@ -1,0 +1,14 @@
+<label class="retro-select" [class.retro-select--sm]="size() === 'sm'">
+  <select
+    class="retro-select__field"
+    [value]="value()"
+    [disabled]="disabled()"
+    (change)="onChange($event)"
+  >
+    @for (option of options(); track option.value) {
+      <option [value]="option.value" [disabled]="option.disabled ?? false">
+        {{ option.label }}
+      </option>
+    }
+  </select>
+</label>

@@ -1,24 +1,87 @@
-<section class="retro-window frame">
+<section
+  class="retro-window retro-window--{{ variant() }}"
+  [class.retro-window--collapsed]="collapsed()"
+  [class.retro-window--expanded]="expanded()"
+>
+
+  <!-- ── Titlebar ──────────────────────────────────────────────────────── -->
   <header class="titlebar">
+
     <span class="titlebar-mark"></span>
-    <span>{{ title() }}</span>
+
+    <span class="titlebar-title">{{ title() }}</span>
     @if (subtitle()) {
       <span class="titlebar-sub">{{ subtitle() }}</span>
     }
-    <span class="titlebar-fill"></span>
-    <ng-content select="[window-actions]"></ng-content>
-    @if (showControls()) {
-      <span class="titlebar-button">_</span>
-      <span class="titlebar-button">□</span>
-      <span class="titlebar-button">×</span>
+
+    @if (status()) {
+      <span class="titlebar-status titlebar-status--{{ status() }}">
+        <span class="titlebar-status__dot"></span>
+        <span class="titlebar-status__label">{{ resolvedStatusLabel() }}</span>
+      </span>
     }
+
+    @if (collapsed()) {
+      <span class="titlebar-collapsed-hint">[ minimized ]</span>
+    }
+
+    <span class="titlebar-fill"></span>
+
+    <!-- custom actions slot -->
+    <ng-content select="[window-actions]" />
+
+    <!-- window controls -->
+    @if (hasAnyControl()) {
+      <div class="titlebar-controls">
+        @if (hasMinimize()) {
+          <button
+            type="button"
+            class="titlebar-btn"
+            [class.titlebar-btn--active]="collapsed()"
+            (click)="onMinimize()"
+            [attr.aria-label]="collapsed() ? 'restore' : 'minimize'"
+            [attr.title]="collapsed() ? 'Restore' : 'Minimize'"
+          >_</button>
+        }
+        @if (hasMaximize()) {
+          <button
+            type="button"
+            class="titlebar-btn"
+            [class.titlebar-btn--active]="expanded()"
+            (click)="onMaximize()"
+            [attr.aria-label]="expanded() ? 'restore' : 'maximize'"
+            [attr.title]="expanded() ? 'Restore' : 'Maximize'"
+          >{{ expanded() ? '❐' : '□' }}</button>
+        }
+        @if (hasClose()) {
+          <button
+            type="button"
+            class="titlebar-btn titlebar-btn--close"
+            (click)="onClose()"
+            aria-label="close"
+            title="Close"
+          >×</button>
+        }
+      </div>
+    }
+
   </header>
 
+  <!-- ── Loading bar ───────────────────────────────────────────────────── -->
+  @if (showLoader()) {
+    <div class="window-loader" role="progressbar" aria-label="loading"></div>
+  }
+
+  <!-- ── Body ─────────────────────────────────────────────────────────── -->
   <div
-    class="window-body"
-    [class.window-body--no-padding]="noPadding()"
+    class="window-body window-body--pad-{{ padding() }}"
     [class.window-body--scrollable]="scrollable()"
+    [ngStyle]="bodyStyles()"
   >
     <ng-content />
   </div>
+
+  <!-- ── Footer slot ───────────────────────────────────────────────────── -->
+  <ng-content select="[window-footer]" />
+
 </section>

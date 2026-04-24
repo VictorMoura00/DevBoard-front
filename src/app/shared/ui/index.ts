@@ -9,6 +9,8 @@ export * from './retro-kbd/retro-kbd.component';
 export * from './retro-message/retro-message.component';
 export * from './retro-modal/retro-modal.component';
 export * from './retro-progress/retro-progress.component';
+export * from './retro-range/retro-range.component';
+export * from './retro-select/retro-select.component';
 export * from './retro-tag/retro-tag.component';
 export * from './retro-skeleton/retro-skeleton.component';
 export * from './retro-toast/retro-toast.component';

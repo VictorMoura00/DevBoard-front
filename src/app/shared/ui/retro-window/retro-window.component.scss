@@ -1,17 +1,239 @@
+// ── Host ──────────────────────────────────────────────────────────────────
 :host {
   display: block;
+
+  &.is-closed   { display: none; }
+
+  // Expand: fixed overlay that breaks out of any container
+  &.is-expanded {
+    position: fixed;
+    inset: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+
+    &::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: -1;
+    }
+
+    .retro-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .window-body {
+      flex: 1;
+      max-height: none !important;
+      overflow-y: auto;
+    }
+  }
 }
 
-.frame {
+// ── Shell ─────────────────────────────────────────────────────────────────
+.retro-window {
+  overflow: hidden;
   border: 2px solid var(--line);
   background: var(--panel);
   box-shadow: 3px 3px 0 0 var(--line);
+
+  &--collapsed {
+    .window-body,
+    [window-footer] { display: none; }
+  }
+
+  // ── Variant: terminal — Phosphor CRT (VT100, Unix 80s) ───────────────────
+  //    Deep green-black body, phosphor-green everything, scanlines, text glow
+  &--terminal {
+    background: #030d03;
+    border-color: var(--phosphor);
+    box-shadow:
+      3px 3px 0 0 color-mix(in srgb, var(--phosphor) 45%, #000),
+      0 0 16px 0 color-mix(in srgb, var(--phosphor) 12%, transparent);
+
+    .titlebar {
+      background: #061206;
+      color: var(--phosphor);
+      text-shadow: 0 0 8px color-mix(in srgb, var(--phosphor) 55%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--phosphor) 22%, transparent);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 60, 0.045) 0 2px,
+        transparent 2px 4px
+      );
+    }
+
+    .titlebar-mark {
+      background: var(--phosphor);
+      box-shadow: 0 0 5px var(--phosphor);
+    }
+
+    .titlebar-collapsed-hint { color: color-mix(in srgb, var(--phosphor) 40%, transparent); }
+
+    .titlebar-btn {
+      background: #0a1a0a;
+      color: var(--phosphor);
+      border-color: color-mix(in srgb, var(--phosphor) 40%, transparent);
+      &--active  { background: var(--phosphor); color: #030d03; border-color: var(--phosphor); }
+      &--close:hover { background: var(--red); border-color: var(--red); color: #fff; }
+    }
+
+    .titlebar-status {
+      &--active  { color: var(--phosphor); border-color: var(--phosphor); }
+    }
+
+    .window-body {
+      background: #030d03;
+      color: var(--phosphor);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.28) 0 1px,
+        transparent 1px 3px
+      );
+    }
+
+    .window-loader {
+      background: repeating-linear-gradient(90deg, var(--phosphor) 0 40px, transparent 40px 60px);
+      background-size: 100px;
+    }
+  }
+
+  // ── Variant: system — Amber CRT (IBM 5151, Macintosh 128K, 83–88) ────────
+  //    Deep amber-black body, warm amber glow, scanlines
+  &--system {
+    background: #0d0700;
+    border-color: var(--amber);
+    box-shadow:
+      3px 3px 0 0 color-mix(in srgb, var(--amber) 45%, #000),
+      0 0 14px 0 color-mix(in srgb, var(--amber) 10%, transparent);
+
+    .titlebar {
+      background: #1a0c00;
+      color: var(--amber);
+      text-shadow: 0 0 7px color-mix(in srgb, var(--amber) 45%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--amber) 20%, transparent);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255, 160, 0, 0.04) 0 2px,
+        transparent 2px 4px
+      );
+    }
+
+    .titlebar-mark {
+      background: var(--amber);
+      box-shadow: 0 0 4px color-mix(in srgb, var(--amber) 70%, transparent);
+    }
+
+    .titlebar-collapsed-hint { color: color-mix(in srgb, var(--amber) 40%, transparent); }
+
+    .titlebar-btn {
+      background: #1a0c00;
+      color: var(--amber);
+      border-color: color-mix(in srgb, var(--amber) 40%, transparent);
+      &--active  { background: var(--amber); color: #0d0700; border-color: var(--amber); }
+      &--close:hover { background: var(--red); border-color: var(--red); color: #fff; opacity: 1; }
+    }
+
+    .window-body {
+      background: #0d0700;
+      color: var(--amber);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.22) 0 1px,
+        transparent 1px 3px
+      );
+    }
+
+    .window-loader {
+      background: repeating-linear-gradient(90deg, var(--amber) 0 40px, transparent 40px 60px);
+      background-size: 100px;
+    }
+  }
+
+  // ── Variant: alert — Error/panic screen ──────────────────────────────────
+  //    Deep red-black body, red border, red tint throughout
+  &--alert {
+    background: #0d0000;
+    border-color: var(--red);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--red) 45%, #000);
+
+    .titlebar {
+      background: #1a0000;
+      color: #ff8080;
+      border-bottom: 1px solid color-mix(in srgb, var(--red) 22%, transparent);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255, 40, 40, 0.04) 0 2px,
+        transparent 2px 4px
+      );
+    }
+
+    .titlebar-mark { background: var(--red); }
+
+    .titlebar-collapsed-hint { color: color-mix(in srgb, var(--red) 45%, transparent); }
+
+    .titlebar-btn {
+      background: #1a0000;
+      color: #ff8080;
+      border-color: color-mix(in srgb, var(--red) 40%, transparent);
+      &--active  { background: var(--red); color: #fff; border-color: var(--red); }
+      &--close:hover { background: var(--red); border-color: var(--red); color: #fff; opacity: 1; }
+    }
+
+    .window-body {
+      background: #0d0000;
+      color: #ff8080;
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.22) 0 1px,
+        transparent 1px 3px
+      );
+    }
+
+    .window-loader {
+      background: repeating-linear-gradient(90deg, var(--red) 0 40px, transparent 40px 60px);
+      background-size: 100px;
+    }
+  }
+
+  // ── Variant: ghost — Desativado / inactive ────────────────────────────────
+  //    Sem background, bordas tracejadas, opacidade reduzida no conteúdo
+  &--ghost {
+    background: transparent;
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--line) 38%, transparent);
+    box-shadow: none;
+    opacity: 0.7;
+
+    .titlebar {
+      background: transparent;
+      background-image: none;
+      border-bottom: 1px dashed color-mix(in srgb, var(--line) 28%, transparent);
+      color: color-mix(in srgb, var(--text) 55%, transparent);
+    }
+
+    .titlebar-mark {
+      background: color-mix(in srgb, var(--line) 45%, transparent);
+    }
+
+    .titlebar-btn {
+      background: transparent;
+      border-color: color-mix(in srgb, var(--line) 35%, transparent);
+      color: color-mix(in srgb, var(--text) 50%, transparent);
+    }
+
+    .window-body {
+      color: color-mix(in srgb, var(--text) 50%, transparent);
+    }
+  }
 }
 
-.retro-window {
-  overflow: hidden;
-}
-
+// ── Titlebar ──────────────────────────────────────────────────────────────
 .titlebar {
   display: flex;
   align-items: center;
@@ -36,20 +258,67 @@
   height: 7px;
   background: var(--amber);
   display: inline-block;
+  flex-shrink: 0;
 }
+
+.titlebar-title { flex-shrink: 0; }
 
 .titlebar-sub {
-  opacity: 0.55;
+  opacity: 0.5;
   font-weight: 400;
+  flex-shrink: 0;
 }
 
-.titlebar-fill {
-  flex: 1;
+.titlebar-collapsed-hint {
+  font-size: 9px;
+  font-weight: 400;
+  opacity: 0.45;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
-.titlebar-button {
-  width: 14px;
-  height: 14px;
+.titlebar-fill { flex: 1; }
+
+// ── Status indicator ──────────────────────────────────────────────────────
+.titlebar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 6px;
+  border: 1px solid;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+
+  &--idle    { border-color: rgba(255,255,255,0.2);  color: rgba(255,255,255,0.45); }
+  &--active  { border-color: var(--phosphor);        color: var(--phosphor); }
+  &--loading { border-color: var(--amber);           color: var(--amber); }
+  &--error   { border-color: var(--red);             color: var(--red); }
+}
+
+.titlebar-status__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+
+  .titlebar-status--idle    & { background: rgba(255,255,255,0.3); }
+  .titlebar-status--active  & { background: var(--phosphor); box-shadow: 0 0 4px var(--phosphor); animation: dot-pulse 1.4s ease-in-out infinite; }
+  .titlebar-status--loading & { background: var(--amber); animation: dot-pulse 0.8s ease-in-out infinite; }
+  .titlebar-status--error   & { background: var(--red); box-shadow: 0 0 4px var(--red); }
+}
+
+// ── Control buttons ───────────────────────────────────────────────────────
+.titlebar-controls {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.titlebar-btn {
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
   background: var(--panel-alt);
@@ -57,18 +326,59 @@
   color: var(--line);
   font-size: 10px;
   line-height: 1;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  padding: 0;
+  flex-shrink: 0;
+  transition: opacity 80ms, background 80ms, color 80ms;
+
+  &:hover { opacity: 0.75; }
+
+  &--active {
+    background: var(--line);
+    color: var(--panel-alt);
+    border-color: var(--line);
+    opacity: 1;
+    &:hover { opacity: 0.8; }
+  }
+
+  &--close:hover {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+    opacity: 1;
+  }
 }
 
+// ── Loading bar ───────────────────────────────────────────────────────────
+.window-loader {
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--amber) 0 40px,
+    transparent 40px 60px
+  );
+  background-size: 100px;
+  animation: loader-slide 800ms linear infinite;
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────
 .window-body {
-  padding: 14px;
+  &--pad-none { padding: 0; overflow: hidden; }
+  &--pad-sm   { padding: 8px; }
+  &--pad-md   { padding: 14px; }
+  &--pad-lg   { padding: 24px; }
 
-  &--no-padding {
-    padding: 0;
-    overflow: hidden;
-  }
+  &--scrollable { overflow-y: auto; }
+}
 
-  &--scrollable {
-    overflow-y: auto;
-    max-height: 340px;
-  }
+// ── Animations ────────────────────────────────────────────────────────────
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes loader-slide {
+  from { background-position: 0 0; }
+  to   { background-position: 100px 0; }
 }

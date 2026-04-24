@@ -2,6 +2,7 @@
 <aside class="lib-sidebar">
   <div class="lib-header">
     <div class="lib-header-main">
+      <div class="lib-count">{{ filteredStoryCount() }} / {{ totalStoryCount() }} components</div>
       <div class="lib-logo">◆ DEVBOARD/UI</div>
       <div class="lib-version">component library · v0.1.0</div>
     </div>
@@ -14,16 +15,26 @@
     >{{ sidebarCollapsed() ? '▶' : '◀' }}</button>
   </div>
 
-  <div class="lib-theme-row">
-    <span class="lib-theme-label">theme</span>
-    <select class="lib-theme-select" [ngModel]="currentTheme()" (ngModelChange)="setTheme($event)">
-      @for (theme of themes; track theme.name) {
-        <option [ngValue]="theme.name">{{ theme.label }}</option>
-      }
-    </select>
+  <div class="lib-toolbar">
+    <div class="lib-search">
+      <label class="lib-theme-label">search</label>
+      <app-retro-input
+        #storySearchInput
+        [value]="storySearch()"
+        type="search"
+        size="sm"
+        prefix=">"
+        placeholder="filter components..."
+        [clearable]="true"
+        [fullWidth]="true"
+        (valueChange)="onStorySearchChange($event)"
+        (keydown.escape)="clearStorySearch()"
+      />
+      <div class="lib-search-hint">Ctrl+K focus · Esc clear · J/K navigate</div>
+    </div>
   </div>
 
-  @for (group of storyGroups; track group.group) {
+  @for (group of filteredStoryGroups(); track group.group) {
     <div class="lib-group" [class.lib-group--collapsed]="isGroupCollapsed(group.group)">
       <button
         type="button"
@@ -49,26 +60,115 @@
       </div>
     </div>
   }
+
+  @if (filteredStoryCount() === 0) {
+    <div class="lib-empty-state">
+      <div class="lib-empty-title">no components found</div>
+      <div class="lib-empty-copy">adjust the search term or press Esc to clear it.</div>
+    </div>
+  }
 </aside>
 
 <!-- ── Main ── -->
 <main class="lib-main">
-  <div class="lib-breadcrumb">
-    ~/devboard-ui/stories/<strong>{{ activeStory() }}</strong>.story.ts
+  <div class="lib-topbar">
+    <div class="lib-topbar-block">
+      <span class="lib-theme-label">theme</span>
+      <app-retro-select
+        [options]="themeOptions"
+        [value]="currentTheme()"
+        size="sm"
+        (valueChange)="setTheme($any($event))"
+      />
+    </div>
   </div>
 
-  <!-- Story shell -->
-  <app-retro-window [title]="activeStoryTitle()" padding="none">
-    <div class="story-body">
+  <div class="lib-breadcrumb-bar">
+    <div class="lib-breadcrumb">
+      {{ activeBreadcrumb() }} / <strong>{{ activeStoryTitle() }}</strong>
+    </div>
+    <div class="lib-breadcrumb-meta">{{ activeStoryPath() }}</div>
+  </div>
 
-      <!-- Left: preview / code -->
+  <app-retro-window [title]="activeStoryTitle()" [subtitle]="activeStoryHint()" padding="none">
+    <div class="story-body" [class.story-body--fullscreen]="previewFullscreen()">
       <div class="story-left">
-        <div class="story-tabs">
-          <button type="button" class="story-tab" [class.story-tab--active]="activeTab() === 'preview'" (click)="setActiveTab('preview')">preview</button>
-          <button type="button" class="story-tab" [class.story-tab--active]="activeTab() === 'code'" (click)="setActiveTab('code')">code</button>
-        </div>
+        <app-retro-collapsible
+          class="story-toolbar-shell"
+          title="story.controls"
+          [collapsed]="storyControlsCollapsed()"
+          (collapsedChange)="storyControlsCollapsed.set($event)"
+        >
+          <div class="story-toolbar">
+            <div class="story-toolbar-row">
+              <div class="story-toolbar-section">
+                <span class="story-toolbar-label">view</span>
+                <app-retro-button-group>
+                  <app-retro-button size="sm" [variant]="activeTab() === 'preview' ? 'primary' : 'secondary'" (pressed)="setActiveTab('preview')">preview</app-retro-button>
+                  <app-retro-button size="sm" [variant]="activeTab() === 'code' ? 'primary' : 'secondary'" (pressed)="setActiveTab('code')">code</app-retro-button>
+                </app-retro-button-group>
+              </div>
 
-        <div class="story-content" [class.story-content--code]="activeTab() === 'code'">
+              @if (activeTab() === 'preview') {
+                <div class="story-toolbar-section story-toolbar-section--wide">
+                  <span class="story-toolbar-label">background</span>
+                  <app-retro-button-group>
+                    @for (background of previewBackgrounds; track background) {
+                      <app-retro-button size="sm" [variant]="previewBackground() === background ? 'primary' : 'secondary'" (pressed)="setPreviewBackground(background)">{{ background }}</app-retro-button>
+                    }
+                  </app-retro-button-group>
+                </div>
+
+                <div class="story-toolbar-section story-toolbar-section--wide story-toolbar-section--stack">
+                  <span class="story-toolbar-label">canvas size</span>
+                  <div class="story-size-controls">
+                    <app-retro-input
+                      type="number"
+                      size="sm"
+                      prefix="w"
+                      [value]="'' + previewWidth()"
+                      (valueChange)="setPreviewWidth($event)"
+                    />
+                    <app-retro-input
+                      type="number"
+                      size="sm"
+                      prefix="h"
+                      [value]="'' + previewHeight()"
+                      (valueChange)="setPreviewHeight($event)"
+                    />
+                    <app-retro-button size="sm" variant="secondary" (pressed)="resetPreviewSize()">reset</app-retro-button>
+                  </div>
+                </div>
+
+                <div class="story-toolbar-section">
+                  <span class="story-toolbar-label">inspect</span>
+                  <app-retro-button size="sm" [variant]="previewFullscreen() ? 'primary' : 'secondary'" (pressed)="togglePreviewFullscreen()">
+                    {{ previewFullscreen() ? 'exit fullscreen' : 'fullscreen' }}
+                  </app-retro-button>
+                </div>
+              }
+            </div>
+          </div>
+        </app-retro-collapsible>
+
+        <div
+          class="story-content"
+          [class.story-content--code]="activeTab() === 'code'"
+          [class.story-content--bg-light]="previewBackground() === 'light'"
+          [class.story-content--bg-dark]="previewBackground() === 'dark'"
+        >
+          <div
+            class="story-viewport"
+            #previewViewportEl
+            [style.width.px]="activeTab() === 'preview' ? previewWidth() : null"
+            [style.height.px]="activeTab() === 'preview' ? previewHeight() : null"
+            [class.story-viewport--interactive]="activeTab() === 'preview'"
+            (mouseup)="syncPreviewFrameSize()"
+          >
+          <div
+            class="story-canvas"
+            [class.story-canvas--code]="activeTab() === 'code'"
+          >
           @switch (activeStory()) {
 
             @case ('win') {
@@ -153,6 +253,42 @@
                 </div>
               } @else {
                 <app-retro-code [code]="inputCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('select') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-select
+                    [options]="selectOptions"
+                    [value]="selectValue()"
+                    [size]="selectSize()"
+                    [disabled]="selectDisabled()"
+                    [fullWidth]="true"
+                    (valueChange)="selectValue.set($event)"
+                  />
+                </div>
+              } @else {
+                <app-retro-code [code]="selectCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('range') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-range
+                    [value]="rangeValue()"
+                    [min]="rangeMin()"
+                    [max]="rangeMax()"
+                    [step]="rangeStep()"
+                    [disabled]="rangeDisabled()"
+                    [fullWidth]="true"
+                    (valueChange)="rangeValue.set($event)"
+                  />
+                  <div class="knob-counter" style="margin-top:8px">value: <strong>{{ rangeValue() }}</strong></div>
+                </div>
+              } @else {
+                <app-retro-code [code]="rangeCode()" language="angular" [framed]="false" />
               }
             }
 
@@ -328,10 +464,12 @@
             }
 
           }
+          </div>
+          </div>
         </div>
       </div>
 
-      <!-- Right: knobs -->
+      @if (!previewFullscreen()) {
       <div class="story-knobs">
         <div class="knobs-header">· knobs ·</div>
 
@@ -340,34 +478,23 @@
           @case ('win') {
             <div class="knob">
               <label class="knob-label">title</label>
-              <input class="knob-input" [ngModel]="winTitle()" (ngModelChange)="winTitle.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="winTitle()" (valueChange)="winTitle.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">subtitle</label>
-              <input class="knob-input" [ngModel]="winSubtitle()" (ngModelChange)="winSubtitle.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="winSubtitle()" (valueChange)="winSubtitle.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">variant</label>
-              <select class="knob-input" [ngModel]="winVariant()" (ngModelChange)="winVariant.set($event)">
-                <option>default</option>
-                <option>terminal</option>
-                <option>system</option>
-                <option>alert</option>
-                <option>ghost</option>
-              </select>
+              <app-retro-select [options]="[{ label: 'default', value: 'default' }, { label: 'terminal', value: 'terminal' }, { label: 'system', value: 'system' }, { label: 'alert', value: 'alert' }, { label: 'ghost', value: 'ghost' }]" [value]="winVariant()" size="sm" [fullWidth]="true" (valueChange)="winVariant.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">padding</label>
-              <select class="knob-input" [ngModel]="winPadding()" (ngModelChange)="winPadding.set($event)">
-                <option>none</option>
-                <option>sm</option>
-                <option>md</option>
-                <option>lg</option>
-              </select>
+              <app-retro-select [options]="[{ label: 'none', value: 'none' }, { label: 'sm', value: 'sm' }, { label: 'md', value: 'md' }, { label: 'lg', value: 'lg' }]" [value]="winPadding()" size="sm" [fullWidth]="true" (valueChange)="winPadding.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">status</label>
-              <select class="knob-input" [ngModel]="winStatus()" (ngModelChange)="winStatus.set($event)">
+              <select class="knob-select" [ngModel]="winStatus()" (ngModelChange)="winStatus.set($event)">
                 <option value="">— none —</option>
                 <option>idle</option>
                 <option>active</option>
@@ -378,42 +505,27 @@
             <div class="knob">
               <label class="knob-label">controls</label>
               <div class="knob-check-group">
-                <label class="knob-toggle">
-                  <input type="checkbox" [ngModel]="winCtrlMinimize()" (ngModelChange)="winCtrlMinimize.set($event)" />
-                  <span>_ minimize</span>
-                </label>
-                <label class="knob-toggle">
-                  <input type="checkbox" [ngModel]="winCtrlMaximize()" (ngModelChange)="winCtrlMaximize.set($event)" />
-                  <span>□ maximize</span>
-                </label>
-                <label class="knob-toggle">
-                  <input type="checkbox" [ngModel]="winCtrlClose()" (ngModelChange)="winCtrlClose.set($event)" />
-                  <span>× close</span>
-                </label>
+                <app-retro-checkbox size="sm" label="_ minimize" [checked]="winCtrlMinimize()" (checkedChange)="winCtrlMinimize.set($event)" />
+                <app-retro-checkbox size="sm" label="□ maximize" [checked]="winCtrlMaximize()" (checkedChange)="winCtrlMaximize.set($event)" />
+                <app-retro-checkbox size="sm" label="× close"    [checked]="winCtrlClose()"    (checkedChange)="winCtrlClose.set($event)" />
               </div>
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="winScrollable()" (ngModelChange)="winScrollable.set($event)" />
-                <span>scrollable</span>
-              </label>
+              <app-retro-checkbox size="sm" label="scrollable" [checked]="winScrollable()" (checkedChange)="winScrollable.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="winLoading()" (ngModelChange)="winLoading.set($event)" />
-                <span>loading</span>
-              </label>
+              <app-retro-checkbox size="sm" label="loading" [checked]="winLoading()" (checkedChange)="winLoading.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">footer text</label>
-              <input class="knob-input" [ngModel]="winFooter()" (ngModelChange)="winFooter.set($event)" placeholder="ex: 3 records · 12ms" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="winFooter()" placeholder="ex: 3 records · 12ms" (valueChange)="winFooter.set($event)" />
             </div>
           }
 
           @case ('button') {
             <div class="knob">
               <label class="knob-label">label</label>
-              <input class="knob-input" [ngModel]="btnLabel()" (ngModelChange)="btnLabel.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="btnLabel()" (valueChange)="btnLabel.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">variant</label>
@@ -442,7 +554,7 @@
             <div class="knob">
               <label class="knob-label">icon <span class="knob-hint">(glyph)</span></label>
               <div style="display:flex;gap:6px;align-items:center">
-                <input class="knob-input" style="flex:1" [ngModel]="btnIcon()" (ngModelChange)="btnIcon.set($event)" placeholder="ex: → + ✕ ↻" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="btnIcon()" placeholder="ex: → + ✕ ↻" (valueChange)="btnIcon.set($event)" />
                 <div class="knob-seg">
                   @for (p of ['left','right']; track p) {
                     <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnIconPos() === p" (click)="btnIconPos.set($any(p))">{{ p }}</button>
@@ -452,20 +564,20 @@
             </div>
             <div class="knob">
               <label class="knob-label">badge</label>
-              <input class="knob-input" [ngModel]="btnBadge()" (ngModelChange)="btnBadge.set($event)" placeholder="ex: 3  NEW  !" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="btnBadge()" placeholder="ex: 3  NEW  !" (valueChange)="btnBadge.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">href <span class="knob-hint">(renders &lt;a&gt;)</span></label>
-              <input class="knob-input" [ngModel]="btnHref()" (ngModelChange)="btnHref.set($event)" placeholder="ex: https://…" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="btnHref()" placeholder="ex: https://…" (valueChange)="btnHref.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="btnDisabled()" (ngModelChange)="btnDisabled.set($event)" /><span>disabled</span></label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="btnDisabled()" (checkedChange)="btnDisabled.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="btnLoading()" (ngModelChange)="btnLoading.set($event)" /><span>loading</span></label>
+              <app-retro-checkbox size="sm" label="loading" [checked]="btnLoading()" (checkedChange)="btnLoading.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="btnFullWidth()" (ngModelChange)="btnFullWidth.set($event)" /><span>fullWidth</span></label>
+              <app-retro-checkbox size="sm" label="fullWidth" [checked]="btnFullWidth()" (checkedChange)="btnFullWidth.set($event)" />
             </div>
             <div class="knob-counter">clicked: <strong>{{ btnClicks() }}</strong>×</div>
           }
@@ -523,6 +635,48 @@
             </div>
             <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="inputFullWidth()" (ngModelChange)="inputFullWidth.set($event)" /><span>fullWidth</span></label>
+            </div>
+          }
+
+          @case ('select') {
+            <div class="knob">
+              <label class="knob-label">value</label>
+              <app-retro-select [options]="selectOptions" [value]="selectValue()" size="sm" [fullWidth]="true" (valueChange)="selectValue.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <app-retro-select
+                [options]="[{ label: 'sm', value: 'sm' }, { label: 'md', value: 'md' }]"
+                [value]="selectSize()"
+                size="sm"
+                [fullWidth]="true"
+                (valueChange)="selectSize.set($any($event))"
+              />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="selectDisabled()" (ngModelChange)="selectDisabled.set($event)" /><span>disabled</span></label>
+            </div>
+          }
+
+          @case ('range') {
+            <div class="knob">
+              <label class="knob-label">value</label>
+              <app-retro-range [value]="rangeValue()" [min]="rangeMin()" [max]="rangeMax()" [step]="rangeStep()" [fullWidth]="true" (valueChange)="rangeValue.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">min</label>
+              <app-retro-input size="sm" type="number" [fullWidth]="true" [value]="'' + rangeMin()" (valueChange)="rangeMin.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">max</label>
+              <app-retro-input size="sm" type="number" [fullWidth]="true" [value]="'' + rangeMax()" (valueChange)="rangeMax.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">step</label>
+              <app-retro-input size="sm" type="number" [fullWidth]="true" [value]="'' + rangeStep()" (valueChange)="rangeStep.set(+$event || 1)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="rangeDisabled()" (ngModelChange)="rangeDisabled.set($event)" /><span>disabled</span></label>
             </div>
           }
 
@@ -942,16 +1096,66 @@
 
         }
       </div>
+      }
     </div>
   </app-retro-window>
 
-  <!-- Usage in Angular 21 -->
-  <app-retro-collapsible title="usage in angular 21">
-    <app-retro-code [code]="usageCodeSnippet" language="typescript" [framed]="false" />
-  </app-retro-collapsible>
+  @if (!previewFullscreen()) {
+  <section class="docs-section">
+    <div class="docs-section-header">
+      <div>
+        <div class="docs-kicker">documentation</div>
+        <h2 class="docs-title">{{ activeStoryLabel() }}</h2>
+        <p class="docs-copy">{{ activeDocMeta().summary }}</p>
+      </div>
+      <div class="docs-selector">{{ activeDocMeta().selector }}</div>
+    </div>
 
-  <!-- API reference block -->
-  <app-retro-collapsible [title]="'api reference — ' + activeStory()">
+    <app-retro-window
+      class="docs-window"
+      [title]="'docs/' + activeStory()"
+      subtitle="component.reference"
+      padding="none"
+    >
+      <div class="docs-tabs">
+        <button
+          type="button"
+          class="docs-tab"
+          [class.docs-tab--active]="activeDocTab() === 'usage'"
+          (click)="setActiveDocTab('usage')"
+        ><span class="docs-tab-marker">›</span><span>template.html</span></button>
+        <button
+          type="button"
+          class="docs-tab"
+          [class.docs-tab--active]="activeDocTab() === 'api'"
+          (click)="setActiveDocTab('api')"
+        ><span class="docs-tab-marker">›</span><span>component.ts</span></button>
+        <button
+          type="button"
+          class="docs-tab"
+          [class.docs-tab--active]="activeDocTab() === 'meta'"
+          (click)="setActiveDocTab('meta')"
+        ><span class="docs-tab-marker">›</span><span>module.tags</span></button>
+      </div>
+
+      <div class="docs-panel">
+        @switch (activeDocTab()) {
+          @case ('usage') {
+            <div class="docs-panel-header">
+              <div class="docs-panel-kicker">usage in angular 21</div>
+              <div class="docs-panel-title">standalone import</div>
+              <p class="docs-usage-note">
+                Esta página documenta o uso real do componente via import standalone da biblioteca interna.
+              </p>
+            </div>
+            <app-retro-code [code]="usageCodeSnippet" language="typescript" [framed]="false" />
+          }
+
+          @case ('api') {
+            <div class="docs-panel-header">
+              <div class="docs-panel-kicker">api reference</div>
+              <div class="docs-panel-title">{{ activeStoryTitle() }}</div>
+            </div>
     @switch (activeStory()) {
 
       @case ('win') {
@@ -1022,6 +1226,35 @@
           </tbody>
         </table>
         <div class="api-slots"><span class="api-slot-label">outputs</span> <code>(valueChange)</code> string &nbsp;·&nbsp; <code>(cleared)</code> void</div>
+      }
+
+      @case ('select') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrÃ£o</th><th>descriÃ§Ã£o</th></tr></thead>
+          <tbody>
+            <tr><td>value</td><td>string</td><td>''</td><td>valor selecionado</td></tr>
+            <tr><td>options</td><td>RetroSelectOption[]</td><td class="required">required</td><td>lista com label, value e disabled opcional</td></tr>
+            <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho visual</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interaÃ§Ã£o</td></tr>
+            <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>ocupa 100% da largura</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">output</span> <code>(valueChange)</code> string</div>
+      }
+
+      @case ('range') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrÃ£o</th><th>descriÃ§Ã£o</th></tr></thead>
+          <tbody>
+            <tr><td>value</td><td>number</td><td>0</td><td>valor atual do slider</td></tr>
+            <tr><td>min</td><td>number</td><td>0</td><td>limite inferior</td></tr>
+            <tr><td>max</td><td>number</td><td>100</td><td>limite superior</td></tr>
+            <tr><td>step</td><td>number</td><td>1</td><td>incremento entre valores</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interaÃ§Ã£o</td></tr>
+            <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>ocupa 100% da largura</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">output</span> <code>(valueChange)</code> number</div>
       }
 
       @case ('checkbox') {
@@ -1246,7 +1479,45 @@
       }
 
     }
-  </app-retro-collapsible>
+          }
+
+          @case ('meta') {
+            <div class="docs-panel-header">
+              <div class="docs-panel-kicker">component metadata</div>
+              <div class="docs-panel-title">{{ activeStoryTitle() }}</div>
+              <p class="docs-copy">{{ activeDocMeta().summary }}</p>
+            </div>
+
+            <div class="docs-stat-grid">
+              <app-stat-box label="Inputs" [value]="activeDocMeta().inputs" sublabel="public api" />
+              <app-stat-box label="Outputs" [value]="activeDocMeta().outputs" sublabel="events" />
+              <app-stat-box label="Slots" [value]="activeDocMeta().slots" sublabel="content projection" />
+            </div>
+
+            <div class="docs-meta-list">
+              <div class="docs-meta-row">
+                <span class="docs-meta-label">selector</span>
+                <code>{{ activeDocMeta().selector }}</code>
+              </div>
+              <div class="docs-meta-row">
+                <span class="docs-meta-label">story id</span>
+                <code>{{ activeStory() }}</code>
+              </div>
+              <div class="docs-meta-row">
+                <span class="docs-meta-label">group</span>
+                <code>{{ activeGroupLabel() }}</code>
+              </div>
+              <div class="docs-meta-row">
+                <span class="docs-meta-label">path</span>
+                <code>{{ activeStoryPath() }}</code>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </app-retro-window>
+  </section>
+  }
 </main>
 
 <!-- Toast host (fora do shell) -->
