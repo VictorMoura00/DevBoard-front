@@ -58,6 +58,7 @@ interface StoryGroup { group: string; items: StoryItem[]; }
   selector: 'app-ui-library-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.sidebar-collapsed]': 'sidebarCollapsed()' },
   imports: [
     FormsModule,
     AsciiBarComponent,
@@ -87,6 +88,9 @@ export class UiLibraryPageComponent implements OnInit {
 
   protected readonly themes       = APP_THEMES;
   protected readonly currentTheme = this.themeService.currentTheme;
+
+  protected readonly sidebarCollapsed = signal(false);
+  protected toggleSidebar(): void { this.sidebarCollapsed.update(v => !v); }
 
   protected readonly storyGroups: StoryGroup[] = [
     {

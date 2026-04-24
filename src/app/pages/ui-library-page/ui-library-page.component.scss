@@ -2,6 +2,11 @@
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100dvh;
+  transition: grid-template-columns 180ms ease;
+
+  &.sidebar-collapsed {
+    grid-template-columns: 44px 1fr;
+  }
 }
 
 // ── Sidebar ────────────────────────────────────────────────────────────────
@@ -20,6 +25,34 @@
   padding: 10px 14px;
   border-bottom: 2px solid var(--line);
   flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lib-header-main {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lib-sidebar-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: background 80ms;
+  margin-top: 2px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
 }
 
 .lib-logo {
@@ -108,6 +141,32 @@
 .lib-nav-arrow {
   width: 10px;
   flex-shrink: 0;
+}
+
+// ── Sidebar collapsed ──────────────────────────────────────────────────────
+
+:host.sidebar-collapsed {
+  .lib-sidebar {
+    overflow: hidden;
+  }
+
+  .lib-header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 4px;
+    gap: 0;
+  }
+
+  .lib-header-main,
+  .lib-theme-row,
+  .lib-group {
+    display: none;
+  }
+
+  .lib-sidebar-toggle {
+    margin-top: 0;
+  }
 }
 
 // ── Main ───────────────────────────────────────────────────────────────────

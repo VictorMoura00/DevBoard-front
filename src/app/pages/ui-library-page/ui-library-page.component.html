@@ -1,8 +1,17 @@
 <!-- ── Sidebar ── -->
 <aside class="lib-sidebar">
   <div class="lib-header">
-    <div class="lib-logo">◆ DEVBOARD/UI</div>
-    <div class="lib-version">component library · v0.1.0</div>
+    <div class="lib-header-main">
+      <div class="lib-logo">◆ DEVBOARD/UI</div>
+      <div class="lib-version">component library · v0.1.0</div>
+    </div>
+    <button
+      type="button"
+      class="lib-sidebar-toggle"
+      (click)="toggleSidebar()"
+      [title]="sidebarCollapsed() ? 'expandir sidebar' : 'recolher sidebar'"
+      [attr.aria-expanded]="!sidebarCollapsed()"
+    >{{ sidebarCollapsed() ? '▶' : '◀' }}</button>
   </div>
 
   <div class="lib-theme-row">
