@@ -14,9 +14,8 @@
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.4;
-  border: 2px solid var(--line);
-  border-left-width: 5px;
-  box-shadow: 3px 3px 0 0 var(--line);
+  border: 1.5px solid var(--line-soft);
+  border-left-width: 4px;
 
   // ── Per-severity accent color ──────────────────────────────────────────────
   &--info    { --_color: var(--amber);        --_bg: color-mix(in srgb, var(--amber)        18%, var(--panel-alt)); }
@@ -66,11 +65,12 @@
   text-shadow: 0 0 6px color-mix(in srgb, var(--_color) 35%, transparent);
 }
 
-// Badge — always dark/solid like the titlebar: máximo contraste
+// Badge — severity-tinted, não usa --line sólido para evitar excesso de preto
 .message__badge {
   flex-shrink: 0;
-  background: var(--line);
-  color: var(--panel);
+  background: color-mix(in srgb, var(--_color) 18%, var(--panel-alt));
+  color: var(--_color);
+  border: 1px solid color-mix(in srgb, var(--_color) 45%, transparent);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
