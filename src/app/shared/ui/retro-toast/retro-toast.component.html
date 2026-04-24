@@ -1,0 +1,69 @@
+<div [class]="'toast-stack toast-stack--' + position()">
+  @for (toast of visibleToasts(); track toast.id) {
+    <div class="toast toast--{{ toast.type }}" [class.toast--expanded]="isExpanded(toast.id)">
+
+      <!-- ── Header row ── -->
+      <div class="toast__header">
+        <span class="toast__square">■</span>
+        <span class="toast__badge">{{ badgeLabel(toast.type) }}</span>
+        <span class="toast__message">{{ toast.message }}</span>
+        <button type="button" class="toast__close" (click)="dismiss(toast.id)" aria-label="dismiss">×</button>
+      </div>
+
+      <!-- ── Meta row (visible when details exist) ── -->
+      @if (toast.details) {
+        <div class="toast__meta-row">
+          <button type="button" class="toast__toggle" (click)="toggleExpanded(toast.id)">
+            {{ isExpanded(toast.id) ? '▼ HIDE DETAILS' : '› DETAILS' }}
+          </button>
+          <span class="toast__meta-text">
+            {{ toast.details.code }}{{ toast.details.service ? ' · ' + toast.details.service : '' }}
+          </span>
+        </div>
+
+        <!-- ── Expanded details panel ── -->
+        @if (isExpanded(toast.id)) {
+          <div class="toast__details">
+
+            <div class="toast__kv-grid">
+              @if (toast.details.code) {
+                <span class="kv-key">code</span>
+                <span class="kv-val">{{ toast.details.code }}</span>
+              }
+              @if (toast.details.service) {
+                <span class="kv-key">service</span>
+                <span class="kv-val">{{ toast.details.service }}</span>
+              }
+              @if (toast.details.http) {
+                <span class="kv-key">http</span>
+                <span class="kv-val">{{ toast.details.http }}</span>
+              }
+              @if (toast.details.trace) {
+                <span class="kv-key">trace</span>
+                <span class="kv-val">{{ toast.details.trace }}</span>
+              }
+            </div>
+
+            @if (toast.details.stack) {
+              <div class="toast__stack">
+                <span class="toast__stack-label">// STACK</span>
+                <pre class="toast__stack-trace">{{ toast.details.stack }}</pre>
+              </div>
+            }
+
+            <div class="toast__detail-actions">
+              <button type="button" class="toast__action-btn" (click)="copyDetails(toast)">COPY</button>
+              @if (toast.details.action) {
+                <button type="button" class="toast__action-btn" (click)="openAction(toast.details.action!.url)">
+                  {{ toast.details.action!.label }}
+                </button>
+              }
+            </div>
+
+          </div>
+        }
+      }
+
+    </div>
+  }
+</div>
