@@ -52,9 +52,21 @@
     );
     animation: progress-stripe 600ms linear infinite;
   }
+
+  // Indeterminate: scanning bar — ignores value, sweeps left-to-right
+  &--indeterminate {
+    width: 40% !important;
+    transition: none !important;
+    animation: indeterminate-scan 1.4s ease-in-out infinite;
+  }
 }
 
 @keyframes progress-stripe {
   from { background-position: 0 0; }
   to   { background-position: 16px 0; }
+}
+
+@keyframes indeterminate-scan {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
 }

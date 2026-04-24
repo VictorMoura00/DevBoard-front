@@ -1,5 +1,8 @@
 export type ToastType     = 'event' | 'success' | 'warning' | 'error';
-export type ToastPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+export type ToastPosition =
+  | 'bottom-right' | 'bottom-left'
+  | 'top-right'    | 'top-left'
+  | 'top-center'   | 'bottom-center';
 
 export interface ToastDetails {
   code?: string;
@@ -15,4 +18,7 @@ export interface ToastMessage {
   message: string;
   type: ToastType;
   details?: ToastDetails;
+  /** Auto-dismiss duration in ms. Undefined = sticky (no auto-dismiss). */
+  life?: number;
+  sticky?: boolean;
 }

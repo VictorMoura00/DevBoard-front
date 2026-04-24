@@ -21,13 +21,27 @@
   text-align: left;
   transition: background 80ms;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--panel-alt);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 
   .collapsible--collapsed & {
     border-bottom: none;
   }
+}
+
+// ── Disabled state ────────────────────────────────────────────────────────
+
+.collapsible--disabled {
+  opacity: 0.55;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--line) 55%, transparent);
+  box-shadow: none;
 }
 
 .collapsible-title {

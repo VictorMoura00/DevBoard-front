@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 
 import { ToastMessage, ToastPosition, ToastType } from './toast.model';
 import { ToastService } from './toast.service';
@@ -13,6 +13,9 @@ import { ToastService } from './toast.service';
 export class RetroToastComponent {
   readonly position   = input<ToastPosition>('bottom-right');
   readonly maxVisible = input(5);
+
+  /** Emitted whenever the user manually closes a toast via the × button. */
+  readonly toastClosed = output<ToastMessage>();
 
   protected readonly service = inject(ToastService);
 
@@ -34,9 +37,10 @@ export class RetroToastComponent {
     });
   }
 
-  protected dismiss(id: string): void {
-    this.expandedIds.update((prev) => { const n = new Set(prev); n.delete(id); return n; });
-    this.service.dismiss(id);
+  protected dismiss(toast: ToastMessage): void {
+    this.expandedIds.update((prev) => { const n = new Set(prev); n.delete(toast.id); return n; });
+    this.service.dismiss(toast.id);
+    this.toastClosed.emit(toast);
   }
 
   protected badgeLabel(type: ToastType): string {
@@ -47,11 +51,11 @@ export class RetroToastComponent {
     const d = toast.details;
     if (!d) return;
     const lines = [
-      d.code    ? `code: ${d.code}`    : null,
+      d.code    ? `code: ${d.code}`       : null,
       d.service ? `service: ${d.service}` : null,
-      d.http    ? `http: ${d.http}`    : null,
-      d.trace   ? `trace: ${d.trace}`  : null,
-      d.stack   ? `\n// STACK\n${d.stack}` : null,
+      d.http    ? `http: ${d.http}`       : null,
+      d.trace   ? `trace: ${d.trace}`     : null,
+      d.stack   ? `\n// STACK\n${d.stack}`: null,
     ].filter(Boolean).join('\n');
     navigator.clipboard.writeText(lines);
   }

@@ -1,5 +1,14 @@
-<div class="collapsible" [class.collapsible--collapsed]="collapsed()">
-  <button type="button" class="collapsible-header" (click)="toggle()">
+<div
+  class="collapsible"
+  [class.collapsible--collapsed]="collapsed()"
+  [class.collapsible--disabled]="disabled()"
+>
+  <button
+    type="button"
+    class="collapsible-header"
+    [disabled]="disabled()"
+    (click)="toggle()"
+  >
     <span class="collapsible-title">· {{ title() }} ·</span>
     <span class="collapsible-icon">{{ collapsed() ? '[+]' : '[–]' }}</span>
   </button>

@@ -39,7 +39,7 @@
   </div>
 
   <!-- Story shell -->
-  <app-retro-window [title]="activeStoryTitle()" [noPadding]="true">
+  <app-retro-window [title]="activeStoryTitle()" padding="none">
     <div class="story-body">
 
       <!-- Left: preview / code -->
@@ -55,12 +55,25 @@
             @case ('win') {
               @if (activeTab() === 'preview') {
                 <div class="preview-frame">
-                  <app-retro-window [title]="winTitle()" [subtitle]="winSubtitle()" [showControls]="winShowControls()" [scrollable]="winScrollable()">
+                  <app-retro-window
+                    [title]="winTitle()"
+                    [subtitle]="winSubtitle()"
+                    [variant]="winVariant()"
+                    [padding]="winPadding()"
+                    [status]="winStatus() || null"
+                    [controls]="winControls()"
+                    [scrollable]="winScrollable()"
+                    [loading]="winLoading()"
+                  >
                     <p class="preview-placeholder">› window content goes here</p>
                     @if (winScrollable()) {
                       @for (_ of [1,2,3,4,5,6]; track $index) {
                         <p class="preview-placeholder">line {{ $index + 1 }} — scroll test content</p>
                       }
+                    }
+
+                    @if (winFooter()) {
+                      <div window-footer class="win-preview-footer">{{ winFooter() }}</div>
                     }
                   </app-retro-window>
                 </div>
@@ -71,8 +84,25 @@
 
             @case ('button') {
               @if (activeTab() === 'preview') {
-                <div [class.preview-full-width]="btnFullWidth()" style="width:100%;display:flex;justify-content:center;padding:0 20px;box-sizing:border-box;">
-                  <app-retro-button [variant]="btnVariant()" [size]="btnSize()" [disabled]="btnDisabled()" [loading]="btnLoading()" [fullWidth]="btnFullWidth()" (pressed)="btnClicks.set(btnClicks() + 1)">{{ btnLabel() }}</app-retro-button>
+                <div class="btn-preview-area" [class.btn-preview-area--full]="btnFullWidth()">
+                  @if (btnHref()) {
+                    <app-retro-button
+                      [variant]="btnVariant()" [tone]="btnTone()" [size]="btnSize()"
+                      [icon]="btnIcon()" [iconPos]="btnIconPos()"
+                      [badge]="btnBadge() || null"
+                      [href]="btnHref()"
+                      [disabled]="btnDisabled()" [loading]="btnLoading()" [fullWidth]="btnFullWidth()"
+                      (pressed)="btnClicks.set(btnClicks() + 1)"
+                    >{{ btnLabel() }}</app-retro-button>
+                  } @else {
+                    <app-retro-button
+                      [variant]="btnVariant()" [tone]="btnTone()" [size]="btnSize()"
+                      [icon]="btnIcon()" [iconPos]="btnIconPos()"
+                      [badge]="btnBadge() || null"
+                      [disabled]="btnDisabled()" [loading]="btnLoading()" [fullWidth]="btnFullWidth()"
+                      (pressed)="btnClicks.set(btnClicks() + 1)"
+                    >{{ btnLabel() }}</app-retro-button>
+                  }
                 </div>
               } @else {
                 <app-retro-code [code]="btnCode()" language="angular" [framed]="false" />
@@ -152,7 +182,15 @@
             @case ('progress') {
               @if (activeTab() === 'preview') {
                 <div class="preview-frame preview-frame--wide">
-                  <app-retro-progress [value]="progressValue()" [tone]="progressTone()" [label]="progressLabel()" [showValue]="progressShowVal()" [animated]="progressAnimated()" />
+                  <app-retro-progress
+                    [value]="progressValue()"
+                    [mode]="progressMode()"
+                    [tone]="progressTone()"
+                    [unit]="progressUnit()"
+                    [label]="progressLabel()"
+                    [showValue]="progressShowVal()"
+                    [animated]="progressAnimated()"
+                  />
                 </div>
               } @else {
                 <app-retro-code [code]="progressCode()" language="angular" [framed]="false" />
@@ -190,7 +228,12 @@
             @case ('collapsible') {
               @if (activeTab() === 'preview') {
                 <div class="preview-frame preview-frame--wide">
-                  <app-retro-collapsible [title]="collapsibleTitle()" [initialCollapsed]="collapsibleInitialCollapsed()">
+                  <app-retro-collapsible
+                    [title]="collapsibleTitle()"
+                    [collapsed]="collapsibleCollapsed()"
+                    (collapsedChange)="collapsibleCollapsed.set($event)"
+                    [disabled]="collapsibleDisabled()"
+                  >
                     <p class="preview-placeholder" style="padding:14px;margin:0;">
                       › conteúdo recolhível — qualquer elemento pode ser projetado aqui.
                     </p>
@@ -229,16 +272,66 @@
               <input class="knob-input" [ngModel]="winSubtitle()" (ngModelChange)="winSubtitle.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="winShowControls()" (ngModelChange)="winShowControls.set($event)" />
-                <span>showControls</span>
-              </label>
+              <label class="knob-label">variant</label>
+              <select class="knob-input" [ngModel]="winVariant()" (ngModelChange)="winVariant.set($event)">
+                <option>default</option>
+                <option>terminal</option>
+                <option>system</option>
+                <option>alert</option>
+                <option>ghost</option>
+              </select>
+            </div>
+            <div class="knob">
+              <label class="knob-label">padding</label>
+              <select class="knob-input" [ngModel]="winPadding()" (ngModelChange)="winPadding.set($event)">
+                <option>none</option>
+                <option>sm</option>
+                <option>md</option>
+                <option>lg</option>
+              </select>
+            </div>
+            <div class="knob">
+              <label class="knob-label">status</label>
+              <select class="knob-input" [ngModel]="winStatus()" (ngModelChange)="winStatus.set($event)">
+                <option value="">— none —</option>
+                <option>idle</option>
+                <option>active</option>
+                <option>loading</option>
+                <option>error</option>
+              </select>
+            </div>
+            <div class="knob">
+              <label class="knob-label">controls</label>
+              <div class="knob-check-group">
+                <label class="knob-toggle">
+                  <input type="checkbox" [ngModel]="winCtrlMinimize()" (ngModelChange)="winCtrlMinimize.set($event)" />
+                  <span>_ minimize</span>
+                </label>
+                <label class="knob-toggle">
+                  <input type="checkbox" [ngModel]="winCtrlMaximize()" (ngModelChange)="winCtrlMaximize.set($event)" />
+                  <span>□ maximize</span>
+                </label>
+                <label class="knob-toggle">
+                  <input type="checkbox" [ngModel]="winCtrlClose()" (ngModelChange)="winCtrlClose.set($event)" />
+                  <span>× close</span>
+                </label>
+              </div>
             </div>
             <div class="knob">
               <label class="knob-toggle">
                 <input type="checkbox" [ngModel]="winScrollable()" (ngModelChange)="winScrollable.set($event)" />
                 <span>scrollable</span>
               </label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="winLoading()" (ngModelChange)="winLoading.set($event)" />
+                <span>loading</span>
+              </label>
+            </div>
+            <div class="knob">
+              <label class="knob-label">footer text</label>
+              <input class="knob-input" [ngModel]="winFooter()" (ngModelChange)="winFooter.set($event)" placeholder="ex: 3 records · 12ms" />
             </div>
           }
 
@@ -256,12 +349,39 @@
               </div>
             </div>
             <div class="knob">
+              <label class="knob-label">tone</label>
+              <div class="knob-seg">
+                @for (t of ['default','success','warning','danger']; track t) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnTone() === t" (click)="btnTone.set($any(t))">{{ t }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
               <label class="knob-label">size</label>
               <div class="knob-seg">
-                @for (s of ['sm','md']; track s) {
+                @for (s of ['sm','md','lg']; track s) {
                   <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnSize() === s" (click)="btnSize.set($any(s))">{{ s }}</button>
                 }
               </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">icon <span class="knob-hint">(glyph)</span></label>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input class="knob-input" style="flex:1" [ngModel]="btnIcon()" (ngModelChange)="btnIcon.set($event)" placeholder="ex: → + ✕ ↻" />
+                <div class="knob-seg">
+                  @for (p of ['left','right']; track p) {
+                    <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnIconPos() === p" (click)="btnIconPos.set($any(p))">{{ p }}</button>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">badge</label>
+              <input class="knob-input" [ngModel]="btnBadge()" (ngModelChange)="btnBadge.set($event)" placeholder="ex: 3  NEW  !" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">href <span class="knob-hint">(renders &lt;a&gt;)</span></label>
+              <input class="knob-input" [ngModel]="btnHref()" (ngModelChange)="btnHref.set($event)" placeholder="ex: https://…" />
             </div>
             <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="btnDisabled()" (ngModelChange)="btnDisabled.set($event)" /><span>disabled</span></label>
@@ -444,8 +564,16 @@
 
           @case ('progress') {
             <div class="knob">
+              <label class="knob-label">mode</label>
+              <div class="knob-seg">
+                @for (m of ['determinate','indeterminate']; track m) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="progressMode() === m" (click)="progressMode.set($any(m))">{{ m }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
               <label class="knob-label">value ({{ progressValue() }}%)</label>
-              <input type="range" class="knob-range" min="0" max="100" [ngModel]="progressValue()" (ngModelChange)="progressValue.set(+$event)" />
+              <input type="range" class="knob-range" min="0" max="100" [ngModel]="progressValue()" (ngModelChange)="progressValue.set(+$event)" [disabled]="progressMode() === 'indeterminate'" />
             </div>
             <div class="knob">
               <label class="knob-label">tone</label>
@@ -456,14 +584,18 @@
               </div>
             </div>
             <div class="knob">
+              <label class="knob-label">unit</label>
+              <input class="knob-input" [ngModel]="progressUnit()" (ngModelChange)="progressUnit.set($event)" placeholder="ex: % MB/s req/s" [disabled]="progressMode() === 'indeterminate'" />
+            </div>
+            <div class="knob">
               <label class="knob-label">label</label>
               <input class="knob-input" [ngModel]="progressLabel()" (ngModelChange)="progressLabel.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressShowVal()" (ngModelChange)="progressShowVal.set($event)" /><span>showValue</span></label>
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressShowVal()" (ngModelChange)="progressShowVal.set($event)" [disabled]="progressMode() === 'indeterminate'" /><span>showValue</span></label>
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressAnimated()" (ngModelChange)="progressAnimated.set($event)" /><span>animated</span></label>
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressAnimated()" (ngModelChange)="progressAnimated.set($event)" [disabled]="progressMode() === 'indeterminate'" /><span>animated</span></label>
             </div>
           }
 
@@ -551,13 +683,22 @@
               </div>
             }
             <div class="knob">
+              <label class="knob-label">life ({{ toastSticky() ? 'sticky' : toastLife() + 'ms' }})</label>
+              <input type="range" class="knob-range" min="500" max="10000" step="100"
+                [ngModel]="toastLife()" (ngModelChange)="toastLife.set(+$event)"
+                [disabled]="toastSticky()" />
+            </div>
+            <div class="knob">
               <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="toastAutoDismiss()" (ngModelChange)="toastAutoDismiss.set($event)" />
-                <span>auto-dismiss (4.2s)</span>
+                <input type="checkbox" [ngModel]="toastSticky()" (ngModelChange)="toastSticky.set($event)" />
+                <span>sticky <span class="knob-hint">(sem auto-dismiss)</span></span>
               </label>
             </div>
             <app-retro-button variant="primary" [fullWidth]="true" (pressed)="fireToast()">
               fire toast
+            </app-retro-button>
+            <app-retro-button variant="ghost" tone="danger" [fullWidth]="true" (pressed)="toastService.clear()">
+              clear all
             </app-retro-button>
           }
 
@@ -592,7 +733,16 @@
               <input class="knob-input" [ngModel]="collapsibleTitle()" (ngModelChange)="collapsibleTitle.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="collapsibleInitialCollapsed()" (ngModelChange)="collapsibleInitialCollapsed.set($event)" /><span>initialCollapsed</span></label>
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="collapsibleCollapsed()" (ngModelChange)="collapsibleCollapsed.set($event)" />
+                <span>collapsed <span class="knob-hint">(two-way)</span></span>
+              </label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="collapsibleDisabled()" (ngModelChange)="collapsibleDisabled.set($event)" />
+                <span>disabled</span>
+              </label>
             </div>
           }
 
@@ -630,12 +780,31 @@
           <tbody>
             <tr><td>title</td><td>string</td><td class="required">required</td><td>texto no titlebar</td></tr>
             <tr><td>subtitle</td><td>string</td><td>''</td><td>texto secundário no titlebar</td></tr>
-            <tr><td>showControls</td><td>boolean</td><td>false</td><td>exibe botões _ □ ×</td></tr>
-            <tr><td>noPadding</td><td>boolean</td><td>false</td><td>remove padding do body</td></tr>
+            <tr><td>variant</td><td>WindowVariant</td><td>'default'</td><td>tema visual: default | terminal | system | alert | ghost</td></tr>
+            <tr><td>padding</td><td>WindowPadding</td><td>'md'</td><td>padding do body: none | sm | md | lg</td></tr>
+            <tr><td>status</td><td>WindowStatus | null</td><td>null</td><td>indicador ● na titlebar: idle | active | loading | error</td></tr>
+            <tr><td>statusLabel</td><td>string</td><td>''</td><td>sobrescreve o label automático do status</td></tr>
+            <tr><td>showControls</td><td>boolean</td><td>false</td><td>atalho para exibir todos os três botões</td></tr>
+            <tr><td>controls</td><td>WindowControl[]</td><td>[]</td><td>seleção granular: 'minimize' | 'maximize' | 'close'</td></tr>
+            <tr><td>closed</td><td>boolean</td><td>false</td><td>oculta a janela — two-way bindável com [(closed)]</td></tr>
             <tr><td>scrollable</td><td>boolean</td><td>false</td><td>body com overflow-y auto</td></tr>
+            <tr><td>maxHeight</td><td>number</td><td>340</td><td>altura máxima (px) quando scrollable</td></tr>
+            <tr><td>loading</td><td>boolean</td><td>false</td><td>barra de progresso animada — ativa automaticamente com status='loading'</td></tr>
           </tbody>
         </table>
-        <div class="api-slots"><span class="api-slot-label">slots</span> <code>[window-actions]</code> — titlebar direito &nbsp;·&nbsp; <code>default</code> — body</div>
+        <div class="api-slots">
+          <span class="api-slot-label">slots</span>
+          <code>[window-actions]</code> — titlebar direito &nbsp;·&nbsp;
+          <code>default</code> — body &nbsp;·&nbsp;
+          <code>[window-footer]</code> — rodapé
+        </div>
+        <div class="api-slots">
+          <span class="api-slot-label">outputs</span>
+          <code>minimizeClick</code> — emite ao colapsar/restaurar &nbsp;·&nbsp;
+          <code>maximizeClick</code> — emite ao expandir/restaurar &nbsp;·&nbsp;
+          <code>closeClick</code> — emite ao fechar &nbsp;·&nbsp;
+          <code>closedChange</code> — two-way binding
+        </div>
       }
 
       @case ('button') {
@@ -745,11 +914,13 @@
         <table class="api-table">
           <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
           <tbody>
-            <tr><td>value</td><td>number</td><td class="required">required</td><td>progresso de 0 a 100</td></tr>
+            <tr><td>value</td><td>number</td><td>0</td><td>progresso de 0 a 100 (ignorado no modo indeterminate)</td></tr>
+            <tr><td>mode</td><td>'determinate' | 'indeterminate'</td><td>'determinate'</td><td>determinate mostra o valor; indeterminate exibe barra de varredura animada</td></tr>
             <tr><td>tone</td><td>'default' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor do fill</td></tr>
+            <tr><td>unit</td><td>string</td><td>'%'</td><td>sufixo do valor exibido (ex: 'MB/s', 'req/s')</td></tr>
             <tr><td>label</td><td>string</td><td>''</td><td>texto acima da barra</td></tr>
-            <tr><td>showValue</td><td>boolean</td><td>false</td><td>exibe percentual</td></tr>
-            <tr><td>animated</td><td>boolean</td><td>false</td><td>listras diagonais em movimento</td></tr>
+            <tr><td>showValue</td><td>boolean</td><td>false</td><td>exibe valor + unit no header (só no modo determinate)</td></tr>
+            <tr><td>animated</td><td>boolean</td><td>false</td><td>listras diagonais em movimento (só no modo determinate)</td></tr>
           </tbody>
         </table>
       }
@@ -769,14 +940,15 @@
 
       @case ('toast') {
         <table class="api-table">
-          <thead><tr><th>método</th><th>assinatura</th><th>descrição</th></tr></thead>
+          <thead><tr><th>método (ToastService)</th><th>assinatura</th><th>descrição</th></tr></thead>
           <tbody>
-            <tr><td>show</td><td>show(msg, type?, duration?, details?)</td><td>genérico — type: 'event' | 'success' | 'warning' | 'error'</td></tr>
-            <tr><td>event</td><td>event(msg, details?, duration?)</td><td>notificação neutra de sistema</td></tr>
-            <tr><td>success</td><td>success(msg, details?, duration?)</td><td>operação concluída</td></tr>
-            <tr><td>warning</td><td>warning(msg, details?, duration?)</td><td>alerta não-crítico</td></tr>
-            <tr><td>error</td><td>error(msg, details?, duration?)</td><td>erro com painel de detalhes expansível</td></tr>
+            <tr><td>show</td><td>show(msg, type?, duration?, details?, sticky?)</td><td>genérico — type: 'event' | 'success' | 'warning' | 'error'</td></tr>
+            <tr><td>event</td><td>event(msg, details?, duration?, sticky?)</td><td>notificação neutra de sistema</td></tr>
+            <tr><td>success</td><td>success(msg, details?, duration?, sticky?)</td><td>operação concluída</td></tr>
+            <tr><td>warning</td><td>warning(msg, details?, duration?, sticky?)</td><td>alerta não-crítico</td></tr>
+            <tr><td>error</td><td>error(msg, details?, duration?, sticky?)</td><td>erro com painel de detalhes expansível</td></tr>
             <tr><td>dismiss</td><td>dismiss(id)</td><td>fecha toast pelo id</td></tr>
+            <tr><td>clear</td><td>clear()</td><td>fecha todos os toasts visíveis</td></tr>
           </tbody>
         </table>
         <table class="api-table" style="margin-top:8px">
@@ -793,11 +965,20 @@
         <table class="api-table" style="margin-top:8px">
           <thead><tr><th>input (componente)</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
           <tbody>
-            <tr><td>position</td><td>'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'</td><td>'bottom-right'</td><td>posição do stack na tela</td></tr>
+            <tr><td>position</td><td>'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'top-center' | 'bottom-center'</td><td>'bottom-right'</td><td>posição do stack na tela</td></tr>
             <tr><td>maxVisible</td><td>number</td><td>5</td><td>número máximo de toasts simultâneos</td></tr>
           </tbody>
         </table>
-        <div class="api-slots"><span class="api-slot-label">setup</span> adicione <code>&lt;app-retro-toast /&gt;</code> uma vez no root do app · duration=0 desabilita auto-dismiss</div>
+        <div class="api-slots">
+          <span class="api-slot-label">output</span>
+          <code>(toastClosed)</code> — emite o <code>ToastMessage</code> quando o usuário fecha manualmente (×)
+        </div>
+        <div class="api-slots">
+          <span class="api-slot-label">setup</span>
+          adicione <code>&lt;app-retro-toast /&gt;</code> uma vez no root do app ·
+          <code>duration=0</code> ou <code>sticky=true</code> = sem auto-dismiss ·
+          toasts com <code>life</code> exibem barra de contagem regressiva
+        </div>
       }
 
       @case ('modal') {
@@ -820,9 +1001,14 @@
           <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
           <tbody>
             <tr><td>title</td><td>string</td><td class="required">required</td><td>texto exibido no cabeçalho</td></tr>
-            <tr><td>initialCollapsed</td><td>boolean</td><td>false</td><td>começa recolhido se true</td></tr>
+            <tr><td>collapsed</td><td>boolean</td><td>false</td><td>estado recolhido — two-way bindável com [(collapsed)]</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita o toggle; aparência desbotada e cursor not-allowed</td></tr>
           </tbody>
         </table>
+        <div class="api-slots">
+          <span class="api-slot-label">output</span>
+          <code>(collapsedChange)</code> — emite o novo estado boolean (auto-gerado pelo model())
+        </div>
         <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — conteúdo recolhível</div>
       }
 

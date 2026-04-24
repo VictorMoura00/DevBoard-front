@@ -2,12 +2,20 @@
   @for (toast of visibleToasts(); track toast.id) {
     <div class="toast toast--{{ toast.type }}" [class.toast--expanded]="isExpanded(toast.id)">
 
+      <!-- ── Life bar (auto-dismiss countdown) ── -->
+      @if (toast.life) {
+        <div class="toast__life-bar" [style.animation-duration]="toast.life + 'ms'"></div>
+      }
+
       <!-- ── Header row ── -->
       <div class="toast__header">
         <span class="toast__square">■</span>
         <span class="toast__badge">{{ badgeLabel(toast.type) }}</span>
         <span class="toast__message">{{ toast.message }}</span>
-        <button type="button" class="toast__close" (click)="dismiss(toast.id)" aria-label="dismiss">×</button>
+        @if (toast.sticky) {
+          <span class="toast__sticky-icon" title="sticky — não fecha automaticamente">◈</span>
+        }
+        <button type="button" class="toast__close" (click)="dismiss(toast)" aria-label="dismiss">×</button>
       </div>
 
       <!-- ── Meta row (visible when details exist) ── -->

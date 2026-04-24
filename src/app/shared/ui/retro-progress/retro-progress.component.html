@@ -1,16 +1,19 @@
 <div class="progress">
-  @if (label() || showValue()) {
+  @if (label() || (showValue() && isDeterminate())) {
     <div class="progress__header">
       @if (label()) { <span class="progress__label">{{ label() }}</span> }
-      @if (showValue()) { <span class="progress__value">{{ pct() }}%</span> }
+      @if (showValue() && isDeterminate()) {
+        <span class="progress__value">{{ pct() }}{{ unit() }}</span>
+      }
     </div>
   }
   <div class="progress__track">
     <div
       class="progress__fill"
       [class]="'progress__fill--' + tone()"
-      [class.progress__fill--animated]="animated()"
-      [style.width.%]="pct()"
+      [class.progress__fill--animated]="animated() && isDeterminate()"
+      [class.progress__fill--indeterminate]="!isDeterminate()"
+      [style.width.%]="isDeterminate() ? pct() : null"
     ></div>
   </div>
 </div>

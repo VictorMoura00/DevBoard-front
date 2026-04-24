@@ -21,6 +21,7 @@ import {
   RetroModalComponent,
   RetroProgressComponent,
   RetroTagComponent,
+  RetroButtonGroupComponent,
   RetroToastComponent,
   RetroWindowComponent,
   StatBoxComponent,
@@ -28,13 +29,15 @@ import {
   StatusPillComponent,
   ToastService,
 } from '../../shared/ui';
+import { RetroButtonIconPos, RetroButtonTone, RetroButtonVariant } from '../../shared/ui/retro-button/retro-button.component';
 import { StatBoxTone, StatBoxTrend } from '../../shared/ui/stat-box/stat-box.component';
 import { StatusPillSize } from '../../shared/ui/status-pill/status-pill.component';
 import { RetroInputType } from '../../shared/ui/retro-input/retro-input.component';
 import { StatusDotSize } from '../../shared/ui/status-dot/status-dot.component';
 import { TagVariant } from '../../shared/ui/retro-tag/retro-tag.component';
-import { ProgressTone } from '../../shared/ui/retro-progress/retro-progress.component';
+import { ProgressMode, ProgressTone } from '../../shared/ui/retro-progress/retro-progress.component';
 import { ToastPosition } from '../../shared/ui/retro-toast/toast.model';
+import { WindowControl, WindowPadding, WindowStatus, WindowVariant } from '../../shared/ui/retro-window/window.model';
 
 type StoryId =
   | 'win' | 'button' | 'input' | 'checkbox' | 'kbd'
@@ -142,45 +145,85 @@ export class UiLibraryPageComponent implements OnInit {
 
   // ── Win ─────────────────────────────────────────────────────────────────
 
-  protected readonly winTitle        = signal('~/devboard/example');
-  protected readonly winSubtitle     = signal('window.frame');
-  protected readonly winShowControls = signal(false);
-  protected readonly winScrollable   = signal(false);
-  protected readonly winCode = computed(() =>
-    [
+  protected readonly winTitle      = signal('~/devboard/example');
+  protected readonly winSubtitle   = signal('window.frame');
+  protected readonly winVariant    = signal<WindowVariant>('default');
+  protected readonly winPadding    = signal<WindowPadding>('md');
+  protected readonly winStatus     = signal<WindowStatus | ''>('');
+  protected readonly winScrollable = signal(false);
+  protected readonly winLoading    = signal(false);
+  protected readonly winFooter     = signal('');
+
+  // Controls — individual toggles that compute the [controls] array
+  protected readonly winCtrlMinimize = signal(false);
+  protected readonly winCtrlMaximize = signal(false);
+  protected readonly winCtrlClose    = signal(false);
+  protected readonly winControls = computed<WindowControl[]>(() => [
+    ...(this.winCtrlMinimize() ? ['minimize' as WindowControl] : []),
+    ...(this.winCtrlMaximize() ? ['maximize' as WindowControl] : []),
+    ...(this.winCtrlClose()    ? ['close'    as WindowControl] : []),
+  ]);
+
+  protected readonly winCode = computed(() => {
+    const controls = this.winControls();
+    const allThree = controls.length === 3;
+    const controlsLine = allThree
+      ? `  [showControls]="true"`
+      : controls.length > 0
+        ? `  [controls]="['${controls.join("', '")}']"`
+        : null;
+
+    return [
       `<app-retro-window`,
       `  title="${this.winTitle()}"`,
-      this.winSubtitle()     ? `  subtitle="${this.winSubtitle()}"` : null,
-      this.winShowControls() ? `  [showControls]="true"` : null,
-      this.winScrollable()   ? `  [scrollable]="true"` : null,
+      this.winSubtitle()              ? `  subtitle="${this.winSubtitle()}"` : null,
+      this.winVariant() !== 'default' ? `  variant="${this.winVariant()}"` : null,
+      this.winPadding() !== 'md'      ? `  padding="${this.winPadding()}"` : null,
+      this.winStatus()                ? `  status="${this.winStatus()}"` : null,
+      this.winScrollable()            ? `  [scrollable]="true"` : null,
+      this.winLoading()               ? `  [loading]="true"` : null,
+      controlsLine,
       `>`,
-      `  <!-- content -->`,
+      `  <!-- body content -->`,
+      this.winFooter() ? `  <div window-footer><!-- footer --></div>` : null,
       `</app-retro-window>`,
-    ].filter((l) => l !== null).join('\n'),
-  );
+    ].filter((l) => l !== null).join('\n');
+  });
 
   // ── Button ──────────────────────────────────────────────────────────────
 
-  protected readonly btnLabel     = signal('+ new project');
-  protected readonly btnVariant   = signal<'primary' | 'secondary' | 'ghost'>('primary');
-  protected readonly btnSize      = signal<'sm' | 'md'>('md');
+  protected readonly btnLabel     = signal('deploy');
+  protected readonly btnVariant   = signal<RetroButtonVariant>('primary');
+  protected readonly btnTone      = signal<RetroButtonTone>('default');
+  protected readonly btnSize      = signal<'sm' | 'md' | 'lg'>('md');
+  protected readonly btnIcon      = signal('');
+  protected readonly btnIconPos   = signal<RetroButtonIconPos>('left');
+  protected readonly btnBadge     = signal('');
+  protected readonly btnHref      = signal('');
   protected readonly btnDisabled  = signal(false);
   protected readonly btnLoading   = signal(false);
   protected readonly btnFullWidth = signal(false);
   protected readonly btnClicks    = signal(0);
-  protected readonly btnCode = computed(() =>
-    [
+
+  protected readonly btnCode = computed(() => {
+    const lines = [
       `<app-retro-button`,
-      `  variant="${this.btnVariant()}"`,
-      `  size="${this.btnSize()}"`,
-      this.btnDisabled()  ? `  [disabled]="true"` : null,
-      this.btnLoading()   ? `  [loading]="true"` : null,
-      this.btnFullWidth() ? `  [fullWidth]="true"` : null,
+      this.btnVariant() !== 'primary'   ? `  variant="${this.btnVariant()}"` : null,
+      this.btnTone()    !== 'default'   ? `  tone="${this.btnTone()}"` : null,
+      this.btnSize()    !== 'md'        ? `  size="${this.btnSize()}"` : null,
+      this.btnIcon()                    ? `  icon="${this.btnIcon()}"` : null,
+      this.btnIcon() && this.btnIconPos() !== 'left' ? `  iconPos="${this.btnIconPos()}"` : null,
+      this.btnBadge()                   ? `  badge="${this.btnBadge()}"` : null,
+      this.btnHref()                    ? `  href="${this.btnHref()}"` : null,
+      this.btnDisabled()                ? `  [disabled]="true"` : null,
+      this.btnLoading()                 ? `  [loading]="true"` : null,
+      this.btnFullWidth()               ? `  [fullWidth]="true"` : null,
       `  (pressed)="onClick()">`,
       `  ${this.btnLabel()}`,
       `</app-retro-button>`,
-    ].filter((l) => l !== null).join('\n'),
-  );
+    ];
+    return lines.filter((l) => l !== null).join('\n');
+  });
 
   // ── Input ────────────────────────────────────────────────────────────────
 
@@ -317,22 +360,26 @@ export class UiLibraryPageComponent implements OnInit {
   // ── Progress ─────────────────────────────────────────────────────────────
 
   protected readonly progressValue    = signal(65);
+  protected readonly progressMode     = signal<ProgressMode>('determinate');
   protected readonly progressTone     = signal<ProgressTone>('default');
   protected readonly progressLabel    = signal('loading assets');
+  protected readonly progressUnit     = signal('%');
   protected readonly progressShowVal  = signal(true);
   protected readonly progressAnimated = signal(false);
   protected readonly progressTones: ProgressTone[] = ['default', 'success', 'warning', 'danger'];
-  protected readonly progressCode = computed(() =>
-    [
+  protected readonly progressCode = computed(() => {
+    const indet = this.progressMode() !== 'determinate';
+    return [
       `<app-retro-progress`,
-      `  [value]="${this.progressValue()}"`,
+      indet ? `  mode="indeterminate"` : `  [value]="${this.progressValue()}"`,
       this.progressTone() !== 'default' ? `  tone="${this.progressTone()}"` : null,
-      this.progressLabel()    ? `  label="${this.progressLabel()}"` : null,
-      this.progressShowVal()  ? `  [showValue]="true"` : null,
-      this.progressAnimated() ? `  [animated]="true"` : null,
+      this.progressUnit() !== '%'       ? `  unit="${this.progressUnit()}"` : null,
+      this.progressLabel()              ? `  label="${this.progressLabel()}"` : null,
+      !indet && this.progressShowVal()  ? `  [showValue]="true"` : null,
+      !indet && this.progressAnimated() ? `  [animated]="true"` : null,
       `/>`,
-    ].filter((l) => l !== null).join('\n'),
-  );
+    ].filter((l) => l !== null).join('\n');
+  });
 
   // ── Ascii Bar ─────────────────────────────────────────────────────────────
 
@@ -358,11 +405,14 @@ export class UiLibraryPageComponent implements OnInit {
   protected readonly toastMessage     = signal('TaskSyncFailed');
   protected readonly toastType        = signal<'event' | 'success' | 'warning' | 'error'>('event');
   protected readonly toastWithDetails = signal(true);
-  protected readonly toastAutoDismiss = signal(false);
+  protected readonly toastLife        = signal(4200);
+  protected readonly toastSticky      = signal(false);
   protected readonly toastPosition    = signal<ToastPosition>('bottom-right');
   protected readonly toastMaxVisible  = signal(5);
   protected readonly toastTypes       = ['event', 'success', 'warning', 'error'] as const;
-  protected readonly toastPositions: ToastPosition[] = ['bottom-right', 'bottom-left', 'top-right', 'top-left'];
+  protected readonly toastPositions: ToastPosition[] = [
+    'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'bottom-center',
+  ];
 
   protected readonly toastDetailCode        = signal('ERR_503');
   protected readonly toastDetailService     = signal('notifications-api');
@@ -374,17 +424,21 @@ export class UiLibraryPageComponent implements OnInit {
   protected readonly toastDetailActionLabel = signal('OPEN IN JAEGER →');
   protected readonly toastDetailActionUrl   = signal('#');
 
-  protected readonly toastCode = computed(() =>
-    [
+  protected readonly toastCode = computed(() => {
+    const sticky      = this.toastSticky();
+    const life        = this.toastLife();
+    const lifeSuffix  = sticky ? `, 0  // sticky` : life !== 3400 ? `, ${life}` : '';
+    return [
       `<app-retro-toast`,
       this.toastPosition() !== 'bottom-right' ? `  position="${this.toastPosition()}"` : null,
       this.toastMaxVisible() !== 5 ? `  [maxVisible]="${this.toastMaxVisible()}"` : null,
+      `  (toastClosed)="onToastClosed($event)"`,
       `/>`,
       ``,
       `// inject the service anywhere in your component`,
       `protected readonly toast = inject(ToastService);`,
       ``,
-      `this.toast.${this.toastType()}('${this.toastMessage()}');`,
+      `this.toast.${this.toastType()}('${this.toastMessage()}'${lifeSuffix ? `, details${lifeSuffix}` : ''});`,
       this.toastWithDetails() ? `` : null,
       this.toastWithDetails() ? `// with structured details (expands inline)` : null,
       this.toastWithDetails() ? `this.toast.error('${this.toastMessage()}', {` : null,
@@ -394,12 +448,13 @@ export class UiLibraryPageComponent implements OnInit {
       this.toastWithDetails() && this.toastDetailTrace()   ? `  trace: '${this.toastDetailTrace()}',` : null,
       this.toastWithDetails() && this.toastDetailStack()   ? `  stack: \`...\`,` : null,
       this.toastWithDetails() && this.toastDetailActionLabel() ? `  action: { label: '${this.toastDetailActionLabel()}', url: '${this.toastDetailActionUrl()}' },` : null,
-      this.toastWithDetails() ? `});` : null,
-    ].filter((l) => l !== null).join('\n'),
-  );
+      this.toastWithDetails() ? `}${lifeSuffix ? `, ${sticky ? 0 : life}` : ''});` : null,
+    ].filter((l) => l !== null).join('\n');
+  });
 
   protected fireToast(): void {
-    const duration = this.toastAutoDismiss() ? 4200 : 0;
+    const duration = this.toastLife();
+    const sticky   = this.toastSticky();
     const details  = this.toastWithDetails() ? {
       code:    this.toastDetailCode()    || undefined,
       service: this.toastDetailService() || undefined,
@@ -410,7 +465,7 @@ export class UiLibraryPageComponent implements OnInit {
         ? { label: this.toastDetailActionLabel(), url: this.toastDetailActionUrl() }
         : undefined,
     } : undefined;
-    this.toastService.show(this.toastMessage(), this.toastType(), duration, details);
+    this.toastService.show(this.toastMessage(), this.toastType(), duration, details, sticky);
   }
 
   // ── Modal ────────────────────────────────────────────────────────────────
@@ -439,13 +494,15 @@ export class UiLibraryPageComponent implements OnInit {
 
   // ── Collapsible ───────────────────────────────────────────────────────────
 
-  protected readonly collapsibleTitle            = signal('section.details');
-  protected readonly collapsibleInitialCollapsed = signal(false);
+  protected readonly collapsibleTitle     = signal('section.details');
+  protected readonly collapsibleCollapsed = signal(false);
+  protected readonly collapsibleDisabled  = signal(false);
   protected readonly collapsibleCode = computed(() =>
     [
       `<app-retro-collapsible`,
       `  title="${this.collapsibleTitle()}"`,
-      this.collapsibleInitialCollapsed() ? `  [initialCollapsed]="true"` : null,
+      this.collapsibleCollapsed() ? `  [(collapsed)]="isCollapsed"` : null,
+      this.collapsibleDisabled()  ? `  [disabled]="true"` : null,
       `>`,
       `  <!-- content -->`,
       `</app-retro-collapsible>`,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 
 @Component({
   selector: 'app-retro-collapsible',
@@ -7,17 +7,15 @@ import { ChangeDetectionStrategy, Component, OnInit, input, signal } from '@angu
   styleUrl: './retro-collapsible.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RetroCollapsibleComponent implements OnInit {
-  readonly title = input.required<string>();
-  readonly initialCollapsed = input(false);
+export class RetroCollapsibleComponent {
+  readonly title    = input.required<string>();
+  readonly disabled = input(false);
 
-  protected readonly collapsed = signal(false);
-
-  ngOnInit(): void {
-    this.collapsed.set(this.initialCollapsed());
-  }
+  /** Two-way bindable: [(collapsed)]="mySignal" or [collapsed]="v" (collapsedChange)="v=$event" */
+  readonly collapsed = model(false);
 
   protected toggle(): void {
+    if (this.disabled()) return;
     this.collapsed.update((v) => !v);
   }
 }

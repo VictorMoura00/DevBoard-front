@@ -13,10 +13,12 @@
   gap: 8px;
   margin: auto 0 0 auto; // default: bottom-right
 
-  &--bottom-right { margin: auto 0 0 auto; align-items: flex-end; }
-  &--bottom-left  { margin: auto auto 0 0; align-items: flex-start; }
-  &--top-right    { margin: 0 0 auto auto; align-items: flex-end; }
-  &--top-left     { margin: 0 auto auto 0; align-items: flex-start; }
+  &--bottom-right  { margin: auto 0 0 auto;    align-items: flex-end; }
+  &--bottom-left   { margin: auto auto 0 0;    align-items: flex-start; }
+  &--bottom-center { margin: auto auto 0 auto; align-items: center; }
+  &--top-right     { margin: 0 0 auto auto;    align-items: flex-end; }
+  &--top-left      { margin: 0 auto auto 0;    align-items: flex-start; }
+  &--top-center    { margin: 0 auto auto auto; align-items: center; }
 }
 
 // ── Toast shell ────────────────────────────────────────────────────────────
@@ -54,6 +56,19 @@
     border-color: color-mix(in srgb, var(--red) 55%, #000);
     box-shadow: 4px 4px 0 0 color-mix(in srgb, var(--red) 40%, #000);
   }
+}
+
+// ── Life bar (auto-dismiss countdown) ─────────────────────────────────────
+
+.toast__life-bar {
+  height: 2px;
+  animation: life-deplete linear forwards;
+  flex-shrink: 0;
+
+  .toast--event   & { background: var(--amber); }
+  .toast--success & { background: rgba(0, 0, 0, 0.22); }
+  .toast--warning & { background: rgba(0, 0, 0, 0.18); }
+  .toast--error   & { background: rgba(255, 255, 255, 0.45); }
 }
 
 // ── Header row ────────────────────────────────────────────────────────────
@@ -102,6 +117,18 @@
   min-width: 0;
 
   .toast--event   & { color: #fff; }
+  .toast--success & { color: #0a0e0a; }
+  .toast--warning & { color: #0a0e0a; }
+  .toast--error   & { color: #fff; }
+}
+
+.toast__sticky-icon {
+  flex-shrink: 0;
+  font-size: 10px;
+  opacity: 0.5;
+  margin-right: -4px;
+
+  .toast--event   & { color: var(--amber); }
   .toast--success & { color: #0a0e0a; }
   .toast--warning & { color: #0a0e0a; }
   .toast--error   & { color: #fff; }
@@ -278,9 +305,14 @@
   .toast--error   & { color: #fff; border-color: rgba(255,255,255,0.4); }
 }
 
-// ── Animation ─────────────────────────────────────────────────────────────
+// ── Animations ────────────────────────────────────────────────────────────
 
 @keyframes toast-enter {
   from { opacity: 0; transform: translateX(16px); }
   to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes life-deplete {
+  from { width: 100%; }
+  to   { width: 0%; }
 }
