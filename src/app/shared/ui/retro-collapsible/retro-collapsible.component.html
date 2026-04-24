@@ -1,0 +1,12 @@
+<div class="collapsible" [class.collapsible--collapsed]="collapsed()">
+  <button type="button" class="collapsible-header" (click)="toggle()">
+    <span class="collapsible-title">· {{ title() }} ·</span>
+    <span class="collapsible-icon">{{ collapsed() ? '[+]' : '[–]' }}</span>
+  </button>
+
+  @if (!collapsed()) {
+    <div class="collapsible-body">
+      <ng-content />
+    </div>
+  }
+</div>

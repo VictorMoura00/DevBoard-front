@@ -1,0 +1,15 @@
+<div class="code-wrap" [class.code-wrap--framed]="framed()">
+  <div class="code-header">
+    <div class="code-lang">
+      <span class="code-lang-dot"></span>
+      <span>{{ language() || 'code' }}</span>
+    </div>
+    <button type="button" class="code-copy" (click)="copy()">
+      @if (copied()) { ✓ copied } @else { copy }
+    </button>
+  </div>
+
+  <div class="code-body">
+    <pre class="code-pre">{{ code() }}</pre>
+  </div>
+</div>

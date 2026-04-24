@@ -1,0 +1,117 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.code-wrap {
+  background: #0a0e0a;
+  overflow: hidden;
+
+  &--framed {
+    border: 2px solid var(--line);
+    box-shadow: 3px 3px 0 0 var(--line);
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px 5px 12px;
+  background: rgba(255, 176, 0, 0.06);
+  border-bottom: 1px solid rgba(255, 176, 0, 0.12);
+}
+
+.code-lang {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.65;
+}
+
+.code-lang-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--amber);
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.code-copy {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  background: transparent;
+  border: 1px solid rgba(255, 176, 0, 0.25);
+  padding: 2px 8px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition:
+    opacity 80ms,
+    background 80ms;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(255, 176, 0, 0.1);
+  }
+
+  &:active {
+    background: rgba(255, 176, 0, 0.2);
+  }
+}
+
+// ── Code body ──────────────────────────────────────────────────────────────
+
+.code-body {
+  position: relative;
+  overflow: auto;
+
+  // scanlines
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255, 176, 0, 0.03) 0 1px,
+      transparent 1px 3px
+    );
+    z-index: 1;
+  }
+
+  // vignette
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
+    z-index: 1;
+  }
+}
+
+.code-pre {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding: 14px 16px;
+  color: var(--amber);
+  text-shadow: 0 0 10px rgba(255, 176, 0, 0.3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.8;
+  white-space: pre;
+  overflow: visible;
+}

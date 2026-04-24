@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.collapsible {
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 0 var(--line);
+}
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  text-align: left;
+  transition: background 80ms;
+
+  &:hover {
+    background: var(--panel-alt);
+  }
+
+  .collapsible--collapsed & {
+    border-bottom: none;
+  }
+}
+
+.collapsible-title {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.collapsible-icon {
+  font-size: 10px;
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: 0;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.collapsible-body {
+  border-top: 1px solid var(--line-soft);
+}
