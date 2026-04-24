@@ -24,19 +24,29 @@
   </div>
 
   @for (group of storyGroups; track group.group) {
-    <div class="lib-group">
-      <div class="lib-group-label">· {{ group.group }} ·</div>
-      @for (item of group.items; track item.id) {
-        <button
-          type="button"
-          class="lib-nav-btn"
-          [class.lib-nav-btn--active]="activeStory() === item.id"
-          (click)="setActiveStory(item.id)"
-        >
-          <span class="lib-nav-arrow">{{ activeStory() === item.id ? '▸' : '' }}</span>
-          {{ item.label }}
-        </button>
-      }
+    <div class="lib-group" [class.lib-group--collapsed]="isGroupCollapsed(group.group)">
+      <button
+        type="button"
+        class="lib-group-label"
+        (click)="toggleGroup(group.group)"
+        [attr.aria-expanded]="!isGroupCollapsed(group.group)"
+      >
+        <span class="lib-group-arrow">{{ isGroupCollapsed(group.group) ? '▶' : '▼' }}</span>
+        · {{ group.group }} ·
+      </button>
+      <div class="lib-group-items">
+        @for (item of group.items; track item.id) {
+          <button
+            type="button"
+            class="lib-nav-btn"
+            [class.lib-nav-btn--active]="activeStory() === item.id"
+            (click)="setActiveStory(item.id)"
+          >
+            <span class="lib-nav-arrow">{{ activeStory() === item.id ? '▸' : '' }}</span>
+            {{ item.label }}
+          </button>
+        }
+      </div>
     </div>
   }
 </aside>

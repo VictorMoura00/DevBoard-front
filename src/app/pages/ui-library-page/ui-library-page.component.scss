@@ -101,12 +101,41 @@
 }
 
 .lib-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
   padding: 10px 14px 4px;
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 80ms;
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.lib-group-arrow {
+  font-size: 8px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.lib-group-items {
+  overflow: hidden;
+  max-height: 600px;
+  transition: max-height 220ms ease;
+}
+
+.lib-group--collapsed .lib-group-items {
+  max-height: 0;
 }
 
 .lib-nav-btn {

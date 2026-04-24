@@ -92,11 +92,28 @@ export class UiLibraryPageComponent implements OnInit {
   protected readonly sidebarCollapsed = signal(false);
   protected toggleSidebar(): void { this.sidebarCollapsed.update(v => !v); }
 
+  protected readonly collapsedGroups = signal<Set<string>>(new Set());
+  protected isGroupCollapsed(group: string): boolean { return this.collapsedGroups().has(group); }
+  protected toggleGroup(group: string): void {
+    this.collapsedGroups.update(set => {
+      const next = new Set(set);
+      next.has(group) ? next.delete(group) : next.add(group);
+      return next;
+    });
+  }
+
   protected readonly storyGroups: StoryGroup[] = [
     {
-      group: 'primitives',
+      group: 'containers',
       items: [
-        { id: 'win',      label: 'Win (window frame)' },
+        { id: 'win',         label: 'Window Frame' },
+        { id: 'modal',       label: 'Modal' },
+        { id: 'collapsible', label: 'Collapsible' },
+      ],
+    },
+    {
+      group: 'form',
+      items: [
         { id: 'button',   label: 'Button' },
         { id: 'input',    label: 'Input' },
         { id: 'checkbox', label: 'Checkbox' },
@@ -104,30 +121,28 @@ export class UiLibraryPageComponent implements OnInit {
       ],
     },
     {
-      group: 'indicators',
+      group: 'display',
+      items: [
+        { id: 'stat',     label: 'Stat Box' },
+        { id: 'progress', label: 'Progress' },
+        { id: 'ascii',    label: 'Ascii Bar' },
+        { id: 'code',     label: 'Code Block' },
+      ],
+    },
+    {
+      group: 'labels',
       items: [
         { id: 'pill', label: 'Status Pill' },
         { id: 'dot',  label: 'Status Dot' },
         { id: 'tag',  label: 'Tag' },
-        { id: 'stat', label: 'Stat Box' },
       ],
     },
     {
       group: 'feedback',
       items: [
-        { id: 'progress', label: 'Progress' },
-        { id: 'ascii',    label: 'Ascii Bar' },
         { id: 'toast',    label: 'Toast' },
         { id: 'message',  label: 'Message' },
         { id: 'skeleton', label: 'Skeleton' },
-      ],
-    },
-    {
-      group: 'overlays',
-      items: [
-        { id: 'modal',       label: 'Modal' },
-        { id: 'collapsible', label: 'Collapsible' },
-        { id: 'code',        label: 'Code Block' },
       ],
     },
   ];
