@@ -96,9 +96,11 @@
       </section>
 
       <section class="toolbar frame">
-        <app-toolbar-search
+        <app-retro-input
+          prefix="$"
           [value]="searchQuery"
           placeholder="grep projects..."
+          [clearable]="true"
           (valueChange)="searchQuery = $event"
         />
 

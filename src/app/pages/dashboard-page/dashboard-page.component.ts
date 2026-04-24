@@ -8,13 +8,13 @@ import { ThemeService } from '../../core/theme/theme.service';
 import { ThemeName } from '../../core/theme/theme.model';
 import { Project, ProjectStatus } from '../../models/project.model';
 import { ProjectsApiService } from '../../services/projects-api.service';
+import { ProjectCardComponent } from '../../shared/ui/project-card/project-card.component';
 import {
-  ProjectCardComponent,
   RetroButtonComponent,
+  RetroInputComponent,
   RetroModalComponent,
   RetroWindowComponent,
   StatBoxComponent,
-  ToolbarSearchComponent,
 } from '../../shared/ui';
 
 interface ActivityItem {
@@ -45,10 +45,10 @@ type DashboardTab = 'projects' | 'architecture' | 'tasks';
     FormsModule,
     ProjectCardComponent,
     RetroButtonComponent,
+    RetroInputComponent,
     RetroModalComponent,
     RetroWindowComponent,
     StatBoxComponent,
-    ToolbarSearchComponent,
   ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
