@@ -1,0 +1,38 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dot {
+  display: inline-block;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  // ── Sizes ─────────────────────────────────────────────────────────────────
+  &--xs { width: 6px;  height: 6px; }
+  &--sm { width: 8px;  height: 8px; }
+  &--md { width: 10px; height: 10px; }
+
+  // ── Status colours ────────────────────────────────────────────────────────
+  &--active    { background: var(--phosphor); }
+  &--paused    { background: var(--amber-bright); }
+  &--completed { background: var(--cyan); }
+  &--archived  { background: var(--muted); }
+  &--error     { background: var(--red); }
+  &--default   { background: var(--line-soft); }
+
+  // ── Pulse animation (opt-in) ──────────────────────────────────────────────
+  &--pulse {
+    animation: dot-pulse 1.8s ease-in-out infinite;
+  }
+
+  &--pulse.dot--active    { box-shadow: 0 0 0 0 var(--phosphor); }
+  &--pulse.dot--paused    { box-shadow: 0 0 0 0 var(--amber-bright); }
+  &--pulse.dot--error     { box-shadow: 0 0 0 0 var(--red); }
+}
+
+@keyframes dot-pulse {
+  0%   { opacity: 1;   box-shadow: 0 0 0 0 currentColor; }
+  50%  { opacity: 0.8; box-shadow: 0 0 0 4px transparent; }
+  100% { opacity: 1;   box-shadow: 0 0 0 0 currentColor; }
+}

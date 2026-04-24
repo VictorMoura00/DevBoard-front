@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.progress__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+
+.progress__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.progress__value {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.progress__track {
+  width: 100%;
+  height: 8px;
+  background: var(--sunken);
+  border: 1.5px solid var(--line);
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  transition: width 300ms ease;
+
+  // ── Tones ────────────────────────────────────────────────────────────────
+  &--default { background: var(--line); }
+  &--success { background: var(--phosphor); }
+  &--warning { background: var(--amber-bright); }
+  &--danger  { background: var(--red); }
+
+  &--animated {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 4px,
+      rgba(0, 0, 0, 0.12) 4px 8px
+    );
+    animation: progress-stripe 600ms linear infinite;
+  }
+}
+
+@keyframes progress-stripe {
+  from { background-position: 0 0; }
+  to   { background-position: 16px 0; }
+}

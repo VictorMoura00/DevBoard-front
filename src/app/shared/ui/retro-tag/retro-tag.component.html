@@ -1,0 +1,11 @@
+<span
+  class="tag"
+  [class]="'tag--' + variant()"
+  [class.tag--disabled]="disabled()"
+>
+  <span class="tag__hash">#</span>
+  <span class="tag__label">{{ label() }}</span>
+  @if (removable() && !disabled()) {
+    <button type="button" class="tag__remove" (click)="onRemove($event)" aria-label="remove">×</button>
+  }
+</span>
