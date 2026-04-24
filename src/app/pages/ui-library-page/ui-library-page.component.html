@@ -1,231 +1,867 @@
-<div class="library-page">
-  <div class="noise"></div>
-
-  <div class="library-layout">
-    <app-retro-window title="~/devboard/ui-library" subtitle="internal.design.system" [showControls]="true">
-      <div class="hero">
-        <div>
-          <p class="eyebrow">visual library</p>
-          <h1>DevBoard UI</h1>
-          <p class="lead">
-            Biblioteca visual interna com componentes standalone, temas e padroes reutilizaveis.
-          </p>
-        </div>
-
-        <div class="hero-controls">
-          <label class="theme-picker">
-            <span>theme</span>
-            <select [ngModel]="currentTheme()" (ngModelChange)="setTheme($event)">
-              @for (theme of themes; track theme.name) {
-                <option [ngValue]="theme.name">{{ theme.label }}</option>
-              }
-            </select>
-          </label>
-
-          <app-retro-button variant="primary" size="md" (pressed)="openModal()">
-            Open Modal
-          </app-retro-button>
-        </div>
-      </div>
-    </app-retro-window>
-
-    <section class="showcase-shell">
-      <aside class="showcase-sidebar">
-        <app-retro-window title="catalog.index" subtitle="sections">
-          <div class="sidebar-stack">
-            @for (section of componentSections; track section.id) {
-              <a class="section-link" [href]="'#' + section.id">{{ section.label }}</a>
-            }
-          </div>
-        </app-retro-window>
-
-        <app-retro-window title="modal.config" subtitle="playground.controls">
-          <div class="control-stack">
-            <label class="field-row">
-              <span>title</span>
-              <input [(ngModel)]="modalTitle" class="control-input" type="text" />
-            </label>
-            <label class="field-row">
-              <span>subtitle</span>
-              <input [(ngModel)]="modalSubtitle" class="control-input" type="text" />
-            </label>
-            <label class="field-row">
-              <span>size</span>
-              <select [(ngModel)]="modalSize" class="control-input">
-                <option value="sm">sm</option>
-                <option value="md">md</option>
-                <option value="lg">lg</option>
-              </select>
-            </label>
-            <label class="toggle-row">
-              <input [(ngModel)]="modalCloseOnBackdrop" type="checkbox" />
-              <span>close on backdrop</span>
-            </label>
-            <label class="toggle-row">
-              <input [(ngModel)]="modalShowCloseButton" type="checkbox" />
-              <span>show close button</span>
-            </label>
-            <label class="toggle-row">
-              <input [(ngModel)]="modalShowActions" type="checkbox" />
-              <span>show footer actions</span>
-            </label>
-            <app-retro-button variant="primary" size="md" (pressed)="openModal()">
-              Preview Modal
-            </app-retro-button>
-          </div>
-        </app-retro-window>
-      </aside>
-
-      <div class="showcase-main">
-        <section id="actions" class="section-group">
-          <div class="section-header">
-            <p class="section-kicker">catalog.section</p>
-            <h2>Actions</h2>
-          </div>
-
-          <div class="preview-grid preview-grid--two">
-            <app-retro-window title="buttons.tsx" subtitle="actions.preview">
-              <div class="stack">
-                <p class="section-label">Buttons</p>
-                <div class="button-row">
-                  <app-retro-button variant="primary" size="md">Primary</app-retro-button>
-                  <app-retro-button variant="secondary" size="md">Secondary</app-retro-button>
-                  <app-retro-button variant="ghost" size="md">Ghost</app-retro-button>
-                </div>
-                <div class="button-row">
-                  <app-retro-button variant="primary" size="sm">Small</app-retro-button>
-                  <app-retro-button variant="secondary" size="sm">Filter</app-retro-button>
-                </div>
-              </div>
-            </app-retro-window>
-
-            <app-retro-window title="tokens.scss" subtitle="themes.preview">
-              <div class="stack">
-                <p class="section-label">Theme Presets</p>
-                <div class="theme-list">
-                  @for (theme of themes; track theme.name) {
-                    <button
-                      type="button"
-                      class="theme-chip"
-                      [class.is-active]="currentTheme() === theme.name"
-                      (click)="setTheme(theme.name)"
-                    >
-                      {{ theme.label }}
-                    </button>
-                  }
-                </div>
-              </div>
-            </app-retro-window>
-          </div>
-        </section>
-
-        <section id="feedback" class="section-group">
-          <div class="section-header">
-            <p class="section-kicker">catalog.section</p>
-            <h2>Feedback</h2>
-          </div>
-
-          <div class="preview-grid preview-grid--two">
-            <app-retro-window title="status-pill.ts" subtitle="state.preview">
-              <div class="stack">
-                <p class="section-label">Status Pills</p>
-                <div class="pill-row">
-                  <app-status-pill status="active" />
-                  <app-status-pill status="paused" />
-                  <app-status-pill status="completed" />
-                  <app-status-pill status="archived" />
-                </div>
-              </div>
-            </app-retro-window>
-
-            <app-retro-window title="stats.ts" subtitle="metrics.preview">
-              <div class="stats-grid">
-                <app-stat-box label="Projects" [value]="6" sublabel="4 active" />
-                <app-stat-box label="Open tasks" [value]="40" sublabel="across all repos" />
-                <app-stat-box label="Events / 1h" [value]="47" sublabel="via rabbit" />
-                <app-stat-box label="Uptime" value="99.94%" sublabel="gateway" />
-              </div>
-            </app-retro-window>
-          </div>
-        </section>
-
-        <section id="content" class="section-group">
-          <div class="section-header">
-            <p class="section-kicker">catalog.section</p>
-            <h2>Content</h2>
-          </div>
-
-          <div class="preview-grid preview-grid--two">
-            <app-retro-window title="search.ts" subtitle="toolbar.preview">
-              <div class="stack">
-                <p class="section-label">Toolbar Search</p>
-                <app-toolbar-search
-                  [value]="searchPreview"
-                  placeholder="grep projects..."
-                  (valueChange)="searchPreview = $event"
-                />
-                <p class="preview-value">input: {{ searchPreview || '...' }}</p>
-              </div>
-            </app-retro-window>
-
-            <app-retro-window title="project-card.ts" subtitle="content.preview">
-              <app-project-card
-                [project]="sampleProject"
-                indexLabel="01"
-                status="active"
-                [progress]="75"
-              />
-            </app-retro-window>
-          </div>
-        </section>
-
-        <section id="playground" class="section-group">
-          <div class="section-header">
-            <p class="section-kicker">catalog.section</p>
-            <h2>Playground</h2>
-          </div>
-
-          <app-retro-window title="retro-modal.ts" subtitle="interactive.preview">
-            <div class="playground-panel">
-              <div class="playground-copy">
-                <p class="section-label">Modal Playground</p>
-                <p class="lead-inline">
-                  Ajuste os controles no painel lateral e abra o modal para validar tamanho,
-                  cabecalho e footer sem sair da showcase.
-                </p>
-              </div>
-              <div class="button-row">
-                <app-retro-button variant="secondary" size="md" (pressed)="openModal()">
-                  Open Preview
-                </app-retro-button>
-              </div>
-            </div>
-          </app-retro-window>
-        </section>
-      </div>
-    </section>
+<!-- ── Sidebar ── -->
+<aside class="lib-sidebar">
+  <div class="lib-header">
+    <div class="lib-logo">◆ DEVBOARD/UI</div>
+    <div class="lib-version">component library · v0.1.0</div>
   </div>
 
-  <app-retro-modal
-    [open]="isModalOpen"
-    [title]="modalTitle"
-    [subtitle]="modalSubtitle"
-    [size]="modalSize"
-    [closeOnBackdrop]="modalCloseOnBackdrop"
-    [showCloseButton]="modalShowCloseButton"
-    (closed)="closeModal()"
-  >
-    <div modal-body class="modal-preview">
-      <p>Este modal usa a mesma linguagem visual da biblioteca interna.</p>
-      <p>Ele suporta tamanhos, area de acoes e fechamento por `Esc` e backdrop.</p>
-      <p>Title: {{ modalTitle || '...' }} | Subtitle: {{ modalSubtitle || '...' }} | Size: {{ modalSize }}</p>
-    </div>
+  <div class="lib-theme-row">
+    <span class="lib-theme-label">theme</span>
+    <select class="lib-theme-select" [ngModel]="currentTheme()" (ngModelChange)="setTheme($event)">
+      @for (theme of themes; track theme.name) {
+        <option [ngValue]="theme.name">{{ theme.label }}</option>
+      }
+    </select>
+  </div>
 
-    @if (modalShowActions) {
-      <div modal-actions class="modal-actions">
-        <app-retro-button variant="ghost" size="sm" (pressed)="closeModal()">Close</app-retro-button>
-        <app-retro-button variant="primary" size="sm" (pressed)="closeModal()">Confirm</app-retro-button>
+  @for (group of storyGroups; track group.group) {
+    <div class="lib-group">
+      <div class="lib-group-label">· {{ group.group }} ·</div>
+      @for (item of group.items; track item.id) {
+        <button
+          type="button"
+          class="lib-nav-btn"
+          [class.lib-nav-btn--active]="activeStory() === item.id"
+          (click)="setActiveStory(item.id)"
+        >
+          <span class="lib-nav-arrow">{{ activeStory() === item.id ? '▸' : '' }}</span>
+          {{ item.label }}
+        </button>
+      }
+    </div>
+  }
+</aside>
+
+<!-- ── Main ── -->
+<main class="lib-main">
+  <div class="lib-breadcrumb">
+    ~/devboard-ui/stories/<strong>{{ activeStory() }}</strong>.story.ts
+  </div>
+
+  <!-- Story shell -->
+  <app-retro-window [title]="activeStoryTitle()" [noPadding]="true">
+    <div class="story-body">
+
+      <!-- Left: preview / code -->
+      <div class="story-left">
+        <div class="story-tabs">
+          <button type="button" class="story-tab" [class.story-tab--active]="activeTab() === 'preview'" (click)="setActiveTab('preview')">preview</button>
+          <button type="button" class="story-tab" [class.story-tab--active]="activeTab() === 'code'" (click)="setActiveTab('code')">code</button>
+        </div>
+
+        <div class="story-content" [class.story-content--code]="activeTab() === 'code'">
+          @switch (activeStory()) {
+
+            @case ('win') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame">
+                  <app-retro-window [title]="winTitle()" [subtitle]="winSubtitle()" [showControls]="winShowControls()" [scrollable]="winScrollable()">
+                    <p class="preview-placeholder">› window content goes here</p>
+                    @if (winScrollable()) {
+                      @for (_ of [1,2,3,4,5,6]; track $index) {
+                        <p class="preview-placeholder">line {{ $index + 1 }} — scroll test content</p>
+                      }
+                    }
+                  </app-retro-window>
+                </div>
+              } @else {
+                <app-retro-code [code]="winCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('button') {
+              @if (activeTab() === 'preview') {
+                <div [class.preview-full-width]="btnFullWidth()" style="width:100%;display:flex;justify-content:center;padding:0 20px;box-sizing:border-box;">
+                  <app-retro-button [variant]="btnVariant()" [size]="btnSize()" [disabled]="btnDisabled()" [loading]="btnLoading()" [fullWidth]="btnFullWidth()" (pressed)="btnClicks.set(btnClicks() + 1)">{{ btnLabel() }}</app-retro-button>
+                </div>
+              } @else {
+                <app-retro-code [code]="btnCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('input') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-input [type]="inputType()" [prefix]="inputPrefix()" [suffix]="inputSuffix()" [placeholder]="inputPlaceholder()" [value]="inputValue()" [clearable]="inputClearable()" [disabled]="inputDisabled()" [invalid]="inputInvalid()" [errorMessage]="inputErrorMessage()" (valueChange)="inputValue.set($event)" />
+                  @if (inputValue()) {
+                    <div class="knob-counter" style="margin-top:8px">value: <strong>{{ inputValue() }}</strong></div>
+                  }
+                </div>
+              } @else {
+                <app-retro-code [code]="inputCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('checkbox') {
+              @if (activeTab() === 'preview') {
+                <app-retro-checkbox [label]="checkboxLabel()" [checked]="checkboxChecked()" [disabled]="checkboxDisabled()" [indeterminate]="checkboxIndeterminate()" (checkedChange)="checkboxChecked.set($event)" />
+              } @else {
+                <app-retro-code [code]="checkboxCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('kbd') {
+              @if (activeTab() === 'preview') {
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                  @if (kbdComboMode()) {
+                    <app-retro-kbd [keys]="kbdComboKeys()" />
+                  } @else {
+                    <app-retro-kbd>{{ kbdSingleKey() }}</app-retro-kbd>
+                  }
+                </div>
+              } @else {
+                <app-retro-code [code]="kbdCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('pill') {
+              @if (activeTab() === 'preview') {
+                <app-status-pill [status]="pillStatus()" [size]="pillSize()" />
+              } @else {
+                <app-retro-code [code]="pillCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('dot') {
+              @if (activeTab() === 'preview') {
+                <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+                  <app-status-dot [status]="dotStatus()" [size]="dotSize()" [pulse]="dotPulse()" />
+                  <span class="preview-placeholder">{{ dotStatus() }}</span>
+                </div>
+              } @else {
+                <app-retro-code [code]="dotCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('tag') {
+              @if (activeTab() === 'preview') {
+                <app-retro-tag [label]="tagLabel()" [variant]="tagVariant()" [removable]="tagRemovable()" [disabled]="tagDisabled()" />
+              } @else {
+                <app-retro-code [code]="tagCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('stat') {
+              @if (activeTab() === 'preview') {
+                <app-stat-box [label]="statLabel()" [value]="statValue()" [sublabel]="statSublabel()" [tone]="statTone()" [trend]="statTrend()" />
+              } @else {
+                <app-retro-code [code]="statCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('progress') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-progress [value]="progressValue()" [tone]="progressTone()" [label]="progressLabel()" [showValue]="progressShowVal()" [animated]="progressAnimated()" />
+                </div>
+              } @else {
+                <app-retro-code [code]="progressCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('ascii') {
+              @if (activeTab() === 'preview') {
+                <app-ascii-bar [value]="asciiValue()" [width]="asciiWidth()" [filledChar]="asciiFilledChar()" [emptyChar]="asciiEmptyChar()" [showValue]="asciiShowValue()" />
+              } @else {
+                <app-retro-code [code]="asciiCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('toast') {
+              @if (activeTab() === 'preview') {
+                <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;">
+                  <span class="preview-placeholder">› use o botão FIRE TOAST nos knobs →</span>
+                  <span class="preview-placeholder">· toast aparece no canto inferior direito</span>
+                  <span class="preview-placeholder">· clique em › DETAILS para expandir inline</span>
+                </div>
+              } @else {
+                <app-retro-code [code]="toastCode()" language="typescript" [framed]="false" />
+              }
+            }
+
+            @case ('modal') {
+              @if (activeTab() === 'preview') {
+                <app-retro-button variant="primary" size="md" (pressed)="modalOpen.set(true)">open modal</app-retro-button>
+              } @else {
+                <app-retro-code [code]="modalCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('collapsible') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-collapsible [title]="collapsibleTitle()" [initialCollapsed]="collapsibleInitialCollapsed()">
+                    <p class="preview-placeholder" style="padding:14px;margin:0;">
+                      › conteúdo recolhível — qualquer elemento pode ser projetado aqui.
+                    </p>
+                  </app-retro-collapsible>
+                </div>
+              } @else {
+                <app-retro-code [code]="collapsibleCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('code') {
+              @if (activeTab() === 'preview') {
+                <app-retro-code [code]="codeExample()" [language]="codeLanguage()" [framed]="codeFramed()" />
+              } @else {
+                <app-retro-code [code]="codeStoryCode()" language="angular" [framed]="false" />
+              }
+            }
+
+          }
+        </div>
       </div>
+
+      <!-- Right: knobs -->
+      <div class="story-knobs">
+        <div class="knobs-header">· knobs ·</div>
+
+        @switch (activeStory()) {
+
+          @case ('win') {
+            <div class="knob">
+              <label class="knob-label">title</label>
+              <input class="knob-input" [ngModel]="winTitle()" (ngModelChange)="winTitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">subtitle</label>
+              <input class="knob-input" [ngModel]="winSubtitle()" (ngModelChange)="winSubtitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="winShowControls()" (ngModelChange)="winShowControls.set($event)" />
+                <span>showControls</span>
+              </label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="winScrollable()" (ngModelChange)="winScrollable.set($event)" />
+                <span>scrollable</span>
+              </label>
+            </div>
+          }
+
+          @case ('button') {
+            <div class="knob">
+              <label class="knob-label">label</label>
+              <input class="knob-input" [ngModel]="btnLabel()" (ngModelChange)="btnLabel.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">variant</label>
+              <div class="knob-seg">
+                @for (v of ['primary','secondary','ghost']; track v) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnVariant() === v" (click)="btnVariant.set($any(v))">{{ v }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of ['sm','md']; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnSize() === s" (click)="btnSize.set($any(s))">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="btnDisabled()" (ngModelChange)="btnDisabled.set($event)" /><span>disabled</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="btnLoading()" (ngModelChange)="btnLoading.set($event)" /><span>loading</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="btnFullWidth()" (ngModelChange)="btnFullWidth.set($event)" /><span>fullWidth</span></label>
+            </div>
+            <div class="knob-counter">clicked: <strong>{{ btnClicks() }}</strong>×</div>
+          }
+
+          @case ('input') {
+            <div class="knob">
+              <label class="knob-label">type</label>
+              <div class="knob-seg knob-seg--col">
+                @for (t of inputTypes; track t) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="inputType() === t" (click)="inputType.set(t)">{{ t }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">prefix</label>
+              <input class="knob-input" [ngModel]="inputPrefix()" (ngModelChange)="inputPrefix.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">suffix</label>
+              <input class="knob-input" [ngModel]="inputSuffix()" (ngModelChange)="inputSuffix.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">placeholder</label>
+              <input class="knob-input" [ngModel]="inputPlaceholder()" (ngModelChange)="inputPlaceholder.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputClearable()" (ngModelChange)="inputClearable.set($event)" /><span>clearable</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputInvalid()" (ngModelChange)="inputInvalid.set($event)" /><span>invalid</span></label>
+            </div>
+            @if (inputInvalid()) {
+              <div class="knob">
+                <label class="knob-label">errorMessage</label>
+                <input class="knob-input" [ngModel]="inputErrorMessage()" (ngModelChange)="inputErrorMessage.set($event)" />
+              </div>
+            }
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputDisabled()" (ngModelChange)="inputDisabled.set($event)" /><span>disabled</span></label>
+            </div>
+          }
+
+          @case ('checkbox') {
+            <div class="knob">
+              <label class="knob-label">label</label>
+              <input class="knob-input" [ngModel]="checkboxLabel()" (ngModelChange)="checkboxLabel.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxChecked()" (ngModelChange)="checkboxChecked.set($event)" /><span>checked</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxIndeterminate()" (ngModelChange)="checkboxIndeterminate.set($event)" /><span>indeterminate</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxDisabled()" (ngModelChange)="checkboxDisabled.set($event)" /><span>disabled</span></label>
+            </div>
+          }
+
+          @case ('kbd') {
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="kbdComboMode()" (ngModelChange)="kbdComboMode.set($event)" />
+                <span>combo mode</span>
+              </label>
+            </div>
+            @if (kbdComboMode()) {
+              <div class="knob">
+                <label class="knob-label">keys (comma-sep)</label>
+                <input class="knob-input" [ngModel]="kbdComboInput()" (ngModelChange)="updateKbdCombo($event)" />
+              </div>
+            } @else {
+              <div class="knob">
+                <label class="knob-label">key</label>
+                <input class="knob-input" [ngModel]="kbdSingleKey()" (ngModelChange)="kbdSingleKey.set($event)" />
+              </div>
+            }
+          }
+
+          @case ('pill') {
+            <div class="knob">
+              <label class="knob-label">status</label>
+              <div class="knob-seg knob-seg--col">
+                @for (s of pillStatuses; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="pillStatus() === s" (click)="pillStatus.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of pillSizes; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="pillSize() === s" (click)="pillSize.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('dot') {
+            <div class="knob">
+              <label class="knob-label">status</label>
+              <div class="knob-seg knob-seg--col">
+                @for (s of dotStatuses; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="dotStatus() === s" (click)="dotStatus.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of dotSizes; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="dotSize() === s" (click)="dotSize.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="dotPulse()" (ngModelChange)="dotPulse.set($event)" /><span>pulse</span></label>
+            </div>
+          }
+
+          @case ('tag') {
+            <div class="knob">
+              <label class="knob-label">label</label>
+              <input class="knob-input" [ngModel]="tagLabel()" (ngModelChange)="tagLabel.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">variant</label>
+              <div class="knob-seg knob-seg--col">
+                @for (v of tagVariants; track v) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="tagVariant() === v" (click)="tagVariant.set(v)">{{ v }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="tagRemovable()" (ngModelChange)="tagRemovable.set($event)" /><span>removable</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="tagDisabled()" (ngModelChange)="tagDisabled.set($event)" /><span>disabled</span></label>
+            </div>
+          }
+
+          @case ('stat') {
+            <div class="knob">
+              <label class="knob-label">label</label>
+              <input class="knob-input" [ngModel]="statLabel()" (ngModelChange)="statLabel.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">value</label>
+              <input class="knob-input" [ngModel]="statValue()" (ngModelChange)="statValue.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">sublabel</label>
+              <input class="knob-input" [ngModel]="statSublabel()" (ngModelChange)="statSublabel.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">tone</label>
+              <div class="knob-seg knob-seg--col">
+                @for (t of statTones; track t) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="statTone() === t" (click)="statTone.set(t)">{{ t }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">trend</label>
+              <div class="knob-seg">
+                @for (t of statTrends; track t) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="(statTrend() ?? 'none') === t" (click)="statTrend.set(t === 'none' ? undefined : $any(t))">{{ t }}</button>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('progress') {
+            <div class="knob">
+              <label class="knob-label">value ({{ progressValue() }}%)</label>
+              <input type="range" class="knob-range" min="0" max="100" [ngModel]="progressValue()" (ngModelChange)="progressValue.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">tone</label>
+              <div class="knob-seg knob-seg--col">
+                @for (t of progressTones; track t) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="progressTone() === t" (click)="progressTone.set(t)">{{ t }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">label</label>
+              <input class="knob-input" [ngModel]="progressLabel()" (ngModelChange)="progressLabel.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressShowVal()" (ngModelChange)="progressShowVal.set($event)" /><span>showValue</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressAnimated()" (ngModelChange)="progressAnimated.set($event)" /><span>animated</span></label>
+            </div>
+          }
+
+          @case ('ascii') {
+            <div class="knob">
+              <label class="knob-label">value ({{ asciiValue() }}%)</label>
+              <input type="range" class="knob-range" min="0" max="100" [ngModel]="asciiValue()" (ngModelChange)="asciiValue.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">width ({{ asciiWidth() }})</label>
+              <input type="range" class="knob-range" min="5" max="40" [ngModel]="asciiWidth()" (ngModelChange)="asciiWidth.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">filledChar</label>
+              <input class="knob-input" maxlength="1" [ngModel]="asciiFilledChar()" (ngModelChange)="asciiFilledChar.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">emptyChar</label>
+              <input class="knob-input" maxlength="1" [ngModel]="asciiEmptyChar()" (ngModelChange)="asciiEmptyChar.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="asciiShowValue()" (ngModelChange)="asciiShowValue.set($event)" /><span>showValue</span></label>
+            </div>
+          }
+
+          @case ('toast') {
+            <div class="knob">
+              <label class="knob-label">message</label>
+              <input class="knob-input" [ngModel]="toastMessage()" (ngModelChange)="toastMessage.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">type</label>
+              <div class="knob-seg knob-seg--col">
+                @for (t of toastTypes; track t) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="toastType() === t" (click)="toastType.set(t)">{{ t }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">position</label>
+              <div class="knob-seg knob-seg--col">
+                @for (p of toastPositions; track p) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="toastPosition() === p" (click)="toastPosition.set(p)">{{ p }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">maxVisible ({{ toastMaxVisible() }})</label>
+              <input type="range" class="knob-range" min="1" max="10" [ngModel]="toastMaxVisible()" (ngModelChange)="toastMaxVisible.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="toastWithDetails()" (ngModelChange)="toastWithDetails.set($event)" />
+                <span>with details payload</span>
+              </label>
+            </div>
+            @if (toastWithDetails()) {
+              <div class="knob">
+                <label class="knob-label">details.code</label>
+                <input class="knob-input" [ngModel]="toastDetailCode()" (ngModelChange)="toastDetailCode.set($event)" />
+              </div>
+              <div class="knob">
+                <label class="knob-label">details.service</label>
+                <input class="knob-input" [ngModel]="toastDetailService()" (ngModelChange)="toastDetailService.set($event)" />
+              </div>
+              <div class="knob">
+                <label class="knob-label">details.http</label>
+                <input class="knob-input" [ngModel]="toastDetailHttp()" (ngModelChange)="toastDetailHttp.set($event)" />
+              </div>
+              <div class="knob">
+                <label class="knob-label">details.trace</label>
+                <input class="knob-input" [ngModel]="toastDetailTrace()" (ngModelChange)="toastDetailTrace.set($event)" />
+              </div>
+              <div class="knob">
+                <label class="knob-label">details.stack</label>
+                <textarea class="knob-input" rows="3" style="resize:vertical;font-size:10px" [ngModel]="toastDetailStack()" (ngModelChange)="toastDetailStack.set($event)"></textarea>
+              </div>
+              <div class="knob">
+                <label class="knob-label">action.label</label>
+                <input class="knob-input" [ngModel]="toastDetailActionLabel()" (ngModelChange)="toastDetailActionLabel.set($event)" />
+              </div>
+              <div class="knob">
+                <label class="knob-label">action.url</label>
+                <input class="knob-input" [ngModel]="toastDetailActionUrl()" (ngModelChange)="toastDetailActionUrl.set($event)" />
+              </div>
+            }
+            <div class="knob">
+              <label class="knob-toggle">
+                <input type="checkbox" [ngModel]="toastAutoDismiss()" (ngModelChange)="toastAutoDismiss.set($event)" />
+                <span>auto-dismiss (4.2s)</span>
+              </label>
+            </div>
+            <app-retro-button variant="primary" [fullWidth]="true" (pressed)="fireToast()">
+              fire toast
+            </app-retro-button>
+          }
+
+          @case ('modal') {
+            <div class="knob">
+              <label class="knob-label">title</label>
+              <input class="knob-input" [ngModel]="modalTitle()" (ngModelChange)="modalTitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">subtitle</label>
+              <input class="knob-input" [ngModel]="modalSubtitle()" (ngModelChange)="modalSubtitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of modalSizes; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="modalSize() === s" (click)="modalSize.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="modalCloseOnBackdrop()" (ngModelChange)="modalCloseOnBackdrop.set($event)" /><span>closeOnBackdrop</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="modalShowCloseButton()" (ngModelChange)="modalShowCloseButton.set($event)" /><span>showCloseButton</span></label>
+            </div>
+          }
+
+          @case ('collapsible') {
+            <div class="knob">
+              <label class="knob-label">title</label>
+              <input class="knob-input" [ngModel]="collapsibleTitle()" (ngModelChange)="collapsibleTitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="collapsibleInitialCollapsed()" (ngModelChange)="collapsibleInitialCollapsed.set($event)" /><span>initialCollapsed</span></label>
+            </div>
+          }
+
+          @case ('code') {
+            <div class="knob">
+              <label class="knob-label">language</label>
+              <div class="knob-seg knob-seg--col">
+                @for (l of codeLanguages; track l) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="codeLanguage() === l" (click)="codeLanguage.set(l)">{{ l || '(none)' }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="codeFramed()" (ngModelChange)="codeFramed.set($event)" /><span>framed</span></label>
+            </div>
+          }
+
+        }
+      </div>
+    </div>
+  </app-retro-window>
+
+  <!-- Usage in Angular 21 -->
+  <app-retro-collapsible title="usage in angular 21">
+    <app-retro-code [code]="usageCodeSnippet" language="typescript" [framed]="false" />
+  </app-retro-collapsible>
+
+  <!-- API reference block -->
+  <app-retro-collapsible [title]="'api reference — ' + activeStory()">
+    @switch (activeStory()) {
+
+      @case ('win') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>title</td><td>string</td><td class="required">required</td><td>texto no titlebar</td></tr>
+            <tr><td>subtitle</td><td>string</td><td>''</td><td>texto secundário no titlebar</td></tr>
+            <tr><td>showControls</td><td>boolean</td><td>false</td><td>exibe botões _ □ ×</td></tr>
+            <tr><td>noPadding</td><td>boolean</td><td>false</td><td>remove padding do body</td></tr>
+            <tr><td>scrollable</td><td>boolean</td><td>false</td><td>body com overflow-y auto</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">slots</span> <code>[window-actions]</code> — titlebar direito &nbsp;·&nbsp; <code>default</code> — body</div>
+      }
+
+      @case ('button') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>variant</td><td>'primary' | 'secondary' | 'ghost'</td><td>'primary'</td><td>estilo visual</td></tr>
+            <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho</td></tr>
+            <tr><td>type</td><td>'button' | 'submit' | 'reset'</td><td>'button'</td><td>tipo HTML</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
+            <tr><td>loading</td><td>boolean</td><td>false</td><td>bloqueia clique e exibe estado</td></tr>
+            <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>ocupa 100% da largura</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">output</span> <code>(pressed)</code> — MouseEvent</div>
+      }
+
+      @case ('input') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>type</td><td>'text' | 'search' | 'number' | 'email' | 'password'</td><td>'text'</td><td>tipo do input</td></tr>
+            <tr><td>value</td><td>string</td><td>''</td><td>valor atual</td></tr>
+            <tr><td>placeholder</td><td>string</td><td>''</td><td>placeholder</td></tr>
+            <tr><td>prefix</td><td>string</td><td>''</td><td>símbolo à esquerda</td></tr>
+            <tr><td>suffix</td><td>string</td><td>''</td><td>símbolo/texto à direita</td></tr>
+            <tr><td>clearable</td><td>boolean</td><td>false</td><td>botão × quando há valor</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita input</td></tr>
+            <tr><td>invalid</td><td>boolean</td><td>false</td><td>estado de erro</td></tr>
+            <tr><td>errorMessage</td><td>string</td><td>''</td><td>mensagem de erro</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">outputs</span> <code>(valueChange)</code> string &nbsp;·&nbsp; <code>(cleared)</code> void</div>
+      }
+
+      @case ('checkbox') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>checked</td><td>boolean</td><td>false</td><td>estado marcado</td></tr>
+            <tr><td>label</td><td>string</td><td>''</td><td>texto à direita do checkbox</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
+            <tr><td>indeterminate</td><td>boolean</td><td>false</td><td>estado intermediário (—)</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">output</span> <code>(checkedChange)</code> boolean</div>
+      }
+
+      @case ('kbd') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>keys</td><td>string[]</td><td>[]</td><td>lista de teclas para combo (ex: ['⌘','K']); vazio usa ng-content</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — tecla única via ng-content</div>
+      }
+
+      @case ('pill') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>status</td><td>string</td><td class="required">required</td><td>active, paused, completed, archived</td></tr>
+            <tr><td>size</td><td>'sm' | 'md'</td><td>'sm'</td><td>tamanho da pill</td></tr>
+          </tbody>
+        </table>
+      }
+
+      @case ('dot') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>status</td><td>string</td><td class="required">required</td><td>active, paused, completed, archived, error, default</td></tr>
+            <tr><td>size</td><td>'xs' | 'sm' | 'md'</td><td>'sm'</td><td>diâmetro do dot</td></tr>
+            <tr><td>pulse</td><td>boolean</td><td>false</td><td>animação de pulso (ideal para status active)</td></tr>
+          </tbody>
+        </table>
+      }
+
+      @case ('tag') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>label</td><td>string</td><td class="required">required</td><td>texto da tag (prefixado com #)</td></tr>
+            <tr><td>variant</td><td>'default' | 'primary' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor de fundo</td></tr>
+            <tr><td>removable</td><td>boolean</td><td>false</td><td>exibe botão × de remoção</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">output</span> <code>(removed)</code> void</div>
+      }
+
+      @case ('stat') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>label</td><td>string</td><td class="required">required</td><td>rótulo superior</td></tr>
+            <tr><td>value</td><td>string | number</td><td class="required">required</td><td>valor em destaque</td></tr>
+            <tr><td>sublabel</td><td>string</td><td>''</td><td>texto abaixo do valor</td></tr>
+            <tr><td>tone</td><td>'default' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor de destaque</td></tr>
+            <tr><td>trend</td><td>'up' | 'down' | 'neutral'</td><td>undefined</td><td>indicador ↑↓→</td></tr>
+          </tbody>
+        </table>
+      }
+
+      @case ('progress') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>value</td><td>number</td><td class="required">required</td><td>progresso de 0 a 100</td></tr>
+            <tr><td>tone</td><td>'default' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor do fill</td></tr>
+            <tr><td>label</td><td>string</td><td>''</td><td>texto acima da barra</td></tr>
+            <tr><td>showValue</td><td>boolean</td><td>false</td><td>exibe percentual</td></tr>
+            <tr><td>animated</td><td>boolean</td><td>false</td><td>listras diagonais em movimento</td></tr>
+          </tbody>
+        </table>
+      }
+
+      @case ('ascii') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>value</td><td>number</td><td class="required">required</td><td>progresso de 0 a 100</td></tr>
+            <tr><td>width</td><td>number</td><td>20</td><td>número de caracteres da barra</td></tr>
+            <tr><td>filledChar</td><td>string</td><td>'█'</td><td>caractere de preenchimento</td></tr>
+            <tr><td>emptyChar</td><td>string</td><td>'░'</td><td>caractere vazio</td></tr>
+            <tr><td>showValue</td><td>boolean</td><td>true</td><td>exibe percentual ao final</td></tr>
+          </tbody>
+        </table>
+      }
+
+      @case ('toast') {
+        <table class="api-table">
+          <thead><tr><th>método</th><th>assinatura</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>show</td><td>show(msg, type?, duration?, details?)</td><td>genérico — type: 'event' | 'success' | 'warning' | 'error'</td></tr>
+            <tr><td>event</td><td>event(msg, details?, duration?)</td><td>notificação neutra de sistema</td></tr>
+            <tr><td>success</td><td>success(msg, details?, duration?)</td><td>operação concluída</td></tr>
+            <tr><td>warning</td><td>warning(msg, details?, duration?)</td><td>alerta não-crítico</td></tr>
+            <tr><td>error</td><td>error(msg, details?, duration?)</td><td>erro com painel de detalhes expansível</td></tr>
+            <tr><td>dismiss</td><td>dismiss(id)</td><td>fecha toast pelo id</td></tr>
+          </tbody>
+        </table>
+        <table class="api-table" style="margin-top:8px">
+          <thead><tr><th>ToastDetails</th><th>tipo</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>code</td><td>string</td><td>código do evento/erro (ex: ERR_503, OK_200)</td></tr>
+            <tr><td>service</td><td>string</td><td>serviço de origem</td></tr>
+            <tr><td>http</td><td>string</td><td>status HTTP</td></tr>
+            <tr><td>trace</td><td>string</td><td>trace id</td></tr>
+            <tr><td>stack</td><td>string</td><td>stack trace ou log multilinha</td></tr>
+            <tr><td>action</td><td>&#123; label, url &#125;</td><td>botão CTA no painel (ex: "OPEN IN JAEGER →")</td></tr>
+          </tbody>
+        </table>
+        <table class="api-table" style="margin-top:8px">
+          <thead><tr><th>input (componente)</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>position</td><td>'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'</td><td>'bottom-right'</td><td>posição do stack na tela</td></tr>
+            <tr><td>maxVisible</td><td>number</td><td>5</td><td>número máximo de toasts simultâneos</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">setup</span> adicione <code>&lt;app-retro-toast /&gt;</code> uma vez no root do app · duration=0 desabilita auto-dismiss</div>
+      }
+
+      @case ('modal') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>open</td><td>boolean</td><td>false</td><td>controla visibilidade</td></tr>
+            <tr><td>title</td><td>string</td><td>''</td><td>título no titlebar</td></tr>
+            <tr><td>subtitle</td><td>string</td><td>''</td><td>subtítulo</td></tr>
+            <tr><td>size</td><td>'sm' | 'md' | 'lg'</td><td>'md'</td><td>largura: 420 / 560 / 760px</td></tr>
+            <tr><td>closeOnBackdrop</td><td>boolean</td><td>true</td><td>fecha ao clicar fora</td></tr>
+            <tr><td>showCloseButton</td><td>boolean</td><td>true</td><td>exibe × no titlebar</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">slots</span> <code>[modal-body]</code> &nbsp;·&nbsp; <code>[modal-actions]</code> &nbsp;·&nbsp; <span class="api-slot-label">output</span> <code>(closed)</code> void</div>
+      }
+
+      @case ('collapsible') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>title</td><td>string</td><td class="required">required</td><td>texto exibido no cabeçalho</td></tr>
+            <tr><td>initialCollapsed</td><td>boolean</td><td>false</td><td>começa recolhido se true</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — conteúdo recolhível</div>
+      }
+
+      @case ('code') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>code</td><td>string</td><td class="required">required</td><td>conteúdo do bloco</td></tr>
+            <tr><td>language</td><td>string</td><td>''</td><td>rótulo da linguagem no header</td></tr>
+            <tr><td>framed</td><td>boolean</td><td>true</td><td>exibe borda e sombra retro</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots"><span class="api-slot-label">método</span> <code>copy()</code> — copia para clipboard com feedback visual</div>
+      }
+
     }
-  </app-retro-modal>
-</div>
+  </app-retro-collapsible>
+</main>
+
+<!-- Toast host (fora do shell) -->
+<app-retro-toast [position]="toastPosition()" [maxVisible]="toastMaxVisible()" />
+
+<!-- Modal host (fora do shell para overlay funcionar) -->
+<app-retro-modal
+  [open]="modalOpen()"
+  [title]="modalTitle()"
+  [subtitle]="modalSubtitle()"
+  [size]="modalSize()"
+  [closeOnBackdrop]="modalCloseOnBackdrop()"
+  [showCloseButton]="modalShowCloseButton()"
+  (closed)="modalOpen.set(false)"
+>
+  <div modal-body class="modal-preview">
+    <p>Este modal usa a mesma linguagem visual da biblioteca interna.</p>
+    <p>Suporta tamanhos, área de ações e fechamento por <kbd>Esc</kbd> e backdrop.</p>
+    <p class="modal-meta">title: {{ modalTitle() }} · size: {{ modalSize() }}</p>
+  </div>
+  <div modal-actions class="modal-actions">
+    <app-retro-button variant="ghost" size="sm" (pressed)="modalOpen.set(false)">cancel</app-retro-button>
+    <app-retro-button variant="primary" size="sm" (pressed)="modalOpen.set(false)">confirm</app-retro-button>
+  </div>
+</app-retro-modal>
