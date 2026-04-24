@@ -1,7 +1,10 @@
 <div
   class="input-shell"
+  [class.input-shell--sm]="size() === 'sm'"
+  [class.input-shell--lg]="size() === 'lg'"
   [class.input-shell--invalid]="invalid()"
   [class.input-shell--disabled]="disabled()"
+  [class.input-shell--readonly]="readonly()"
 >
   @if (prefix()) {
     <span class="input-prefix">{{ prefix() }}</span>
@@ -13,6 +16,7 @@
     [value]="value()"
     [placeholder]="placeholder()"
     [disabled]="disabled()"
+    [attr.readonly]="readonly() ? '' : null"
     (input)="onInput($event)"
   />
 
@@ -25,4 +29,6 @@
 
 @if (invalid() && errorMessage()) {
   <div class="input-error" role="alert">› {{ errorMessage() }}</div>
+} @else if (helpText()) {
+  <div class="input-help">{{ helpText() }}</div>
 }

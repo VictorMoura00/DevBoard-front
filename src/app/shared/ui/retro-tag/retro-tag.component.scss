@@ -16,15 +16,33 @@
   color: var(--text);
 
   // ── Variants ───────────────────────────────────────────────────────────────
-  &--primary { background: color-mix(in srgb, var(--amber)       20%, var(--panel-alt)); }
-  &--success { background: color-mix(in srgb, var(--phosphor)    20%, var(--panel-alt)); }
+  &--primary { background: color-mix(in srgb, var(--amber)        20%, var(--panel-alt)); }
+  &--success { background: color-mix(in srgb, var(--phosphor)     20%, var(--panel-alt)); }
   &--warning { background: color-mix(in srgb, var(--amber-bright) 30%, var(--panel-alt)); }
-  &--danger  { background: color-mix(in srgb, var(--red)         15%, var(--panel-alt)); }
+  &--danger  { background: color-mix(in srgb, var(--red)          15%, var(--panel-alt)); }
 
   &--disabled {
     opacity: 0.45;
     pointer-events: none;
   }
+
+  // ── Size: sm ───────────────────────────────────────────────────────────────
+  &--sm {
+    font-size: 9px;
+    padding: 0 5px 0 4px;
+    gap: 0;
+
+    .tag__hash    { font-size: 8px; }
+    .tag__icon    { font-size: 9px; margin-right: 2px; }
+    .tag__remove  { font-size: 11px; margin-left: 3px; }
+  }
+}
+
+.tag__icon {
+  font-size: 10px;
+  color: var(--muted);
+  margin-right: 3px;
+  flex-shrink: 0;
 }
 
 .tag__hash {

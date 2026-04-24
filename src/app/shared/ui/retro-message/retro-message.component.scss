@@ -1,0 +1,108 @@
+:host {
+  display: block;
+
+  &.is-closed { display: none; }
+}
+
+// ── Shell ─────────────────────────────────────────────────────────────────
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid;
+  border-left-width: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+
+  // ── Severity × tone colors ─────────────────────────────────────────────────
+
+  &--info {
+    --_color:  var(--amber);
+    --_bg:     color-mix(in srgb, var(--amber)        8%, var(--panel));
+    --_border: color-mix(in srgb, var(--amber)        45%, transparent);
+  }
+  &--success {
+    --_color:  var(--phosphor);
+    --_bg:     color-mix(in srgb, var(--phosphor)     6%, var(--panel));
+    --_border: color-mix(in srgb, var(--phosphor)     40%, transparent);
+  }
+  &--warning {
+    --_color:  var(--amber-bright);
+    --_bg:     color-mix(in srgb, var(--amber-bright) 10%, var(--panel));
+    --_border: color-mix(in srgb, var(--amber-bright) 55%, transparent);
+  }
+  &--error {
+    --_color:  var(--red);
+    --_bg:     color-mix(in srgb, var(--red)          8%, var(--panel));
+    --_border: color-mix(in srgb, var(--red)          40%, transparent);
+  }
+
+  // ── Variants ───────────────────────────────────────────────────────────────
+
+  &--filled {
+    background: var(--_bg);
+    border-color: var(--_border);
+    border-left-color: var(--_color);
+    color: var(--text);
+  }
+
+  &--outlined {
+    background: transparent;
+    border-color: var(--_border);
+    border-left-color: var(--_color);
+    color: var(--text);
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: transparent;
+    border-left-color: var(--_color);
+    padding-top: 6px;
+    padding-bottom: 6px;
+    color: var(--text);
+  }
+}
+
+// ── Parts ─────────────────────────────────────────────────────────────────
+
+.message__icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  color: var(--_color);
+}
+
+.message__badge {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 1px 5px;
+  border: 1.5px solid var(--_color);
+  color: var(--_color);
+}
+
+.message__body {
+  flex: 1;
+  font-weight: 400;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.message__close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--_color);
+  opacity: 0.5;
+  padding: 0;
+  transition: opacity 80ms;
+
+  &:hover { opacity: 1; }
+}

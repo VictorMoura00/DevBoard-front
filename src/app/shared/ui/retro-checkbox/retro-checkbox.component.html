@@ -1,4 +1,10 @@
-<label class="checkbox" [class.checkbox--disabled]="disabled()">
+<label
+  class="checkbox"
+  [class.checkbox--sm]="size() === 'sm'"
+  [class.checkbox--disabled]="disabled()"
+  [class.checkbox--readonly]="readonly()"
+  [class.checkbox--invalid]="invalid()"
+>
   <input
     type="checkbox"
     class="checkbox__native"

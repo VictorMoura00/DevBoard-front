@@ -112,7 +112,22 @@
             @case ('input') {
               @if (activeTab() === 'preview') {
                 <div class="preview-frame preview-frame--wide">
-                  <app-retro-input [type]="inputType()" [prefix]="inputPrefix()" [suffix]="inputSuffix()" [placeholder]="inputPlaceholder()" [value]="inputValue()" [clearable]="inputClearable()" [disabled]="inputDisabled()" [invalid]="inputInvalid()" [errorMessage]="inputErrorMessage()" (valueChange)="inputValue.set($event)" />
+                  <app-retro-input
+                    [type]="inputType()"
+                    [size]="inputSize()"
+                    [prefix]="inputPrefix()"
+                    [suffix]="inputSuffix()"
+                    [placeholder]="inputPlaceholder()"
+                    [value]="inputValue()"
+                    [clearable]="inputClearable()"
+                    [readonly]="inputReadonly()"
+                    [disabled]="inputDisabled()"
+                    [invalid]="inputInvalid()"
+                    [errorMessage]="inputErrorMessage()"
+                    [helpText]="inputHelpText()"
+                    [fullWidth]="inputFullWidth()"
+                    (valueChange)="inputValue.set($event)"
+                  />
                   @if (inputValue()) {
                     <div class="knob-counter" style="margin-top:8px">value: <strong>{{ inputValue() }}</strong></div>
                   }
@@ -124,7 +139,16 @@
 
             @case ('checkbox') {
               @if (activeTab() === 'preview') {
-                <app-retro-checkbox [label]="checkboxLabel()" [checked]="checkboxChecked()" [disabled]="checkboxDisabled()" [indeterminate]="checkboxIndeterminate()" (checkedChange)="checkboxChecked.set($event)" />
+                <app-retro-checkbox
+                  [label]="checkboxLabel()"
+                  [size]="checkboxSize()"
+                  [checked]="checkboxChecked()"
+                  [readonly]="checkboxReadonly()"
+                  [invalid]="checkboxInvalid()"
+                  [disabled]="checkboxDisabled()"
+                  [indeterminate]="checkboxIndeterminate()"
+                  (checkedChange)="checkboxChecked.set($event)"
+                />
               } @else {
                 <app-retro-code [code]="checkboxCode()" language="angular" [framed]="false" />
               }
@@ -165,7 +189,7 @@
 
             @case ('tag') {
               @if (activeTab() === 'preview') {
-                <app-retro-tag [label]="tagLabel()" [variant]="tagVariant()" [removable]="tagRemovable()" [disabled]="tagDisabled()" />
+                <app-retro-tag [label]="tagLabel()" [icon]="tagIcon()" [variant]="tagVariant()" [size]="tagSize()" [removable]="tagRemovable()" [disabled]="tagDisabled()" />
               } @else {
                 <app-retro-code [code]="tagCode()" language="angular" [framed]="false" />
               }
@@ -214,6 +238,38 @@
                 </div>
               } @else {
                 <app-retro-code [code]="toastCode()" language="typescript" [framed]="false" />
+              }
+            }
+
+            @case ('message') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-message
+                    [severity]="msgSeverity()"
+                    [variant]="msgVariant()"
+                    [text]="msgText()"
+                    [icon]="msgIcon()"
+                    [closable]="msgClosable()"
+                  />
+                </div>
+              } @else {
+                <app-retro-code [code]="msgCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('skeleton') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-retro-skeleton
+                    [width]="skelWidth()"
+                    [height]="skelHeight()"
+                    [shape]="skelShape()"
+                    [animation]="skelAnimation()"
+                    [count]="skelCount()"
+                  />
+                </div>
+              } @else {
+                <app-retro-code [code]="skelCode()" language="angular" [framed]="false" />
               }
             }
 
@@ -405,6 +461,14 @@
               </div>
             </div>
             <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of inputSizes; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="inputSize() === s" (click)="inputSize.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
               <label class="knob-label">prefix</label>
               <input class="knob-input" [ngModel]="inputPrefix()" (ngModelChange)="inputPrefix.set($event)" />
             </div>
@@ -417,7 +481,14 @@
               <input class="knob-input" [ngModel]="inputPlaceholder()" (ngModelChange)="inputPlaceholder.set($event)" />
             </div>
             <div class="knob">
+              <label class="knob-label">helpText</label>
+              <input class="knob-input" [ngModel]="inputHelpText()" (ngModelChange)="inputHelpText.set($event)" placeholder="texto de ajuda" />
+            </div>
+            <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="inputClearable()" (ngModelChange)="inputClearable.set($event)" /><span>clearable</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputReadonly()" (ngModelChange)="inputReadonly.set($event)" /><span>readonly</span></label>
             </div>
             <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="inputInvalid()" (ngModelChange)="inputInvalid.set($event)" /><span>invalid</span></label>
@@ -431,6 +502,9 @@
             <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="inputDisabled()" (ngModelChange)="inputDisabled.set($event)" /><span>disabled</span></label>
             </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputFullWidth()" (ngModelChange)="inputFullWidth.set($event)" /><span>fullWidth</span></label>
+            </div>
           }
 
           @case ('checkbox') {
@@ -439,10 +513,24 @@
               <input class="knob-input" [ngModel]="checkboxLabel()" (ngModelChange)="checkboxLabel.set($event)" />
             </div>
             <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of ['sm','md']; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="checkboxSize() === s" (click)="checkboxSize.set($any(s))">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxChecked()" (ngModelChange)="checkboxChecked.set($event)" /><span>checked</span></label>
             </div>
             <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxIndeterminate()" (ngModelChange)="checkboxIndeterminate.set($event)" /><span>indeterminate</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxReadonly()" (ngModelChange)="checkboxReadonly.set($event)" /><span>readonly</span></label>
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxInvalid()" (ngModelChange)="checkboxInvalid.set($event)" /><span>invalid</span></label>
             </div>
             <div class="knob">
               <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxDisabled()" (ngModelChange)="checkboxDisabled.set($event)" /><span>disabled</span></label>
@@ -516,10 +604,22 @@
               <input class="knob-input" [ngModel]="tagLabel()" (ngModelChange)="tagLabel.set($event)" />
             </div>
             <div class="knob">
+              <label class="knob-label">icon <span class="knob-hint">(glyph)</span></label>
+              <input class="knob-input" [ngModel]="tagIcon()" (ngModelChange)="tagIcon.set($event)" placeholder="ex: ★ ▶ ✓ ⚡" />
+            </div>
+            <div class="knob">
               <label class="knob-label">variant</label>
               <div class="knob-seg knob-seg--col">
                 @for (v of tagVariants; track v) {
                   <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="tagVariant() === v" (click)="tagVariant.set(v)">{{ v }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <div class="knob-seg">
+                @for (s of ['sm','md']; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="tagSize() === s" (click)="tagSize.set($any(s))">{{ s }}</button>
                 }
               </div>
             </div>
@@ -702,6 +802,67 @@
             </app-retro-button>
           }
 
+          @case ('message') {
+            <div class="knob">
+              <label class="knob-label">severity</label>
+              <div class="knob-seg knob-seg--col">
+                @for (s of msgSeverities; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="msgSeverity() === s" (click)="msgSeverity.set(s)">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">variant</label>
+              <div class="knob-seg knob-seg--col">
+                @for (v of msgVariants; track v) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="msgVariant() === v" (click)="msgVariant.set(v)">{{ v }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">text</label>
+              <input class="knob-input" [ngModel]="msgText()" (ngModelChange)="msgText.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">icon <span class="knob-hint">(override glyph)</span></label>
+              <input class="knob-input" [ngModel]="msgIcon()" (ngModelChange)="msgIcon.set($event)" placeholder="ex: ★ ▶ ⚡" />
+            </div>
+            <div class="knob">
+              <label class="knob-toggle"><input type="checkbox" [ngModel]="msgClosable()" (ngModelChange)="msgClosable.set($event)" /><span>closable</span></label>
+            </div>
+          }
+
+          @case ('skeleton') {
+            <div class="knob">
+              <label class="knob-label">width</label>
+              <input class="knob-input" [ngModel]="skelWidth()" (ngModelChange)="skelWidth.set($event)" placeholder="ex: 100% 240px" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">height</label>
+              <input class="knob-input" [ngModel]="skelHeight()" (ngModelChange)="skelHeight.set($event)" placeholder="ex: 14px 40px" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">shape</label>
+              <div class="knob-seg">
+                @for (s of ['rectangle','circle']; track s) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="skelShape() === s" (click)="skelShape.set($any(s))">{{ s }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">animation</label>
+              <div class="knob-seg">
+                @for (a of ['wave','pulse','none']; track a) {
+                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="skelAnimation() === a" (click)="skelAnimation.set($any(a))">{{ a }}</button>
+                }
+              </div>
+            </div>
+            <div class="knob">
+              <label class="knob-label">count ({{ skelCount() }})</label>
+              <input type="range" class="knob-range" min="1" max="8" [ngModel]="skelCount()" (ngModelChange)="skelCount.set(+$event)" />
+            </div>
+          }
+
           @case ('modal') {
             <div class="knob">
               <label class="knob-label">title</label>
@@ -827,14 +988,18 @@
           <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
           <tbody>
             <tr><td>type</td><td>'text' | 'search' | 'number' | 'email' | 'password'</td><td>'text'</td><td>tipo do input</td></tr>
+            <tr><td>size</td><td>'sm' | 'md' | 'lg'</td><td>'md'</td><td>tamanho: afeta font-size e padding</td></tr>
             <tr><td>value</td><td>string</td><td>''</td><td>valor atual</td></tr>
             <tr><td>placeholder</td><td>string</td><td>''</td><td>placeholder</td></tr>
-            <tr><td>prefix</td><td>string</td><td>''</td><td>símbolo à esquerda</td></tr>
-            <tr><td>suffix</td><td>string</td><td>''</td><td>símbolo/texto à direita</td></tr>
-            <tr><td>clearable</td><td>boolean</td><td>false</td><td>botão × quando há valor</td></tr>
+            <tr><td>prefix</td><td>string</td><td>''</td><td>símbolo à esquerda (negrito âmbar)</td></tr>
+            <tr><td>suffix</td><td>string</td><td>''</td><td>símbolo/texto à direita (muted)</td></tr>
+            <tr><td>clearable</td><td>boolean</td><td>false</td><td>botão × quando há valor (inativo em readonly)</td></tr>
+            <tr><td>readonly</td><td>boolean</td><td>false</td><td>somente leitura — fundo sunken, borda tracejada, sem clear</td></tr>
             <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita input</td></tr>
-            <tr><td>invalid</td><td>boolean</td><td>false</td><td>estado de erro</td></tr>
-            <tr><td>errorMessage</td><td>string</td><td>''</td><td>mensagem de erro</td></tr>
+            <tr><td>invalid</td><td>boolean</td><td>false</td><td>estado de erro (outline vermelho)</td></tr>
+            <tr><td>errorMessage</td><td>string</td><td>''</td><td>mensagem de erro abaixo (visível quando invalid=true)</td></tr>
+            <tr><td>helpText</td><td>string</td><td>''</td><td>texto de ajuda abaixo (sobrescrito pelo errorMessage quando invalid)</td></tr>
+            <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>host width: 100%</td></tr>
           </tbody>
         </table>
         <div class="api-slots"><span class="api-slot-label">outputs</span> <code>(valueChange)</code> string &nbsp;·&nbsp; <code>(cleared)</code> void</div>
@@ -846,11 +1011,16 @@
           <tbody>
             <tr><td>checked</td><td>boolean</td><td>false</td><td>estado marcado</td></tr>
             <tr><td>label</td><td>string</td><td>''</td><td>texto à direita do checkbox</td></tr>
-            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
+            <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho da caixa e do label</td></tr>
+            <tr><td>readonly</td><td>boolean</td><td>false</td><td>impede mudança — pointer-events: none, opacidade reduzida</td></tr>
+            <tr><td>invalid</td><td>boolean</td><td>false</td><td>borda e fundo vermelhos na caixa</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação (nativo + opacidade)</td></tr>
             <tr><td>indeterminate</td><td>boolean</td><td>false</td><td>estado intermediário (—)</td></tr>
+            <tr><td>trueValue</td><td>unknown</td><td>true</td><td>valor emitido em valueChange quando marcado</td></tr>
+            <tr><td>falseValue</td><td>unknown</td><td>false</td><td>valor emitido em valueChange quando desmarcado</td></tr>
           </tbody>
         </table>
-        <div class="api-slots"><span class="api-slot-label">output</span> <code>(checkedChange)</code> boolean</div>
+        <div class="api-slots"><span class="api-slot-label">outputs</span> <code>(checkedChange)</code> boolean &nbsp;·&nbsp; <code>(valueChange)</code> trueValue | falseValue</div>
       }
 
       @case ('kbd') {
@@ -889,9 +1059,11 @@
           <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
           <tbody>
             <tr><td>label</td><td>string</td><td class="required">required</td><td>texto da tag (prefixado com #)</td></tr>
-            <tr><td>variant</td><td>'default' | 'primary' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor de fundo</td></tr>
-            <tr><td>removable</td><td>boolean</td><td>false</td><td>exibe botão × de remoção</td></tr>
-            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
+            <tr><td>icon</td><td>string</td><td>''</td><td>glyph antes do #label (ex: ★ ▶ ⚡)</td></tr>
+            <tr><td>variant</td><td>'default' | 'primary' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor de fundo via color-mix</td></tr>
+            <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho do texto e padding</td></tr>
+            <tr><td>removable</td><td>boolean</td><td>false</td><td>exibe botão × de remoção (inativo quando disabled)</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação — pointer-events: none</td></tr>
           </tbody>
         </table>
         <div class="api-slots"><span class="api-slot-label">output</span> <code>(removed)</code> void</div>
@@ -979,6 +1151,36 @@
           <code>duration=0</code> ou <code>sticky=true</code> = sem auto-dismiss ·
           toasts com <code>life</code> exibem barra de contagem regressiva
         </div>
+      }
+
+      @case ('message') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>severity</td><td>'info' | 'success' | 'warning' | 'error'</td><td>'info'</td><td>define a paleta de cor e o ícone padrão</td></tr>
+            <tr><td>variant</td><td>'filled' | 'outlined' | 'ghost'</td><td>'filled'</td><td>filled = fundo tintado · outlined = sem fundo · ghost = só borda esquerda</td></tr>
+            <tr><td>text</td><td>string</td><td>''</td><td>texto principal; se vazio usa ng-content</td></tr>
+            <tr><td>icon</td><td>string</td><td>''</td><td>glyph de ícone (override — padrão por severity: ℹ ✓ ⚠ ✕)</td></tr>
+            <tr><td>closable</td><td>boolean</td><td>false</td><td>exibe botão × que oculta a mensagem</td></tr>
+          </tbody>
+        </table>
+        <div class="api-slots">
+          <span class="api-slot-label">output</span> <code>(msgClosed)</code> void — emite ao fechar &nbsp;·&nbsp;
+          <span class="api-slot-label">slot</span> <code>default</code> — conteúdo customizado (quando text não é usado)
+        </div>
+      }
+
+      @case ('skeleton') {
+        <table class="api-table">
+          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
+          <tbody>
+            <tr><td>width</td><td>string</td><td>'100%'</td><td>largura do placeholder (CSS: %, px, etc.)</td></tr>
+            <tr><td>height</td><td>string</td><td>'14px'</td><td>altura de cada linha/bloco</td></tr>
+            <tr><td>shape</td><td>'rectangle' | 'circle'</td><td>'rectangle'</td><td>circle usa height como width também (quadrado perfeito)</td></tr>
+            <tr><td>animation</td><td>'wave' | 'pulse' | 'none'</td><td>'wave'</td><td>wave = shimmer horizontal · pulse = fade in/out · none = estático</td></tr>
+            <tr><td>count</td><td>number</td><td>1</td><td>número de linhas de skeleton empilhadas com gap</td></tr>
+          </tbody>
+        </table>
       }
 
       @case ('modal') {

@@ -1,0 +1,15 @@
+<div
+  class="skeleton-stack"
+  [style.width]="isCircle() ? height() : width()"
+>
+  @for (row of rows(); track $index) {
+    <div
+      class="skeleton"
+      [class.skeleton--circle]="isCircle()"
+      [class.skeleton--wave]="animation() === 'wave'"
+      [class.skeleton--pulse]="animation() === 'pulse'"
+      [style.height]="height()"
+      [style.width]="isCircle() ? height() : null"
+    ></div>
+  }
+</div>

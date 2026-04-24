@@ -1,5 +1,9 @@
 :host {
   display: block;
+
+  &.is-full-width {
+    width: 100%;
+  }
 }
 
 .input-shell {
@@ -15,6 +19,22 @@
     outline-offset: -2px;
   }
 
+  // ── Sizes ──────────────────────────────────────────────────────────────────
+  &--sm {
+    .input-prefix, .input-suffix { font-size: 11px; padding: 0 6px; }
+    .input-field                  { padding: 4px 8px; font-size: 11px; }
+    .input-clear                  { width: 24px; }
+  }
+
+  // md = default (no modifier class needed)
+
+  &--lg {
+    .input-prefix, .input-suffix { font-size: 15px; padding: 0 10px; }
+    .input-field                  { padding: 11px 14px; font-size: 15px; }
+    .input-clear                  { width: 34px; }
+  }
+
+  // ── States ─────────────────────────────────────────────────────────────────
   &--invalid {
     outline: 2px solid var(--red);
     outline-offset: -2px;
@@ -24,6 +44,20 @@
     opacity: 0.55;
     cursor: not-allowed;
     background: var(--panel-alt);
+  }
+
+  &--readonly {
+    background: var(--sunken);
+    border-style: dashed;
+
+    &:focus-within {
+      outline: 2px solid color-mix(in srgb, var(--amber) 40%, transparent);
+      outline-offset: -2px;
+    }
+
+    .input-field {
+      cursor: default;
+    }
   }
 }
 
@@ -93,4 +127,12 @@
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--red);
+}
+
+.input-help {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.75;
 }

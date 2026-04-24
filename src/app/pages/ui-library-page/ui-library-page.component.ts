@@ -13,15 +13,17 @@ import { ThemeService } from '../../core/theme/theme.service';
 import {
   AsciiBarComponent,
   RetroButtonComponent,
+  RetroButtonGroupComponent,
   RetroCheckboxComponent,
   RetroCodeComponent,
   RetroCollapsibleComponent,
   RetroInputComponent,
   RetroKbdComponent,
+  RetroMessageComponent,
   RetroModalComponent,
   RetroProgressComponent,
+  RetroSkeletonComponent,
   RetroTagComponent,
-  RetroButtonGroupComponent,
   RetroToastComponent,
   RetroWindowComponent,
   StatBoxComponent,
@@ -30,19 +32,22 @@ import {
   ToastService,
 } from '../../shared/ui';
 import { RetroButtonIconPos, RetroButtonTone, RetroButtonVariant } from '../../shared/ui/retro-button/retro-button.component';
-import { StatBoxTone, StatBoxTrend } from '../../shared/ui/stat-box/stat-box.component';
-import { StatusPillSize } from '../../shared/ui/status-pill/status-pill.component';
-import { RetroInputType } from '../../shared/ui/retro-input/retro-input.component';
-import { StatusDotSize } from '../../shared/ui/status-dot/status-dot.component';
-import { TagVariant } from '../../shared/ui/retro-tag/retro-tag.component';
+import { RetroCheckboxSize } from '../../shared/ui/retro-checkbox/retro-checkbox.component';
+import { RetroInputSize, RetroInputType } from '../../shared/ui/retro-input/retro-input.component';
+import { MessageSeverity, MessageVariant } from '../../shared/ui/retro-message/retro-message.component';
 import { ProgressMode, ProgressTone } from '../../shared/ui/retro-progress/retro-progress.component';
+import { SkeletonAnimation, SkeletonShape } from '../../shared/ui/retro-skeleton/retro-skeleton.component';
+import { TagSize, TagVariant } from '../../shared/ui/retro-tag/retro-tag.component';
 import { ToastPosition } from '../../shared/ui/retro-toast/toast.model';
+import { StatBoxTone, StatBoxTrend } from '../../shared/ui/stat-box/stat-box.component';
+import { StatusDotSize } from '../../shared/ui/status-dot/status-dot.component';
+import { StatusPillSize } from '../../shared/ui/status-pill/status-pill.component';
 import { WindowControl, WindowPadding, WindowStatus, WindowVariant } from '../../shared/ui/retro-window/window.model';
 
 type StoryId =
   | 'win' | 'button' | 'input' | 'checkbox' | 'kbd'
   | 'pill' | 'dot' | 'tag' | 'stat'
-  | 'progress' | 'ascii' | 'toast'
+  | 'progress' | 'ascii' | 'toast' | 'message' | 'skeleton'
   | 'modal' | 'collapsible' | 'code';
 type StoryTab = 'preview' | 'code';
 
@@ -62,8 +67,10 @@ interface StoryGroup { group: string; items: StoryItem[]; }
     RetroCollapsibleComponent,
     RetroInputComponent,
     RetroKbdComponent,
+    RetroMessageComponent,
     RetroModalComponent,
     RetroProgressComponent,
+    RetroSkeletonComponent,
     RetroTagComponent,
     RetroToastComponent,
     RetroWindowComponent,
@@ -107,6 +114,8 @@ export class UiLibraryPageComponent implements OnInit {
         { id: 'progress', label: 'Progress' },
         { id: 'ascii',    label: 'Ascii Bar' },
         { id: 'toast',    label: 'Toast' },
+        { id: 'message',  label: 'Message' },
+        { id: 'skeleton', label: 'Skeleton' },
       ],
     },
     {
@@ -136,6 +145,8 @@ export class UiLibraryPageComponent implements OnInit {
       progress:   'retro-progress.component.ts',
       ascii:      'ascii-bar.component.ts',
       toast:      'retro-toast.component.ts',
+      message:    'retro-message.component.ts',
+      skeleton:   'retro-skeleton.component.ts',
       modal:      'retro-modal.component.ts',
       collapsible:'retro-collapsible.component.ts',
       code:       'retro-code.component.ts',
@@ -230,26 +241,35 @@ export class UiLibraryPageComponent implements OnInit {
   protected readonly inputValue        = signal('');
   protected readonly inputPlaceholder  = signal('grep projects…');
   protected readonly inputType         = signal<RetroInputType>('text');
+  protected readonly inputSize         = signal<RetroInputSize>('md');
   protected readonly inputPrefix       = signal('$');
   protected readonly inputSuffix       = signal('');
   protected readonly inputDisabled     = signal(false);
+  protected readonly inputReadonly     = signal(false);
   protected readonly inputInvalid      = signal(false);
-  protected readonly inputErrorMessage = signal('campo obrigatorio');
+  protected readonly inputErrorMessage = signal('campo obrigatório');
+  protected readonly inputHelpText     = signal('');
   protected readonly inputClearable    = signal(true);
+  protected readonly inputFullWidth    = signal(false);
   protected readonly inputTypes: RetroInputType[] = ['text', 'search', 'number', 'email', 'password'];
+  protected readonly inputSizes: RetroInputSize[] = ['sm', 'md', 'lg'];
   protected readonly inputCode = computed(() =>
     [
       `<app-retro-input`,
       `  type="${this.inputType()}"`,
-      this.inputPrefix() ? `  prefix="${this.inputPrefix()}"` : null,
-      this.inputSuffix() ? `  suffix="${this.inputSuffix()}"` : null,
+      this.inputSize() !== 'md'  ? `  size="${this.inputSize()}"` : null,
+      this.inputPrefix()         ? `  prefix="${this.inputPrefix()}"` : null,
+      this.inputSuffix()         ? `  suffix="${this.inputSuffix()}"` : null,
       `  placeholder="${this.inputPlaceholder()}"`,
       `  [value]="value"`,
-      this.inputClearable() ? `  [clearable]="true"` : null,
-      this.inputInvalid()   ? `  [invalid]="true"` : null,
+      this.inputClearable()      ? `  [clearable]="true"` : null,
+      this.inputReadonly()       ? `  [readonly]="true"` : null,
+      this.inputInvalid()        ? `  [invalid]="true"` : null,
       this.inputInvalid() && this.inputErrorMessage()
         ? `  errorMessage="${this.inputErrorMessage()}"` : null,
-      this.inputDisabled() ? `  [disabled]="true"` : null,
+      this.inputHelpText()       ? `  helpText="${this.inputHelpText()}"` : null,
+      this.inputDisabled()       ? `  [disabled]="true"` : null,
+      this.inputFullWidth()      ? `  [fullWidth]="true"` : null,
       `  (valueChange)="value = $event"`,
       `/>`,
     ].filter((l) => l !== null).join('\n'),
@@ -259,15 +279,21 @@ export class UiLibraryPageComponent implements OnInit {
 
   protected readonly checkboxChecked       = signal(false);
   protected readonly checkboxLabel         = signal('enable feature flag');
+  protected readonly checkboxSize          = signal<RetroCheckboxSize>('md');
   protected readonly checkboxDisabled      = signal(false);
+  protected readonly checkboxReadonly      = signal(false);
+  protected readonly checkboxInvalid       = signal(false);
   protected readonly checkboxIndeterminate = signal(false);
   protected readonly checkboxCode = computed(() =>
     [
       `<app-retro-checkbox`,
-      this.checkboxLabel()         ? `  label="${this.checkboxLabel()}"` : null,
+      this.checkboxLabel()          ? `  label="${this.checkboxLabel()}"` : null,
+      this.checkboxSize() !== 'md'  ? `  size="${this.checkboxSize()}"` : null,
       `  [checked]="checked"`,
-      this.checkboxDisabled()      ? `  [disabled]="true"` : null,
-      this.checkboxIndeterminate() ? `  [indeterminate]="true"` : null,
+      this.checkboxReadonly()       ? `  [readonly]="true"` : null,
+      this.checkboxInvalid()        ? `  [invalid]="true"` : null,
+      this.checkboxDisabled()       ? `  [disabled]="true"` : null,
+      this.checkboxIndeterminate()  ? `  [indeterminate]="true"` : null,
       `  (checkedChange)="checked = $event"`,
       `/>`,
     ].filter((l) => l !== null).join('\n'),
@@ -321,6 +347,8 @@ export class UiLibraryPageComponent implements OnInit {
 
   protected readonly tagLabel     = signal('angular');
   protected readonly tagVariant   = signal<TagVariant>('default');
+  protected readonly tagSize      = signal<TagSize>('md');
+  protected readonly tagIcon      = signal('');
   protected readonly tagRemovable = signal(false);
   protected readonly tagDisabled  = signal(false);
   protected readonly tagVariants: TagVariant[] = ['default', 'primary', 'success', 'warning', 'danger'];
@@ -328,9 +356,11 @@ export class UiLibraryPageComponent implements OnInit {
     [
       `<app-retro-tag`,
       `  label="${this.tagLabel()}"`,
+      this.tagIcon()              ? `  icon="${this.tagIcon()}"` : null,
       this.tagVariant() !== 'default' ? `  variant="${this.tagVariant()}"` : null,
-      this.tagRemovable() ? `  [removable]="true"` : null,
-      this.tagDisabled()  ? `  [disabled]="true"` : null,
+      this.tagSize() !== 'md'     ? `  size="${this.tagSize()}"` : null,
+      this.tagRemovable()         ? `  [removable]="true"` : null,
+      this.tagDisabled()          ? `  [disabled]="true"` : null,
       `  (removed)="onRemove()"`,
       `/>`,
     ].filter((l) => l !== null).join('\n'),
@@ -467,6 +497,47 @@ export class UiLibraryPageComponent implements OnInit {
     } : undefined;
     this.toastService.show(this.toastMessage(), this.toastType(), duration, details, sticky);
   }
+
+  // ── Message ───────────────────────────────────────────────────────────────
+
+  protected readonly msgSeverity  = signal<MessageSeverity>('info');
+  protected readonly msgVariant   = signal<MessageVariant>('filled');
+  protected readonly msgText      = signal('Pipeline concluído com 3 artefatos publicados.');
+  protected readonly msgClosable  = signal(true);
+  protected readonly msgIcon      = signal('');
+  protected readonly msgSeverities: MessageSeverity[] = ['info', 'success', 'warning', 'error'];
+  protected readonly msgVariants: MessageVariant[]    = ['filled', 'outlined', 'ghost'];
+  protected readonly msgCode = computed(() =>
+    [
+      `<app-retro-message`,
+      `  severity="${this.msgSeverity()}"`,
+      this.msgVariant() !== 'filled'    ? `  variant="${this.msgVariant()}"` : null,
+      this.msgText()                    ? `  text="${this.msgText()}"` : null,
+      this.msgIcon()                    ? `  icon="${this.msgIcon()}"` : null,
+      this.msgClosable()                ? `  [closable]="true"` : null,
+      `  (msgClosed)="onMsgClosed()"`,
+      `/>`,
+    ].filter((l) => l !== null).join('\n'),
+  );
+
+  // ── Skeleton ──────────────────────────────────────────────────────────────
+
+  protected readonly skelWidth     = signal('100%');
+  protected readonly skelHeight    = signal('14px');
+  protected readonly skelShape     = signal<SkeletonShape>('rectangle');
+  protected readonly skelAnimation = signal<SkeletonAnimation>('wave');
+  protected readonly skelCount     = signal(1);
+  protected readonly skelCode = computed(() =>
+    [
+      `<app-retro-skeleton`,
+      this.skelWidth()  !== '100%'       ? `  width="${this.skelWidth()}"` : null,
+      this.skelHeight() !== '14px'       ? `  height="${this.skelHeight()}"` : null,
+      this.skelShape()  !== 'rectangle'  ? `  shape="${this.skelShape()}"` : null,
+      this.skelAnimation() !== 'wave'    ? `  animation="${this.skelAnimation()}"` : null,
+      this.skelCount() !== 1             ? `  [count]="${this.skelCount()}"` : null,
+      `/>`,
+    ].filter((l) => l !== null).join('\n'),
+  );
 
   // ── Modal ────────────────────────────────────────────────────────────────
 

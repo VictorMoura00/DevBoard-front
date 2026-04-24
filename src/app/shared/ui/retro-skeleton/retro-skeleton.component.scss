@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// ── Single row ────────────────────────────────────────────────────────────
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--sunken);
+  border: 1px solid var(--line-soft);
+
+  // Retro stipple overlay — gives the "░░░" texture via repeating gradient
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent              0 3px,
+    rgba(0, 0, 0, 0.045)     3px 4px
+  );
+
+  &--circle {
+    border-radius: 50%;
+  }
+
+  // ── Animations ──────────────────────────────────────────────────────────
+
+  &--wave::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent                                              0%,
+      color-mix(in srgb, var(--panel-alt) 75%, transparent)  35%,
+      color-mix(in srgb, var(--panel-alt) 90%, transparent)  50%,
+      color-mix(in srgb, var(--panel-alt) 75%, transparent)  65%,
+      transparent                                             100%
+    );
+    animation: skeleton-wave 1.5s ease-in-out infinite;
+  }
+
+  &--pulse {
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// ── Keyframes ─────────────────────────────────────────────────────────────
+
+@keyframes skeleton-wave {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}

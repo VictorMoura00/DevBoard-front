@@ -1,8 +1,12 @@
 <span
   class="tag"
   [class]="'tag--' + variant()"
+  [class.tag--sm]="size() === 'sm'"
   [class.tag--disabled]="disabled()"
 >
+  @if (icon()) {
+    <span class="tag__icon" aria-hidden="true">{{ icon() }}</span>
+  }
   <span class="tag__hash">#</span>
   <span class="tag__label">{{ label() }}</span>
   @if (removable() && !disabled()) {

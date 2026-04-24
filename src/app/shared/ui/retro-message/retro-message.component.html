@@ -1,0 +1,22 @@
+<div
+  class="message"
+  [class]="'message--' + severity() + ' message--' + variant()"
+>
+  <span class="message__icon" aria-hidden="true">{{ effectiveIcon() }}</span>
+  <span class="message__badge">{{ badge() }}</span>
+  <span class="message__body">
+    @if (text()) {
+      {{ text() }}
+    } @else {
+      <ng-content />
+    }
+  </span>
+  @if (closable()) {
+    <button
+      type="button"
+      class="message__close"
+      (click)="close()"
+      aria-label="fechar mensagem"
+    >×</button>
+  }
+</div>

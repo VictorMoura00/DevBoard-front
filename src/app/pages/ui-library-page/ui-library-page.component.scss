@@ -338,6 +338,13 @@
   cursor: pointer;
 }
 
+.knob-check-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 2px;
+}
+
 .knob-counter {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -366,6 +373,34 @@
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--muted);
+}
+
+.btn-preview-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+
+  &--full { width: 100%; }
+}
+
+.knob-hint {
+  font-weight: 400;
+  opacity: 0.5;
+  font-size: 9px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.win-preview-footer {
+  padding: 6px 14px;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
 }
 
 .field-error {

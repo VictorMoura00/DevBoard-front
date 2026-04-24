@@ -9,13 +9,43 @@
   cursor: pointer;
   user-select: none;
 
+  // ── States ─────────────────────────────────────────────────────────────────
   &--disabled {
     opacity: 0.45;
     cursor: not-allowed;
   }
 
-  &:not(.checkbox--disabled):hover .checkbox__box {
+  &--readonly {
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.75;
+  }
+
+  &--invalid .checkbox__box {
+    border-color: var(--red);
+    background: color-mix(in srgb, var(--red) 8%, var(--panel-alt));
+  }
+
+  &:not(.checkbox--disabled):not(.checkbox--readonly):hover .checkbox__box {
     background: color-mix(in srgb, var(--amber) 15%, var(--panel-alt));
+  }
+
+  // ── Sizes ──────────────────────────────────────────────────────────────────
+  &--sm {
+    gap: 6px;
+
+    .checkbox__box {
+      width: 13px;
+      height: 13px;
+    }
+
+    .checkbox__mark {
+      font-size: 9px;
+    }
+
+    .checkbox__label {
+      font-size: 11px;
+    }
   }
 }
 
@@ -36,7 +66,7 @@
   flex-shrink: 0;
   border: 2px solid var(--line);
   background: var(--panel-alt);
-  transition: background 80ms;
+  transition: background 80ms, border-color 80ms;
 }
 
 .checkbox__mark {
