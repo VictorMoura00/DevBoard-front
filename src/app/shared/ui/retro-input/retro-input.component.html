@@ -1,0 +1,28 @@
+<div
+  class="input-shell"
+  [class.input-shell--invalid]="invalid()"
+  [class.input-shell--disabled]="disabled()"
+>
+  @if (prefix()) {
+    <span class="input-prefix">{{ prefix() }}</span>
+  }
+
+  <input
+    class="input-field"
+    [type]="type()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    (input)="onInput($event)"
+  />
+
+  @if (showClear()) {
+    <button type="button" class="input-clear" (click)="onClear()" aria-label="Limpar">×</button>
+  } @else if (suffix()) {
+    <span class="input-suffix">{{ suffix() }}</span>
+  }
+</div>
+
+@if (invalid() && errorMessage()) {
+  <div class="input-error" role="alert">› {{ errorMessage() }}</div>
+}

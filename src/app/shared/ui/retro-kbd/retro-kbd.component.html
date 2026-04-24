@@ -1,0 +1,8 @@
+@if (keys().length) {
+  @for (key of keys(); track $index) {
+    @if ($index > 0) { <span class="sep">+</span> }
+    <kbd class="key">{{ key }}</kbd>
+  }
+} @else {
+  <kbd class="key"><ng-content /></kbd>
+}
