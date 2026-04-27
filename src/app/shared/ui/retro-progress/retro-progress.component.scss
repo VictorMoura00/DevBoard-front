@@ -48,7 +48,7 @@
     background-image: repeating-linear-gradient(
       -45deg,
       transparent 0 4px,
-      rgba(0, 0, 0, 0.12) 4px 8px
+      color-mix(in srgb, var(--line) 18%, transparent) 4px 8px
     );
     animation: progress-stripe 600ms linear infinite;
   }

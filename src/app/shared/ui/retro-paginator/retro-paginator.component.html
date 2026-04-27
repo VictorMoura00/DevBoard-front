@@ -1,0 +1,38 @@
+<span class="pag__info">
+  @if (total() === 0) { sem registros }
+  @else { {{ startRow() }}–{{ endRow() }} de {{ total() }} }
+</span>
+
+<span class="pag__fill"></span>
+
+<button class="pag__btn" type="button" [disabled]="page() === 0" (click)="goto(page() - 1)" aria-label="Página anterior">◄</button>
+
+@for (p of pageNumbers(); track $index) {
+  @if (p === null) {
+    <span class="pag__ellipsis">···</span>
+  } @else {
+    <button
+      class="pag__btn"
+      [class.pag__btn--active]="p === page()"
+      type="button"
+      (click)="goto(p)"
+      [attr.aria-current]="p === page() ? 'page' : null"
+    >{{ p + 1 }}</button>
+  }
+}
+
+<button class="pag__btn" type="button" [disabled]="page() >= pageCount() - 1" (click)="goto(page() + 1)" aria-label="Próxima página">►</button>
+
+@if (showPageSize()) {
+  <span class="pag__sep">|</span>
+  <select
+    class="pag__size-select"
+    [value]="pageSize()"
+    (change)="pageSizeChange.emit(+$any($event.target).value)"
+    aria-label="Linhas por página"
+  >
+    @for (opt of pageSizeOptions(); track opt) {
+      <option [value]="opt">{{ opt }} / pág</option>
+    }
+  </select>
+}

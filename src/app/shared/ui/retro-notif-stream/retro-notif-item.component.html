@@ -1,0 +1,13 @@
+<div class="notif-item" (click)="itemRead.emit()">
+  <div class="notif-item__meta">
+    <span class="notif-item__badge notif-item__badge--{{ type() }}">{{ badgeLabel() }}</span>
+    <span class="notif-item__source">via {{ source() }}</span>
+    <span class="notif-item__time">{{ timestamp() | relativeTime }}</span>
+  </div>
+
+  <div class="notif-item__title">{{ title() }}</div>
+
+  @if (subtitle()) {
+    <div class="notif-item__subtitle">{{ subtitle() }}</div>
+  }
+</div>

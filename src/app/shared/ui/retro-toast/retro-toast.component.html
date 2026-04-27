@@ -1,10 +1,19 @@
 <div [class]="'toast-stack toast-stack--' + position()">
   @for (toast of visibleToasts(); track toast.id) {
-    <div class="toast toast--{{ toast.type }}" [class.toast--expanded]="isExpanded(toast.id)">
+    <div
+      class="toast toast--{{ toast.type }}"
+      [class.toast--expanded]="isExpanded(toast.id)"
+      (mouseenter)="onMouseEnter(toast.id)"
+      (mouseleave)="onMouseLeave(toast.id)"
+    >
 
       <!-- ── Life bar (auto-dismiss countdown) ── -->
       @if (toast.life) {
-        <div class="toast__life-bar" [style.animation-duration]="toast.life + 'ms'"></div>
+        <div
+          class="toast__life-bar"
+          [style.animation-duration]="toast.life + 'ms'"
+          [style.animation-play-state]="isPaused(toast.id) ? 'paused' : 'running'"
+        ></div>
       }
 
       <!-- ── Header row ── -->

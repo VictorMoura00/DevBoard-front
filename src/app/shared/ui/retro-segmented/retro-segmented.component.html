@@ -1,0 +1,10 @@
+@for (opt of options(); track opt) {
+  <button
+    type="button"
+    class="seg-btn"
+    [class.seg-btn--active]="_value() === opt"
+    [disabled]="_cvaDisabled()"
+    [attr.aria-pressed]="_value() === opt"
+    (click)="select(opt)"
+  >{{ opt }}</button>
+}

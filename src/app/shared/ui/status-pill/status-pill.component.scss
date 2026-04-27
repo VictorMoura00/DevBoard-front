@@ -32,10 +32,16 @@
 }
 
 .status-pill--completed {
-  background: color-mix(in srgb, var(--cyan) 35%, var(--panel-alt));
+  background: var(--phosphor);
+  color: #030d03;
 }
 
 .status-pill--archived {
   background: var(--sunken);
   color: var(--muted);
+}
+
+.status-pill--cursando {
+  background: color-mix(in srgb, var(--amber) 28%, var(--panel-alt));
+  color: color-mix(in srgb, var(--amber) 90%, var(--line));
 }

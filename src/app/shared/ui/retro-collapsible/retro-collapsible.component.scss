@@ -8,11 +8,18 @@
   box-shadow: 3px 3px 0 0 var(--line);
 }
 
+// ── Header row (trigger + optional actions slot) ───────────────────────────
+
 .collapsible-header {
   display: flex;
   align-items: center;
+}
+
+.collapsible-trigger {
+  flex: 1;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  width: 100%;
   padding: 8px 14px;
   border: none;
   background: transparent;
@@ -21,18 +28,9 @@
   text-align: left;
   transition: background 80ms;
 
-  &:hover:not(:disabled) {
-    background: var(--panel-alt);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  .collapsible--collapsed & {
-    border-bottom: none;
-  }
+  &:hover:not(:disabled)  { background: var(--panel-alt); }
+  &:focus-visible         { outline: 2px solid var(--amber); outline-offset: -2px; }
+  &:disabled              { cursor: not-allowed; opacity: 0.5; }
 }
 
 // ── Disabled state ────────────────────────────────────────────────────────
@@ -60,6 +58,21 @@
   margin-left: 12px;
 }
 
+// ── Body — animated with CSS grid trick ───────────────────────────────────
+
+.collapsible-body-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 180ms ease;
+  overflow: hidden;
+
+  .collapsible--collapsed & { grid-template-rows: 0fr; }
+}
+
 .collapsible-body {
+  min-height: 0;
   border-top: 1px solid var(--line-soft);
+  overflow: hidden;
+
+  .collapsible--collapsed & { border-top-color: transparent; }
 }

@@ -25,6 +25,7 @@
   --button-secondary-hover-bg: var(--amber-bright);
   --button-secondary-hover-fg: var(--line);
   --button-shadow: 2px 2px 0 0 var(--line);
+  --input-bg: #faf9f5;
 }
 
 html[data-theme='classic-amber'] {
@@ -50,6 +51,7 @@ html[data-theme='classic-amber'] {
   --button-secondary-fg: var(--text);
   --button-secondary-hover-bg: var(--amber-bright);
   --button-secondary-hover-fg: var(--line);
+  --input-bg: #faf9f5;
 }
 
 html[data-theme='phosphor-green'] {
@@ -75,6 +77,7 @@ html[data-theme='phosphor-green'] {
   --button-secondary-fg: var(--text);
   --button-secondary-hover-bg: #b8efc7;
   --button-secondary-hover-fg: var(--line);
+  --input-bg: #f6faef;
 }
 
 html[data-theme='crt-blue'] {
@@ -100,7 +103,97 @@ html[data-theme='crt-blue'] {
   --button-secondary-fg: var(--text);
   --button-secondary-hover-bg: #c8dbf8;
   --button-secondary-hover-fg: var(--line);
+  --input-bg: #f0f4fb;
 }
+
+// ── Dark Amber ──────────────────────────────────────────────────────────────
+
+html[data-theme='dark-amber'] {
+  color-scheme: dark;
+  --desktop: #0d1009;
+  --panel: #141810;
+  --panel-alt: #1e231a;
+  --sunken: #0a0d07;
+  --line: #c8c0a0;
+  --line-soft: #3a3a2c;
+  --text: #d8d0b8;
+  --muted: #928878; /* brightened: 5.15:1 on panel, 4.59:1 on panel-alt — WCAG AA */
+  --amber: #ffb000;
+  --amber-bright: #ffd166;
+  --phosphor: #33ff66;
+  --cyan: #00d3ff;
+  --red: #ff4136;
+  --page-bg: linear-gradient(180deg, #0d1009 0%, #0a0d07 100%);
+  --button-primary-bg: var(--amber);
+  --button-primary-fg: #0d1009;
+  --button-primary-hover-bg: var(--amber-bright);
+  --button-primary-hover-fg: #0d1009;
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: color-mix(in srgb, var(--amber) 12%, var(--panel-alt));
+  --button-secondary-hover-fg: var(--amber);
+  --button-shadow: 2px 2px 0 0 var(--line);
+}
+
+// ── Synthwave ───────────────────────────────────────────────────────────────
+
+html[data-theme='synthwave'] {
+  color-scheme: dark;
+  --desktop: #10091c;
+  --panel: #16102a;
+  --panel-alt: #211638;
+  --sunken: #0c0616;
+  --line: #d8c4f8;
+  --line-soft: #3a2858;
+  --text: #ece0ff;
+  --muted: #9676be; /* brightened: 4.93:1 on panel, 4.55:1 on panel-alt — WCAG AA */
+  --amber: #ff2d78;
+  --amber-bright: #ff80ab;
+  --phosphor: #00f5c8;
+  --cyan: #00d8ff;
+  --red: #ff3350;
+  --page-bg: linear-gradient(180deg, #130a20 0%, #0e0618 100%);
+  --button-primary-bg: var(--amber);
+  --button-primary-fg: #10091c;
+  --button-primary-hover-bg: var(--amber-bright);
+  --button-primary-hover-fg: #10091c;
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: color-mix(in srgb, var(--amber) 15%, var(--panel-alt));
+  --button-secondary-hover-fg: var(--amber);
+  --button-shadow: 2px 2px 0 0 var(--amber);
+}
+
+// ── Solar Sepia ─────────────────────────────────────────────────────────────
+
+html[data-theme='solar-sepia'] {
+  color-scheme: dark;
+  --desktop: #1a1410;
+  --panel: #221a14;
+  --panel-alt: #2c221a;
+  --sunken: #13100c;
+  --line: #d0c090;
+  --line-soft: #40301c;
+  --text: #d8c8a0;
+  --muted: #9a8868; /* brightened: 4.97:1 on panel, 4.51:1 on panel-alt — WCAG AA */
+  --amber: #e8a020;
+  --amber-bright: #f0c060;
+  --phosphor: #88cc44;
+  --cyan: #44b8cc;
+  --red: #e05840;
+  --page-bg: linear-gradient(180deg, #1a1410 0%, #141008 100%);
+  --button-primary-bg: var(--amber);
+  --button-primary-fg: #1a1410;
+  --button-primary-hover-bg: var(--amber-bright);
+  --button-primary-hover-fg: #1a1410;
+  --button-secondary-bg: var(--panel-alt);
+  --button-secondary-fg: var(--text);
+  --button-secondary-hover-bg: color-mix(in srgb, var(--amber) 12%, var(--panel-alt));
+  --button-secondary-hover-fg: var(--amber);
+  --button-shadow: 2px 2px 0 0 var(--line);
+}
+
+// ── Base ─────────────────────────────────────────────────────────────────────
 
 *,
 *::before,
@@ -133,4 +226,18 @@ button {
 
 a {
   color: inherit;
+}
+
+// ── Reduced motion ────────────────────────────────────────────────────────────
+// Disables decorative/looping animations for users who prefer less motion.
+// Simple state transitions (hover color, opacity) survive at 0.01ms = instant.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

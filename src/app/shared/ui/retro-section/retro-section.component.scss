@@ -1,0 +1,154 @@
+:host { display: block; }
+
+// ── Shell ─────────────────────────────────────────────────────────────────────
+.retro-section {
+  overflow: hidden;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  box-shadow: 3px 3px 0 0 var(--line);
+
+  // ── Variant: terminal ────────────────────────────────────────────────────────
+  &--terminal {
+    background: #030d03;
+    border-color: var(--phosphor);
+    box-shadow:
+      3px 3px 0 0 color-mix(in srgb, var(--phosphor) 45%, #000),
+      0 0 16px 0 color-mix(in srgb, var(--phosphor) 12%, transparent);
+
+    .section-header {
+      background: #061206;
+      color: var(--phosphor);
+      text-shadow: 0 0 8px color-mix(in srgb, var(--phosphor) 55%, transparent);
+      border-bottom-color: color-mix(in srgb, var(--phosphor) 22%, transparent);
+      background-image: repeating-linear-gradient(
+        0deg, rgba(0, 255, 60, 0.045) 0 2px, transparent 2px 4px
+      );
+    }
+
+    .section-mark { background: var(--phosphor); box-shadow: 0 0 5px var(--phosphor); }
+
+    .section-body {
+      background: #030d03;
+      color: var(--phosphor);
+      background-image: repeating-linear-gradient(
+        0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px
+      );
+    }
+  }
+
+  // ── Variant: system ──────────────────────────────────────────────────────────
+  &--system {
+    background: #0d0700;
+    border-color: var(--amber);
+    box-shadow:
+      3px 3px 0 0 color-mix(in srgb, var(--amber) 45%, #000),
+      0 0 14px 0 color-mix(in srgb, var(--amber) 10%, transparent);
+
+    .section-header {
+      background: #1a0c00;
+      color: var(--amber);
+      text-shadow: 0 0 7px color-mix(in srgb, var(--amber) 45%, transparent);
+      border-bottom-color: color-mix(in srgb, var(--amber) 20%, transparent);
+      background-image: repeating-linear-gradient(
+        0deg, rgba(255, 160, 0, 0.04) 0 2px, transparent 2px 4px
+      );
+    }
+
+    .section-mark {
+      background: var(--amber);
+      box-shadow: 0 0 4px color-mix(in srgb, var(--amber) 70%, transparent);
+    }
+
+    .section-body {
+      background: #0d0700;
+      color: var(--amber);
+      background-image: repeating-linear-gradient(
+        0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px
+      );
+    }
+  }
+
+  // ── Variant: alert ───────────────────────────────────────────────────────────
+  &--alert {
+    background: #0d0000;
+    border-color: var(--red);
+    box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--red) 45%, #000);
+
+    .section-header {
+      background: #1a0000;
+      color: #ff8080;
+      border-bottom-color: color-mix(in srgb, var(--red) 22%, transparent);
+      background-image: repeating-linear-gradient(
+        0deg, rgba(255, 40, 40, 0.04) 0 2px, transparent 2px 4px
+      );
+    }
+
+    .section-mark { background: var(--red); }
+
+    .section-body {
+      background: #0d0000;
+      color: #ff8080;
+      background-image: repeating-linear-gradient(
+        0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px
+      );
+    }
+  }
+
+  // ── Variant: ghost ───────────────────────────────────────────────────────────
+  &--ghost {
+    background: transparent;
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--line) 38%, transparent);
+    box-shadow: none;
+    opacity: 0.7;
+
+    .section-header {
+      background: transparent;
+      background-image: none;
+      border-bottom: 1px dashed color-mix(in srgb, var(--line) 28%, transparent);
+      color: color-mix(in srgb, var(--text) 55%, transparent);
+    }
+
+    .section-mark {
+      background: color-mix(in srgb, var(--line) 45%, transparent);
+    }
+
+    .section-body {
+      color: color-mix(in srgb, var(--text) 50%, transparent);
+    }
+  }
+}
+
+// ── Header bar ────────────────────────────────────────────────────────────────
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 8px;
+  background: var(--line);
+  color: var(--panel-alt);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid transparent;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.08) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.section-mark {
+  width: 5px;
+  height: 5px;
+  background: var(--amber);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────────
+.section-body {
+  padding: 12px;
+}

@@ -7,6 +7,10 @@
   <!-- ── Titlebar ──────────────────────────────────────────────────────── -->
   <header class="titlebar">
 
+    @if (icon()) {
+      <span class="titlebar-icon" aria-hidden="true">{{ icon() }}</span>
+    }
+
     <span class="titlebar-mark"></span>
 
     <span class="titlebar-title">{{ title() }}</span>

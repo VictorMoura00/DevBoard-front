@@ -1,0 +1,37 @@
+<div class="stream">
+
+  <header class="stream__header">
+    <span class="stream__mark">■</span>
+    <span class="stream__title">{{ headerLabel() }}</span>
+    <button
+      type="button"
+      class="stream__close"
+      aria-label="Fechar notificações"
+      (click)="closed.emit()"
+    >×</button>
+  </header>
+
+  <div class="stream__actions">
+    <button
+      type="button"
+      class="stream__action-btn"
+      [disabled]="service.unreadCount() === 0"
+      (click)="service.markAllRead()"
+    >MARK ALL READ</button>
+    <button
+      type="button"
+      class="stream__action-btn"
+      [disabled]="service.totalCount() === 0"
+      (click)="service.clear()"
+    >CLEAR</button>
+  </div>
+
+  <div class="stream__body" role="list">
+    @if (service.totalCount() === 0) {
+      <div class="stream__empty">› no notifications</div>
+    } @else {
+      <ng-content />
+    }
+  </div>
+
+</div>

@@ -31,8 +31,8 @@
 
   // ── Type: event (dark / amber) ───────────────────────────────────────────
   &--event {
-    background: #0a0e0a;
-    border-color: color-mix(in srgb, var(--amber) 25%, #0a0e0a);
+    background: var(--line);
+    border-color: color-mix(in srgb, var(--amber) 25%, var(--line));
     box-shadow: 4px 4px 0 0 color-mix(in srgb, var(--amber) 40%, #000);
   }
 
@@ -100,9 +100,9 @@
   padding: 1px 5px;
   border: 1.5px solid;
 
-  .toast--event   & { background: var(--amber); color: #0a0e0a; border-color: var(--amber); }
-  .toast--success & { background: transparent; color: #0a0e0a; border-color: rgba(0,0,0,0.4); }
-  .toast--warning & { background: transparent; color: #0a0e0a; border-color: rgba(0,0,0,0.35); }
+  .toast--event   & { background: var(--amber); color: var(--line); border-color: var(--amber); }
+  .toast--success & { background: transparent; color: var(--line); border-color: rgba(0,0,0,0.4); }
+  .toast--warning & { background: transparent; color: var(--line); border-color: rgba(0,0,0,0.35); }
   .toast--error   & { background: transparent; color: #fff; border-color: rgba(255,255,255,0.45); }
 }
 
@@ -117,8 +117,8 @@
   min-width: 0;
 
   .toast--event   & { color: #fff; }
-  .toast--success & { color: #0a0e0a; }
-  .toast--warning & { color: #0a0e0a; }
+  .toast--success & { color: var(--line); }
+  .toast--warning & { color: var(--line); }
   .toast--error   & { color: #fff; }
 }
 
@@ -129,8 +129,8 @@
   margin-right: -4px;
 
   .toast--event   & { color: var(--amber); }
-  .toast--success & { color: #0a0e0a; }
-  .toast--warning & { color: #0a0e0a; }
+  .toast--success & { color: var(--line); }
+  .toast--warning & { color: var(--line); }
   .toast--error   & { color: #fff; }
 }
 
@@ -150,11 +150,12 @@
   transition: opacity 80ms;
   opacity: 0.4;
 
-  &:hover { opacity: 1; }
+  &:hover         { opacity: 1; }
+  &:focus-visible { opacity: 1; outline: 2px solid var(--amber); outline-offset: 1px; }
 
   .toast--event   & { color: #fff; }
-  .toast--success & { color: #0a0e0a; }
-  .toast--warning & { color: #0a0e0a; }
+  .toast--success & { color: var(--line); }
+  .toast--warning & { color: var(--line); }
   .toast--error   & { color: #fff; }
 }
 
@@ -190,8 +191,8 @@
   &:hover { opacity: 0.7; }
 
   .toast--event   & { color: var(--amber); border-color: var(--amber); }
-  .toast--success & { color: #0a0e0a; border-color: rgba(0,0,0,0.5); }
-  .toast--warning & { color: #0a0e0a; border-color: rgba(0,0,0,0.4); }
+  .toast--success & { color: var(--line); border-color: rgba(0,0,0,0.5); }
+  .toast--warning & { color: var(--line); border-color: rgba(0,0,0,0.4); }
   .toast--error   & { color: #fff; border-color: rgba(255,255,255,0.45); }
 }
 
@@ -300,8 +301,8 @@
   &:hover { opacity: 0.7; }
 
   .toast--event   & { color: var(--amber); border-color: var(--amber); }
-  .toast--success & { color: #0a0e0a; border-color: rgba(0,0,0,0.45); }
-  .toast--warning & { color: #0a0e0a; border-color: rgba(0,0,0,0.4); }
+  .toast--success & { color: var(--line); border-color: rgba(0,0,0,0.45); }
+  .toast--warning & { color: var(--line); border-color: rgba(0,0,0,0.4); }
   .toast--error   & { color: #fff; border-color: rgba(255,255,255,0.4); }
 }
 

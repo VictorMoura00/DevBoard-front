@@ -1,0 +1,141 @@
+:host { display: block; }
+
+// Space after status pill
+app-status-pill { margin-right: 10px; }
+
+// ── Heading ───────────────────────────────────────────────────────────────────
+
+.pdh__heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pdh__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.pdh__badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 0;
+  flex-shrink: 0;
+
+  &--stable     { background: color-mix(in srgb, var(--phosphor) 20%, var(--panel-alt)); color: var(--phosphor); border: 1px solid color-mix(in srgb, var(--phosphor) 30%, transparent); }
+  &--beta       { background: color-mix(in srgb, var(--phosphor) 10%, var(--panel-alt)); color: color-mix(in srgb, var(--phosphor) 70%, var(--amber)); border: 1px solid color-mix(in srgb, var(--phosphor) 20%, transparent); }
+  &--wip        { background: color-mix(in srgb, var(--amber) 15%, var(--panel-alt));    color: var(--amber);    border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent); }
+  &--deprecated { background: color-mix(in srgb, var(--red) 15%, var(--panel-alt));      color: var(--red);      border: 1px solid color-mix(in srgb, var(--red) 30%, transparent); }
+}
+
+// ── Description ───────────────────────────────────────────────────────────────
+
+.pdh__desc {
+  margin: 10px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+// ── Meta row ──────────────────────────────────────────────────────────────────
+
+.pdh__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+
+.pdh__lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+}
+
+.pdh__lang-dot { font-size: 8px; color: var(--phosphor); }
+
+.pdh__stars { color: var(--muted); }
+
+.pdh__sep { color: var(--line); }
+
+.pdh__repo-link {
+  color: var(--muted);
+  text-decoration: none;
+  &:hover { color: var(--amber); text-decoration: underline; }
+}
+
+// ── Tags ──────────────────────────────────────────────────────────────────────
+
+.pdh__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+// ── Overall progress ─────────────────────────────────────────────────────────
+
+.pdh__overall {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-soft, rgba(255,255,255,0.08));
+}
+
+.pdh__overall-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+// ── Stats grid ────────────────────────────────────────────────────────────────
+
+.pdh__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.pdh__stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  background: var(--panel-alt);
+}
+
+.pdh__stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.pdh__stat-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+
+  &--doing  { color: var(--amber); }
+  &--review { color: var(--phosphor); }
+  &--done   { color: var(--muted); }
+}

@@ -1,0 +1,78 @@
+<app-retro-window
+  [title]="windowTitle()"
+  [subtitle]="windowSubtitle()"
+  [showControls]="showControls()"
+>
+  <span class="card-status-wrap" window-actions>
+    <app-status-pill [status]="status()" />
+  </span>
+
+  <!-- ── Project name + badge ───────────────────────────────────────────── -->
+  <div class="pdh__heading">
+    <h2 class="pdh__name">{{ displayName() ?? '—' }}</h2>
+    @if (badge()) {
+      <span [class]="badgeClass()">{{ badge() }}</span>
+    }
+  </div>
+
+  <!-- ── Description ────────────────────────────────────────────────────── -->
+  @if (displayDescription()) {
+    <p class="pdh__desc">{{ displayDescription() }}</p>
+  }
+
+  <!-- ── Meta row: language · visibility · stars · repo link ───────────── -->
+  <div class="pdh__meta">
+    @if (repoData()?.language) {
+      <span class="pdh__lang">
+        <span class="pdh__lang-dot">■</span>
+        {{ repoData()!.language }}
+      </span>
+    }
+    <app-visibility-chip [visibility]="visibility()" />
+    @if (showGithubStats() && repoData()?.stargazers_count !== undefined) {
+      <span class="pdh__stars">• {{ repoData()!.stargazers_count }}</span>
+    }
+    @if (repoSlug()) {
+      <span class="pdh__sep">|</span>
+      <a class="pdh__repo-link" [href]="project().repositoryUrl!" target="_blank" rel="noopener noreferrer" [attr.aria-label]="repoSlug() + ' — abre em nova guia'">
+        {{ repoSlug() }}
+      </a>
+    }
+  </div>
+
+  <!-- ── Tags ───────────────────────────────────────────────────────────── -->
+  @if (project().tags.length) {
+    <div class="pdh__tags">
+      @for (tag of project().tags; track tag) {
+        <app-retro-tag [label]="'#' + tag" size="sm" />
+      }
+    </div>
+  }
+
+  <!-- ── Overall progress ───────────────────────────────────────────────── -->
+  <div class="pdh__overall">
+    <span class="pdh__overall-label">OVERALL</span>
+    <app-ascii-bar [value]="progress()" [width]="24" />
+  </div>
+
+  <!-- ── Task stats grid ────────────────────────────────────────────────── -->
+  <div class="pdh__stats">
+    <div class="pdh__stat">
+      <span class="pdh__stat-label">TODO</span>
+      <span class="pdh__stat-val">{{ taskStats().todo }}</span>
+    </div>
+    <div class="pdh__stat">
+      <span class="pdh__stat-label">DOING</span>
+      <span class="pdh__stat-val pdh__stat-val--doing">{{ taskStats().doing }}</span>
+    </div>
+    <div class="pdh__stat">
+      <span class="pdh__stat-label">REVIEW</span>
+      <span class="pdh__stat-val pdh__stat-val--review">{{ taskStats().review }}</span>
+    </div>
+    <div class="pdh__stat">
+      <span class="pdh__stat-label">DONE</span>
+      <span class="pdh__stat-val pdh__stat-val--done">{{ taskStats().done }}</span>
+    </div>
+  </div>
+
+</app-retro-window>

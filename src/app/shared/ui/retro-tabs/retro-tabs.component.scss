@@ -1,0 +1,169 @@
+:host { display: block; }
+
+// ── Token defaults (default variant) ─────────────────────────────────────────
+.retro-tabs-bar {
+  --tabs-bg:          #111611;
+  --tabs-border:      #1f281f;
+  --tab-idle:         #556155;
+  --tab-hover:        var(--amber);
+  --tab-active:       var(--amber);
+  --tab-active-bg:    rgba(255, 188, 64, 0.04);
+  --tab-active-line:  var(--amber);
+  --tab-badge-bg:     rgba(255, 188, 64, 0.15);
+  --tab-badge-color:  var(--amber);
+  --scanline-color:   rgba(255, 255, 255, 0.04);
+}
+
+// ── Tab bar ───────────────────────────────────────────────────────────────────
+.retro-tabs-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--tabs-border);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      var(--scanline-color) 0 1px,
+      rgba(0, 0, 0, 0.08) 1px 2px
+    ),
+    var(--tabs-bg);
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  // ── Variant: terminal ───────────────────────────────────────────────────────
+  &--terminal {
+    --tabs-bg:          #010d01;
+    --tabs-border:      color-mix(in srgb, var(--phosphor) 22%, transparent);
+    --tab-idle:         color-mix(in srgb, var(--phosphor) 38%, transparent);
+    --tab-hover:        var(--phosphor);
+    --tab-active:       var(--phosphor);
+    --tab-active-bg:    rgba(0, 255, 60, 0.05);
+    --tab-active-line:  var(--phosphor);
+    --tab-badge-bg:     rgba(0, 255, 60, 0.15);
+    --tab-badge-color:  var(--phosphor);
+    --scanline-color:   rgba(0, 255, 60, 0.045);
+  }
+
+  // ── Variant: system ─────────────────────────────────────────────────────────
+  &--system {
+    --tabs-bg:          #0d0700;
+    --tabs-border:      color-mix(in srgb, var(--amber) 20%, transparent);
+    --tab-idle:         color-mix(in srgb, var(--amber) 38%, transparent);
+    --tab-hover:        var(--amber);
+    --tab-active:       var(--amber);
+    --tab-active-bg:    rgba(255, 160, 0, 0.05);
+    --tab-active-line:  var(--amber);
+    --tab-badge-bg:     rgba(255, 160, 0, 0.15);
+    --tab-badge-color:  var(--amber);
+    --scanline-color:   rgba(255, 160, 0, 0.04);
+  }
+
+  // ── Variant: alert ──────────────────────────────────────────────────────────
+  &--alert {
+    --tabs-bg:          #0d0000;
+    --tabs-border:      color-mix(in srgb, var(--red) 22%, transparent);
+    --tab-idle:         color-mix(in srgb, var(--red) 40%, transparent);
+    --tab-hover:        #ff8080;
+    --tab-active:       #ff8080;
+    --tab-active-bg:    rgba(255, 40, 40, 0.06);
+    --tab-active-line:  var(--red);
+    --tab-badge-bg:     rgba(255, 40, 40, 0.18);
+    --tab-badge-color:  #ff8080;
+    --scanline-color:   rgba(255, 40, 40, 0.04);
+  }
+
+  // ── Variant: ghost ──────────────────────────────────────────────────────────
+  &--ghost {
+    --tabs-bg:          transparent;
+    --tabs-border:      color-mix(in srgb, var(--line) 28%, transparent);
+    --tab-idle:         color-mix(in srgb, var(--text) 30%, transparent);
+    --tab-hover:        color-mix(in srgb, var(--text) 65%, transparent);
+    --tab-active:       color-mix(in srgb, var(--text) 72%, transparent);
+    --tab-active-bg:    transparent;
+    --tab-active-line:  color-mix(in srgb, var(--line) 55%, transparent);
+    --tab-badge-bg:     color-mix(in srgb, var(--line) 20%, transparent);
+    --tab-badge-color:  color-mix(in srgb, var(--text) 55%, transparent);
+    --scanline-color:   transparent;
+
+    border-bottom-style: dashed;
+  }
+}
+
+// ── Individual tab ────────────────────────────────────────────────────────────
+.retro-tab {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--tab-idle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 12px 16px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 100ms ease, border-color 100ms ease;
+
+  &:hover:not([disabled]) { color: var(--tab-hover); }
+
+  &:focus-visible {
+    outline: 1px solid var(--tab-active);
+    outline-offset: -2px;
+  }
+
+  &--active {
+    background: var(--tab-active-bg);
+    color: var(--tab-active);
+    border-bottom-color: var(--tab-active-line);
+
+    .retro-tab-marker { opacity: 1; }
+  }
+
+  &--disabled,
+  &[disabled] {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.retro-tab-marker {
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+.retro-tab-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.retro-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 14px;
+  padding: 0 4px;
+  background: var(--tab-badge-bg);
+  color: var(--tab-badge-color);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+// ── Content area ──────────────────────────────────────────────────────────────
+.retro-tabs-content {
+  // transparent — children define their own padding/bg
+}
+
+@media (max-width: 700px) {
+  .retro-tabs-bar { padding-inline: 8px; }
+}

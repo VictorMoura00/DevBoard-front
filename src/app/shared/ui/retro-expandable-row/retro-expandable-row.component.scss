@@ -1,0 +1,39 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line-soft);
+
+  &.is-expanded > .row-main { background: color-mix(in srgb, var(--line) 4%, transparent); }
+}
+
+// ── Main row (inherits --grid-cols from RetroDataGrid) ────────────────────────
+
+.row-main {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  transition: background 60ms;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover { background: color-mix(in srgb, var(--amber) 10%, transparent); }
+  }
+}
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+
+.row-detail {
+  padding: calc(var(--row-font-size, 10px) + 2px) 14px;
+  background: color-mix(in srgb, var(--line) 4%, transparent);
+  border-top: 1px dashed var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: var(--row-font-size, 10px);
+  color: var(--text);
+  animation: detail-in 100ms ease-out;
+}
+
+@keyframes detail-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,12 @@
+:host { display: inline-flex; }
+
+.vc {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+
+  &--public   { color: var(--phosphor); }
+  &--private  { color: var(--red); }
+  &--internal { color: var(--amber); }
+}

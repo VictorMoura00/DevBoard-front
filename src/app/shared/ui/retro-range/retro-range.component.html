@@ -1,12 +1,20 @@
-<label class="retro-range">
+<div class="retro-range">
+  @if (label()) {
+    <span class="retro-range__label">{{ label() }}</span>
+  }
   <input
     class="retro-range__field"
     type="range"
-    [value]="value()"
+    [value]="_value()"
     [min]="min()"
     [max]="max()"
     [step]="step()"
-    [disabled]="disabled()"
+    [disabled]="disabled() || _cvaDisabled()"
+    [attr.aria-label]="ariaLabel() || label() || null"
     (input)="onInput($event)"
+    (blur)="onBlur()"
   />
-</label>
+  @if (showValue()) {
+    <span class="retro-range__value">{{ _value() }}</span>
+  }
+</div>

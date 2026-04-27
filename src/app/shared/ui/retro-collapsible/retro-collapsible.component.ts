@@ -14,7 +14,7 @@ export class RetroCollapsibleComponent {
   /** Two-way bindable: [(collapsed)]="mySignal" or [collapsed]="v" (collapsedChange)="v=$event" */
   readonly collapsed = model(false);
 
-  protected toggle(): void {
+  toggle(): void {
     if (this.disabled()) return;
     this.collapsed.update((v) => !v);
   }

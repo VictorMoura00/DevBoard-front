@@ -19,8 +19,9 @@ import { WindowControl, WindowPadding, WindowStatus, WindowVariant } from './win
   styleUrl: './retro-window.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '[class.is-expanded]': 'expanded()',
-    '[class.is-closed]':   'closed()',
+    '[class.is-expanded]':   'expanded()',
+    '[class.is-closed]':     'closed()',
+    '[class.is-collapsed]':  'collapsed()',
   },
 })
 export class RetroWindowComponent {
@@ -77,8 +78,12 @@ export class RetroWindowComponent {
   readonly maximizeClick = output<void>();
   readonly closeClick    = output<void>();
 
+  /** Shows a small character/icon before the titlebar mark. E.g. '▶', '⚙', '⚠' */
+  readonly icon = input('');
+
   // ── Internal state ────────────────────────────────────────────────────────
-  protected readonly collapsed = signal(false);
+  /** Minimized state — two-way bindable via [(collapsed)]. */
+  readonly collapsed = model(false);
   protected readonly expanded  = signal(false);
 
   // ── Derived: effective control set ───────────────────────────────────────
@@ -125,7 +130,6 @@ export class RetroWindowComponent {
 
   protected onMaximize(): void {
     this.expanded.update(v => !v);
-    // when restoring from expanded, also un-collapse
     if (!this.expanded()) this.collapsed.set(false);
     this.maximizeClick.emit();
   }

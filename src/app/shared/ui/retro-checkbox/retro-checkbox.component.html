@@ -1,21 +1,26 @@
 <label
   class="checkbox"
   [class.checkbox--sm]="size() === 'sm'"
-  [class.checkbox--disabled]="disabled()"
+  [class.checkbox--disabled]="disabled() || _cvaDisabled()"
   [class.checkbox--readonly]="readonly()"
   [class.checkbox--invalid]="invalid()"
 >
   <input
     type="checkbox"
     class="checkbox__native"
-    [checked]="checked()"
-    [disabled]="disabled()"
+    [checked]="_checked()"
+    [disabled]="disabled() || _cvaDisabled()"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-readonly]="readonly() || null"
+    [attr.aria-invalid]="invalid() || null"
+    [attr.aria-checked]="indeterminate() ? 'mixed' : _checked()"
     (change)="onChange($event)"
+    (blur)="onBlur()"
   />
   <span class="checkbox__box">
     @if (indeterminate()) {
       <span class="checkbox__mark">—</span>
-    } @else if (checked()) {
+    } @else if (_checked()) {
       <span class="checkbox__mark">✓</span>
     }
   </span>

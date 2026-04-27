@@ -1,0 +1,22 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.pi {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+  text-align: center;
+
+  &--critical { color: var(--red); }
+  &--high     { color: var(--amber); }
+  &--medium   { color: var(--phosphor); opacity: 0.75; }
+  &--low      { color: var(--muted); }
+  &--none     { color: var(--muted); opacity: 0.3; }
+}

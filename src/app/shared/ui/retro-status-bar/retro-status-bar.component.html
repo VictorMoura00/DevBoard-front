@@ -1,0 +1,24 @@
+<div class="sb__left">
+  @if (version()) {
+    <span class="sb__version">devboard {{ version() }}</span>
+    @if (items().length) { <span class="sb__sep">·</span> }
+  }
+  @for (item of items(); track item.label; let last = $last) {
+    <span class="sb__item">
+      @if (item.value !== undefined) {
+        <span class="sb__val">{{ item.value }}</span>
+      }
+      {{ item.label }}
+    </span>
+    @if (!last) { <span class="sb__sep">·</span> }
+  }
+</div>
+
+<div class="sb__right">
+  @for (sc of shortcuts(); track sc.key) {
+    <span class="sb__shortcut">
+      <app-retro-kbd>{{ sc.key }}</app-retro-kbd>
+      <span>{{ sc.label }}</span>
+    </span>
+  }
+</div>

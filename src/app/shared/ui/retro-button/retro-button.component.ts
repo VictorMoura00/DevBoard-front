@@ -41,12 +41,15 @@ export class RetroButtonComponent {
   // ── Link rendering ────────────────────────────────────────────────────────
   /** When set, renders an <a> element instead of <button>. */
   readonly href     = input('');
+  /** Sets the download attribute on the <a> element (only applies when href is set). */
+  readonly download = input('');
 
   // ── State ─────────────────────────────────────────────────────────────────
   readonly type      = input<ButtonType>('button');
   readonly disabled  = input(false);
   readonly loading   = input(false);
   readonly fullWidth = input(false);
+  readonly ariaLabel = input('');
 
   // ── Outputs ───────────────────────────────────────────────────────────────
   readonly pressed = output<MouseEvent>();

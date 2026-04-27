@@ -10,6 +10,6 @@
   </div>
 
   <div class="code-body">
-    <pre class="code-pre">{{ code() }}</pre>
+    <pre class="code-pre" [innerHTML]="code() | highlightCode:language()"></pre>
   </div>
 </div>

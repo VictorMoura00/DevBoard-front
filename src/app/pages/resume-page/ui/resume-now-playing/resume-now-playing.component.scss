@@ -1,0 +1,109 @@
+:host { display: block; }
+
+.np {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+// ── Equalizer bars ────────────────────────────────────────────────────────────
+
+.np-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.np-eq-bar {
+  width: 3px;
+  background: var(--amber);
+  animation: np-eq 0.9s ease-in-out infinite;
+
+  &:nth-child(1) { height: 6px;  animation-delay: 0s;    }
+  &:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+  &:nth-child(3) { height: 8px;  animation-delay: 0.3s;  }
+  &:nth-child(4) { height: 10px; animation-delay: 0.45s; }
+}
+
+@keyframes np-eq {
+  0%, 100% { transform: scaleY(0.4); }
+  50%       { transform: scaleY(1);   }
+}
+
+// ── Label ─────────────────────────────────────────────────────────────────────
+
+.np-label {
+  color: var(--amber);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+
+// ── Track info ────────────────────────────────────────────────────────────────
+
+.np-track {
+  display: flex;
+  gap: 6px;
+  color: var(--text);
+
+  strong { font-weight: 700; }
+}
+
+.np-sep    { color: var(--muted); }
+.np-artist { color: color-mix(in srgb, var(--muted) 70%, var(--text)); }
+
+// ── Progress bar ──────────────────────────────────────────────────────────────
+
+.np-bar {
+  flex: 1;
+  height: 2px;
+  background: color-mix(in srgb, var(--line) 40%, transparent);
+  overflow: hidden;
+}
+
+.np-progress {
+  height: 100%;
+  background: var(--amber);
+  transition: width 0.5s linear;
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────────
+
+.np-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.np-vol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.np-vol-icon {
+  color: var(--muted);
+  font-size: 10px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.np-vol-slider {
+  width: 80px;
+}
+
+// ── Paused state ──────────────────────────────────────────────────────────────
+
+.np--paused {
+  .np-eq-bar { animation-play-state: paused; }
+  .np-label  { color: var(--muted); }
+}

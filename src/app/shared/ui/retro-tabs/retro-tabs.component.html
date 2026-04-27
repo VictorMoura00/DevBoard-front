@@ -1,0 +1,34 @@
+<div
+  #bar
+  class="retro-tabs-bar retro-tabs-bar--{{ variant() }}"
+  role="tablist"
+  (keydown)="onKeydown($event)"
+>
+  @for (tab of tabs(); track tab.id) {
+    <button
+      type="button"
+      role="tab"
+      class="retro-tab"
+      [class.retro-tab--active]="active() === tab.id"
+      [class.retro-tab--disabled]="tab.disabled"
+      [attr.aria-selected]="active() === tab.id"
+      [attr.aria-disabled]="tab.disabled || null"
+      [disabled]="tab.disabled || null"
+      (click)="activate(tab)"
+    >
+      @if (tab.icon) {
+        <span class="retro-tab-icon" aria-hidden="true">{{ tab.icon }}</span>
+      } @else {
+        <span class="retro-tab-marker" aria-hidden="true">›</span>
+      }
+      <span class="retro-tab-label">{{ tab.label }}</span>
+      @if (tab.badge != null) {
+        <span class="retro-tab-badge" aria-label="{{ tab.badge }} items">{{ tab.badge }}</span>
+      }
+    </button>
+  }
+</div>
+
+<div class="retro-tabs-content" role="tabpanel">
+  <ng-content />
+</div>

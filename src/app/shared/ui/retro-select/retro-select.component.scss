@@ -9,41 +9,136 @@
 }
 
 .retro-select {
+  position: relative;
   display: inline-flex;
+  flex-direction: column;
   width: 100%;
   min-width: 0;
 }
 
-.retro-select__field {
+// ── Trigger ───────────────────────────────────────────────────────────────────
+
+.retro-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
-  min-width: 0;
-  appearance: none;
-  padding: 0.5rem 2rem 0.5rem 0.7rem;
+  padding: 0.5rem 0.7rem;
   border: 2px solid var(--line);
-  box-shadow: 3px 3px 0 0 var(--line);
-  background:
-    linear-gradient(45deg, transparent 50%, var(--amber) 50%) calc(100% - 16px) calc(50% - 2px) / 7px 7px no-repeat,
-    linear-gradient(135deg, var(--amber) 50%, transparent 50%) calc(100% - 11px) calc(50% - 2px) / 7px 7px no-repeat,
-    var(--panel);
+  box-shadow: 3px 3px 0 0 var(--line), inset 2px 2px 0 0 color-mix(in srgb, var(--line) 8%, transparent);
+  background: var(--panel);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 12px;
+  font-weight: 500;
   line-height: 1.2;
   cursor: pointer;
+  text-align: left;
+  transition: border-color 60ms, box-shadow 60ms;
 
-  &:focus {
-    outline: 2px solid var(--amber);
-    outline-offset: 2px;
+  &:focus         { outline: 2px solid var(--amber); outline-offset: -2px; }
+  &:disabled      { cursor: not-allowed; opacity: 0.55; }
+
+  .retro-select--open & { border-color: var(--amber); box-shadow: 3px 3px 0 0 var(--amber), inset 2px 2px 0 0 color-mix(in srgb, var(--line) 8%, transparent); }
+}
+
+.retro-select--sm .retro-select__trigger {
+  padding: 0.4rem 0.55rem;
+  font-size: 11px;
+}
+
+.retro-select__value { flex: 1; }
+
+.retro-select__arrow {
+  font-size: 8px;
+  color: var(--amber);
+  flex-shrink: 0;
+  transition: transform 120ms;
+
+  .retro-select--open & { transform: rotate(180deg); }
+}
+
+// ── Dropdown ─────────────────────────────────────────────────────────────────
+
+.retro-select__dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 var(--line);
+  display: flex;
+  flex-direction: column;
+  max-height: 220px;
+  overflow-y: auto;
+  animation: retro-select-pop 80ms ease-out;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--line) 20%, transparent); }
+}
+
+@keyframes retro-select-pop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Options ───────────────────────────────────────────────────────────────────
+
+.retro-select__opt {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 60ms, color 60ms;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--amber) 10%, transparent);
+    color: var(--amber);
+  }
+
+  &--active {
+    color: var(--amber);
+    background: color-mix(in srgb, var(--amber) 7%, transparent);
+
+    &::before {
+      content: '▶ ';
+      font-size: 7px;
+      vertical-align: middle;
+    }
+  }
+
+  &--focused {
+    outline: 1px dashed var(--amber);
+    outline-offset: -2px;
+    background: color-mix(in srgb, var(--amber) 4%, transparent);
   }
 
   &:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
-    opacity: 0.55;
   }
 }
 
-.retro-select--sm .retro-select__field {
-  padding-block: 0.4rem;
-  padding-inline: 0.55rem 1.8rem;
+.retro-select--sm .retro-select__opt {
+  padding: 5px 8px;
   font-size: 11px;
+}
+
+.retro-select__sep {
+  height: 1px;
+  background: var(--line-soft);
+  margin: 3px 0;
+  pointer-events: none;
 }

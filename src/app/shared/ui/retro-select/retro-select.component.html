@@ -1,14 +1,52 @@
-<label class="retro-select" [class.retro-select--sm]="size() === 'sm'">
-  <select
-    class="retro-select__field"
-    [value]="value()"
-    [disabled]="disabled()"
-    (change)="onChange($event)"
+<div
+  class="retro-select"
+  [class.retro-select--sm]="size() === 'sm'"
+  [class.retro-select--open]="_open()"
+  [class.retro-select--disabled]="disabled() || _cvaDisabled()"
+>
+  <button
+    type="button"
+    class="retro-select__trigger"
+    [disabled]="disabled() || _cvaDisabled()"
+    role="combobox"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-expanded]="_open()"
+    aria-haspopup="listbox"
+    [attr.aria-controls]="_open() ? _listboxId : null"
+    [attr.aria-activedescendant]="activeDescendant()"
+    (click)="toggleOpen()"
+    (blur)="onBlur()"
   >
-    @for (option of options(); track option.value) {
-      <option [value]="option.value" [disabled]="option.disabled ?? false">
-        {{ option.label }}
-      </option>
-    }
-  </select>
-</label>
+    <span class="retro-select__value">{{ selectedLabel() || placeholder() || '—' }}</span>
+    <span class="retro-select__arrow" aria-hidden="true">▼</span>
+  </button>
+
+  @if (_open()) {
+    <div
+      class="retro-select__dropdown"
+      role="listbox"
+      [id]="_listboxId"
+    >
+      @for (opt of options(); track opt.value; let i = $index) {
+        @if (opt.separator) {
+          <div class="retro-select__sep" role="separator" aria-hidden="true"></div>
+        } @else {
+          <button
+            type="button"
+            class="retro-select__opt"
+            [class.retro-select__opt--active]="opt.value === _value()"
+            [class.retro-select__opt--focused]="i === _focusIdx() && opt.value !== _value()"
+            [disabled]="opt.disabled ?? false"
+            [id]="optionId(i)"
+            role="option"
+            [attr.aria-selected]="opt.value === _value()"
+            (click)="selectOption(opt.value)"
+            (mouseenter)="_focusIdx.set(i)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

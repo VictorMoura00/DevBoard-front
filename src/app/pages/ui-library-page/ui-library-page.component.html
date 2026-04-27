@@ -1,37 +1,51 @@
-<!-- ── Sidebar ── -->
-<aside class="lib-sidebar">
-  <div class="lib-header">
-    <div class="lib-header-main">
-      <div class="lib-count">{{ filteredStoryCount() }} / {{ totalStoryCount() }} components</div>
-      <div class="lib-logo">◆ DEVBOARD/UI</div>
-      <div class="lib-version">component library · v0.1.0</div>
-    </div>
+<!-- ── Page header ── -->
+<header class="lib-page-header">
+  <div class="lib-brand">
+    <span class="lib-logo">◆ DEVBOARD/UI</span>
+    <span class="lib-header-sep">|</span>
+    <span class="lib-version">v0.1.0</span>
+    <span class="lib-header-sep lib-header-sep--dim">·</span>
+    <span class="lib-count">{{ filteredStoryCount() }}/{{ totalStoryCount() }} components</span>
+  </div>
+  <div class="lib-header-controls">
+    <span class="lib-theme-label">theme:</span>
+    <app-retro-select
+      [options]="themeOptions"
+      [value]="currentTheme()"
+      size="sm"
+      (valueChange)="setTheme($any($event))"
+    />
     <button
       type="button"
       class="lib-sidebar-toggle"
       (click)="toggleSidebar()"
       [title]="sidebarCollapsed() ? 'expandir sidebar' : 'recolher sidebar'"
       [attr.aria-expanded]="!sidebarCollapsed()"
-    >{{ sidebarCollapsed() ? '▶' : '◀' }}</button>
+    >{{ sidebarCollapsed() ? '[+]' : '[-]' }}</button>
+  </div>
+</header>
+
+<!-- ── Sidebar ── -->
+<aside class="lib-sidebar">
+  <div class="lib-sidebar-path">
+    <span>~/ui/components</span>
+    <span class="lib-sidebar-path-count">{{ filteredStoryCount() }}/{{ totalStoryCount() }}</span>
   </div>
 
-  <div class="lib-toolbar">
-    <div class="lib-search">
-      <label class="lib-theme-label">search</label>
-      <app-retro-input
-        #storySearchInput
-        [value]="storySearch()"
-        type="search"
-        size="sm"
-        prefix=">"
-        placeholder="filter components..."
-        [clearable]="true"
-        [fullWidth]="true"
-        (valueChange)="onStorySearchChange($event)"
-        (keydown.escape)="clearStorySearch()"
-      />
-      <div class="lib-search-hint">Ctrl+K focus · Esc clear · J/K navigate</div>
-    </div>
+  <div class="lib-sidebar-search">
+    <app-retro-input
+      #storySearchInput
+      [value]="storySearch()"
+      type="search"
+      size="sm"
+      prefix=">"
+      placeholder="filter..."
+      [clearable]="true"
+      [fullWidth]="true"
+      (valueChange)="onStorySearchChange($event)"
+      (keydown.escape)="clearStorySearch()"
+    />
+    <div class="lib-search-hint">Ctrl+K · Esc · J/K</div>
   </div>
 
   @for (group of filteredStoryGroups(); track group.group) {
@@ -43,7 +57,8 @@
         [attr.aria-expanded]="!isGroupCollapsed(group.group)"
       >
         <span class="lib-group-arrow">{{ isGroupCollapsed(group.group) ? '▶' : '▼' }}</span>
-        · {{ group.group }} ·
+        {{ group.group }}/
+        <span class="lib-group-count">{{ group.items.length }}</span>
       </button>
       <div class="lib-group-items">
         @for (item of group.items; track item.id) {
@@ -63,26 +78,14 @@
 
   @if (filteredStoryCount() === 0) {
     <div class="lib-empty-state">
-      <div class="lib-empty-title">no components found</div>
-      <div class="lib-empty-copy">adjust the search term or press Esc to clear it.</div>
+      <div class="lib-empty-title">no results</div>
+      <div class="lib-empty-copy">adjust filter · Esc to clear</div>
     </div>
   }
 </aside>
 
 <!-- ── Main ── -->
 <main class="lib-main">
-  <div class="lib-topbar">
-    <div class="lib-topbar-block">
-      <span class="lib-theme-label">theme</span>
-      <app-retro-select
-        [options]="themeOptions"
-        [value]="currentTheme()"
-        size="sm"
-        (valueChange)="setTheme($any($event))"
-      />
-    </div>
-  </div>
-
   <div class="lib-breadcrumb-bar">
     <div class="lib-breadcrumb">
       {{ activeBreadcrumb() }} / <strong>{{ activeStoryTitle() }}</strong>
@@ -463,6 +466,589 @@
               }
             }
 
+            @case ('toolbar-search') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame preview-frame--wide">
+                  <app-toolbar-search
+                    [value]="toolbarSearchValue()"
+                    [placeholder]="toolbarSearchPlaceholder()"
+                    (valueChange)="toolbarSearchValue.set($event)"
+                    (cleared)="toolbarSearchValue.set('')"
+                  />
+                  <div class="knob-counter" style="margin-top:8px">value: <strong>{{ toolbarSearchValue() }}</strong></div>
+                </div>
+              } @else {
+                <app-retro-code [code]="toolbarSearchCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('project-card') {
+              @if (activeTab() === 'preview') {
+                <div [style.width]="projectCardSize() === 'sm' ? '220px' : projectCardSize() === 'lg' ? '360px' : '280px'">
+                  <app-project-card
+                    [project]="projectCardMock()"
+                    [indexLabel]="projectCardIndex()"
+                    [status]="projectCardStatus()"
+                    [progress]="projectCardProgress()"
+                    [size]="projectCardSize()"
+                    [showGithubStats]="projectCardShowGithub()"
+                  />
+                </div>
+              } @else {
+                <app-retro-code [code]="projectCardCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('notif-item') {
+              @if (activeTab() === 'preview') {
+                <div style="width:380px;border:2px solid var(--line)">
+                  <app-retro-notif-item
+                    [type]="notifItemType()"
+                    [source]="notifItemSource()"
+                    [timestamp]="notifItemNow"
+                    [title]="notifItemTitle()"
+                    [subtitle]="notifItemSubtitle()"
+                    [read]="notifItemRead()"
+                    (itemRead)="notifItemRead.set(true)"
+                  />
+                </div>
+              } @else {
+                <app-retro-code [code]="notifItemCode()" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('notif-stream') {
+              @if (activeTab() === 'preview') {
+                <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <app-retro-button variant="primary" size="sm" (pressed)="notifStreamOpen.set(true)">OPEN STREAM</app-retro-button>
+                    <app-retro-button variant="secondary" size="sm" (pressed)="addSampleNotif()">+ ADD NOTIF</app-retro-button>
+                    <app-retro-button variant="ghost" size="sm" (pressed)="notifService.markAllRead()">MARK ALL READ</app-retro-button>
+                    <app-retro-button variant="ghost" size="sm" (pressed)="notifService.clear()">CLEAR</app-retro-button>
+                  </div>
+                  <span class="preview-placeholder">unread: {{ notifService.unreadCount() }} · total: {{ notifService.totalCount() }}</span>
+                </div>
+              } @else {
+                <app-retro-code [code]="notifStreamCode" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('priority-indicator') {
+              @if (activeTab() === 'preview') {
+                <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+                  @for (p of ['critical','high','medium','low','none']; track p) {
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                      <app-priority-indicator [priority]="$any(p)" />
+                      <span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">{{ p }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <app-retro-code code="<app-priority-indicator priority=&quot;high&quot; />" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('visibility-chip') {
+              @if (activeTab() === 'preview') {
+                <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+                  @for (v of ['public','private','internal']; track v) {
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                      <app-visibility-chip [visibility]="$any(v)" />
+                      <span style="font-family:var(--font-mono);font-size:9px;color:var(--muted)">{{ v }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <app-retro-code code="<app-visibility-chip visibility=&quot;public&quot; />" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('retro-filter-bar') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  @if (filterBarMulti()) {
+                    <app-retro-filter-bar
+                      [tabs]="filterBarTabs"
+                      [multiSelect]="true"
+                      [activeKeys]="filterBarActiveKeys()"
+                      (keysChange)="filterBarActiveKeys.set($event)"
+                    >
+                      <span filter-end style="font-size:9px;opacity:.7">
+                        {{ filterBarActiveKeys().length }} selected
+                      </span>
+                    </app-retro-filter-bar>
+                  } @else {
+                    <app-retro-filter-bar
+                      [tabs]="filterBarTabs"
+                      [active]="filterBarActive()"
+                      (tabChange)="filterBarActive.set($event)"
+                    >
+                      <span filter-end style="font-size:9px;opacity:.7">
+                        active: {{ filterBarActive() }}
+                      </span>
+                    </app-retro-filter-bar>
+                  }
+                </div>
+              } @else {
+                <app-retro-code code="<!-- single-select -->\n<app-retro-filter-bar [tabs]=&quot;tabs&quot; [active]=&quot;key&quot; (tabChange)=&quot;key = $event&quot; />\n\n<!-- multi-select -->\n<app-retro-filter-bar [tabs]=&quot;tabs&quot; [multiSelect]=&quot;true&quot; [activeKeys]=&quot;keys&quot; (keysChange)=&quot;keys = $event&quot; />\n\n<!-- com slot direito -->\n<app-retro-filter-bar [tabs]=&quot;tabs&quot; [active]=&quot;key&quot; (tabChange)=&quot;key = $event&quot;>\n  <label filter-end>\n    <input type=&quot;checkbox&quot; [(ngModel)]=&quot;showDone&quot; /> show done\n  </label>\n</app-retro-filter-bar>" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('task-filter-bar') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  <app-task-filter-bar
+                    [tabs]="tfbTabs"
+                    [active]="tfbActive()"
+                    (tabChange)="tfbActive.set($any($event))"
+                  />
+                </div>
+              } @else {
+                <app-retro-code code="<app-task-filter-bar\n  [tabs]=&quot;tabs&quot;\n  [active]=&quot;activeKey&quot;\n  (tabChange)=&quot;activeKey = $event&quot;\n/>" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('retro-grid-row') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  <app-retro-data-grid title="USERS.DB" [columns]="[{key:'id',label:'id',width:'40px'},{key:'name',label:'name',width:'minmax(0,1fr)'},{key:'role',label:'role',width:'100px'},{key:'status',label:'status',width:'80px'}]" [rowCount]="3">
+                    <app-retro-grid-row><span>#1</span><span>alice</span><span>admin</span><span>active</span></app-retro-grid-row>
+                    <app-retro-grid-row><span>#2</span><span>bob</span><span>viewer</span><span>idle</span></app-retro-grid-row>
+                    <app-retro-grid-row><span>#3</span><span>carol</span><span>editor</span><span>active</span></app-retro-grid-row>
+                  </app-retro-data-grid>
+                </div>
+              } @else {
+                <app-retro-code code="<app-retro-data-grid title=&quot;TABLE&quot; [columns]=&quot;cols&quot; [rowCount]=&quot;3&quot;>\n  <app-retro-grid-row><span>A</span><span>B</span><span>C</span></app-retro-grid-row>\n</app-retro-data-grid>" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('retro-expandable-row') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  <app-retro-data-grid title="EXPANDABLE DEMO"
+                    [columns]="[{key:'exp',label:'',width:'28px',align:'center'},{key:'name',label:'name',width:'minmax(0,1fr)'},{key:'role',label:'role',width:'80px'},{key:'status',label:'status',width:'70px'}]"
+                    [rowCount]="2">
+                    <app-retro-expandable-row
+                      [expanded]="expandableRowExpanded()"
+                      (expandedChange)="expandableRowExpanded.set($event)"
+                      [expandOnClick]="expandableRowExpandOnClick()"
+                    >
+                      <button type="button" class="exp-toggle" (click)="expandableRowExpanded.update(v => !v)">
+                        {{ expandableRowExpanded() ? '▼' : '▶' }}
+                      </button>
+                      <span class="grid-cell">alice</span>
+                      <span class="grid-cell">admin</span>
+                      <span class="grid-cell">active</span>
+                      <div detail>
+                        <strong>email:</strong> alice&#64;devboard.io &nbsp;·&nbsp;
+                        <strong>joined:</strong> 2024-01-15 &nbsp;·&nbsp;
+                        <strong>2fa:</strong> enabled
+                      </div>
+                    </app-retro-expandable-row>
+                    <app-retro-expandable-row [expandOnClick]="expandableRowExpandOnClick()">
+                      <button type="button" class="exp-toggle">▶</button>
+                      <span class="grid-cell">bob</span>
+                      <span class="grid-cell">viewer</span>
+                      <span class="grid-cell">idle</span>
+                      <div detail>
+                        <strong>email:</strong> bob&#64;devboard.io &nbsp;·&nbsp;
+                        <strong>joined:</strong> 2024-03-10
+                      </div>
+                    </app-retro-expandable-row>
+                  </app-retro-data-grid>
+                </div>
+              } @else {
+                <app-retro-code code="<app-retro-expandable-row [(expanded)]=&quot;expanded&quot; [expandOnClick]=&quot;false&quot;>\n  <button (click)=&quot;expanded = !expanded&quot;>▶/▼</button>\n  <span>alice</span>\n  <span>admin</span>\n  <div detail>\n    email: alice&#64;devboard.io · joined: 2024-01-15\n  </div>\n</app-retro-expandable-row>" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('retro-paginator') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  <app-retro-paginator
+                    [page]="paginatorDemoPage()"
+                    [pageSize]="paginatorDemoPageSize()"
+                    [total]="paginatorDemoTotal()"
+                    [pageSizeOptions]="[5, 10, 25, 50]"
+                    (pageChange)="paginatorDemoPage.set($event)"
+                    (pageSizeChange)="paginatorDemoPageSize.set($event); paginatorDemoPage.set(0)"
+                  />
+                </div>
+              } @else {
+                <app-retro-code code="<app-retro-paginator\n  [page]=&quot;page&quot;\n  [pageSize]=&quot;pageSize&quot;\n  [total]=&quot;total&quot;\n  [pageSizeOptions]=&quot;[5, 10, 25, 50]&quot;\n  (pageChange)=&quot;page = $event&quot;\n  (pageSizeChange)=&quot;pageSize = $event&quot;\n/>" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('retro-status-bar') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  <app-retro-status-bar version="0.3.1" [items]="statusBarItems" [shortcuts]="statusBarShortcuts" />
+                </div>
+              } @else {
+                <app-retro-code code="<app-retro-status-bar version=&quot;0.3.1&quot; [items]=&quot;items&quot; [shortcuts]=&quot;shortcuts&quot; />" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('retro-data-grid') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;display:flex;flex-direction:column">
+                  <app-retro-data-grid
+                    title="TASKS.DB"
+                    subtitle="PG-TENANT"
+                    [columns]="taskGridColumns"
+                    [rowCount]="dataGridTable.totalCount()"
+                    addLabel="ADD"
+                    [searchable]="true"
+                    [resizable]="true"
+                    [columnPicker]="true"
+                    [filterRulesEnabled]="true"
+                    [searchQuery]="dataGridTable.searchQuery()"
+                    [sortState]="dataGridTable.sortState()"
+                    [columnFilters]="dataGridTable.columnFilters()"
+                    [filterOptionsMap]="dataGridTable.filterOptionsMap()"
+                    [filterRules]="dataGridTable.filterRules()"
+                    [hiddenCols]="dataGridTable.hiddenCols()"
+                    [colWidths]="dataGridTable.colWidths()"
+                    (addClick)="addDemoTask()"
+                    (searchChange)="dataGridTable.setSearch($event)"
+                    (sortChange)="dataGridTable.toggleSort($event)"
+                    (columnFilterChange)="dataGridTable.setColumnFilter($event.field, $event.values)"
+                    (filterRuleAdd)="dataGridTable.addFilterRule()"
+                    (filterRuleRemove)="dataGridTable.removeFilterRule($event)"
+                    (filterRuleUpdate)="dataGridTable.updateFilterRule($event.id, $event)"
+                    (filterRuleClear)="dataGridTable.clearFilterRules()"
+                    (colVisibilityToggle)="dataGridTable.toggleColVisibility($event)"
+                    (colVisibilityShowAll)="dataGridTable.showAllCols()"
+                    (colWidthChange)="dataGridTable.setColWidth($event.key, $event.width)"
+                  >
+                    @for (task of dataGridTable.visibleRows(); track task.id) {
+                      <app-retro-expandable-row [expanded]="dataGridTable.isExpanded(task.id)">
+                        <!-- exp — always visible (no label, not in picker) -->
+                        <button type="button" class="exp-toggle" (click)="dataGridTable.toggleExpand(task.id)">
+                          {{ dataGridTable.isExpanded(task.id) ? '▼' : '▶' }}
+                        </button>
+                        @if (!dataGridTable.hiddenCols().has('#')) {
+                          <span class="grid-cell grid-cell--num">{{ task.index }}</span>
+                        }
+                        <!-- pri — no label, always visible -->
+                        <app-priority-indicator [priority]="task.priority" />
+                        @if (!dataGridTable.hiddenCols().has('status')) {
+                          <span class="grid-cell">{{ task.status }}</span>
+                        }
+                        @if (!dataGridTable.hiddenCols().has('title')) {
+                          <span class="grid-cell grid-cell--title">{{ task.title }}</span>
+                        }
+                        @if (!dataGridTable.hiddenCols().has('labels')) {
+                          <div class="grid-cell grid-cell--labels">
+                            @for (lbl of task.labels; track lbl) {
+                              <app-retro-tag [label]="lbl" size="sm" />
+                            }
+                          </div>
+                        }
+                        @if (!dataGridTable.hiddenCols().has('updated')) {
+                          <span class="grid-cell grid-cell--muted">{{ task.updatedAt | relativeTime }}</span>
+                        }
+                        <!-- del — always visible (no label, not in picker) -->
+                        <button type="button" class="grid-del" (click)="deleteTask(task.id)" title="delete">×</button>
+                        <div detail style="display:flex;gap:12px;flex-wrap:wrap">
+                          <span><strong>id:</strong> {{ task.id }}</span>
+                          <span><strong>priority:</strong> {{ task.priority }}</span>
+                          <span><strong>status:</strong> {{ task.status }}</span>
+                          <span><strong>labels:</strong> {{ task.labels.join(', ') }}</span>
+                        </div>
+                      </app-retro-expandable-row>
+                    }
+                  </app-retro-data-grid>
+                  <app-retro-paginator
+                    [page]="dataGridTable.page()"
+                    [pageSize]="dataGridTable.pageSize()"
+                    [total]="dataGridTable.totalCount()"
+                    [pageSizeOptions]="dataGridTable.pageSizeOptions"
+                    (pageChange)="dataGridTable.setPage($event)"
+                    (pageSizeChange)="dataGridTable.setPageSize($event)"
+                  />
+                </div>
+              } @else {
+                <app-retro-code code="// createRetroTable helper manages filter/sort/search/pagination\nconst table = createRetroTable({ rows: tasks, searchFields: ['title','status'], filterFields: ['status','priority'], pageSize: 5 });\n\n// template\n<app-retro-data-grid [columns]=&quot;cols&quot; [rowCount]=&quot;table.totalCount()&quot;\n  [searchable]=&quot;true&quot; [searchQuery]=&quot;table.searchQuery()&quot;\n  [sortState]=&quot;table.sortState()&quot; [columnFilters]=&quot;table.columnFilters()&quot;\n  [filterOptionsMap]=&quot;table.filterOptionsMap()&quot;\n  (searchChange)=&quot;table.setSearch($event)&quot;\n  (sortChange)=&quot;table.toggleSort($event)&quot;\n  (columnFilterChange)=&quot;table.setColumnFilter($event.field, $event.values)&quot;\n>\n  @for (row of table.visibleRows(); track row.id) {\n    <app-retro-expandable-row [expanded]=&quot;table.isExpanded(row.id)&quot;>\n      <button (click)=&quot;table.toggleExpand(row.id)&quot;>▶/▼</button>\n      <!-- cells -->\n      <div detail><!-- expanded details --></div>\n    </app-retro-expandable-row>\n  }\n</app-retro-data-grid>\n<app-retro-paginator [page]=&quot;table.page()&quot; [total]=&quot;table.totalCount()&quot;\n  (pageChange)=&quot;table.setPage($event)&quot; (pageSizeChange)=&quot;table.setPageSize($event)&quot; />" language="typescript" [framed]="false" />
+              }
+            }
+
+            @case ('task-row') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;border:2px solid var(--line)">
+                  <app-retro-data-grid title="TASK ROW" [columns]="taskRowColumns" [rowCount]="1">
+                    <app-task-row [task]="taskRowDemoTask()" (deleted)="taskRowStatus.set('done')" />
+                  </app-retro-data-grid>
+                </div>
+              } @else {
+                <app-retro-code code="<app-task-row [task]=&quot;task&quot; (deleted)=&quot;remove(task.id)&quot; />" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('project-detail-header') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;max-width:680px">
+                  <app-project-detail-header
+                    [project]="projectCardMock()"
+                    [status]="projectCardStatus()"
+                    [badge]="detailBadge()"
+                    [visibility]="detailVisibility()"
+                    [progress]="detailProgress()"
+                    [taskStats]="detailTaskStats()"
+                    [showGithubStats]="projectCardShowGithub()"
+                    [showControls]="true"
+                  />
+                </div>
+              } @else {
+                <app-retro-code code="<app-project-detail-header [project]=&quot;p&quot; status=&quot;active&quot; badge=&quot;stable&quot; [taskStats]=&quot;stats&quot; />" language="angular" [framed]="false" />
+              }
+            }
+
+            @case ('segmented') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame">
+                  <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <span style="font-size:10px;color:#7b866f;font-family:var(--font-mono)">row (default)</span>
+                      <app-retro-segmented
+                        [options]="segOptions()"
+                        [value]="segValue()"
+                        [direction]="segDir()"
+                        (valueChange)="segValue.set($event)"
+                      />
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <span style="font-size:10px;color:#7b866f;font-family:var(--font-mono)">col layout</span>
+                      <app-retro-segmented
+                        [options]="segOptions()"
+                        [value]="segValue()"
+                        direction="col"
+                        (valueChange)="segValue.set($event)"
+                      />
+                    </div>
+                    <div style="font-size:11px;color:var(--amber);font-family:var(--font-mono)">
+                      selected: <strong>{{ segValue() }}</strong>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <app-retro-code
+                  language="angular"
+                  [framed]="false"
+                  code="// standalone usage
+&lt;app-retro-segmented
+  [options]=&quot;['alpha', 'beta', 'gamma']&quot;
+  [value]=&quot;activeTab&quot;
+  (valueChange)=&quot;activeTab = $event&quot;
+/&gt;
+
+// with ngModel (CVA)
+&lt;app-retro-segmented
+  [options]=&quot;sizeOptions&quot;
+  [(ngModel)]=&quot;form.size&quot;
+/&gt;
+
+// vertical layout
+&lt;app-retro-segmented
+  [options]=&quot;dirOptions&quot;
+  [value]=&quot;dir&quot;
+  direction=&quot;col&quot;
+  (valueChange)=&quot;dir = $event&quot;
+/&gt;"
+                />
+              }
+            }
+
+            @case ('button-group') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame">
+                  <div style="display:flex;flex-direction:column;gap:20px;align-items:flex-start">
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <span style="font-size:10px;color:#7b866f;font-family:var(--font-mono)">primary actions</span>
+                      <app-retro-button-group>
+                        <app-retro-button variant="secondary" size="sm">edit</app-retro-button>
+                        <app-retro-button variant="secondary" size="sm">fork</app-retro-button>
+                        <app-retro-button variant="secondary" size="sm">archive</app-retro-button>
+                      </app-retro-button-group>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <span style="font-size:10px;color:#7b866f;font-family:var(--font-mono)">mixed variants</span>
+                      <app-retro-button-group>
+                        <app-retro-button variant="ghost" size="sm">← prev</app-retro-button>
+                        <app-retro-button variant="primary" size="sm">·  1  ·</app-retro-button>
+                        <app-retro-button variant="ghost" size="sm">next →</app-retro-button>
+                      </app-retro-button-group>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <span style="font-size:10px;color:#7b866f;font-family:var(--font-mono)">danger zone</span>
+                      <app-retro-button-group>
+                        <app-retro-button variant="secondary" tone="danger" size="sm">delete</app-retro-button>
+                        <app-retro-button variant="secondary" tone="danger" size="sm">purge</app-retro-button>
+                      </app-retro-button-group>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <app-retro-code
+                  language="angular"
+                  [framed]="false"
+                  code="&lt;app-retro-button-group&gt;
+  &lt;app-retro-button variant=&quot;secondary&quot; size=&quot;sm&quot;&gt;edit&lt;/app-retro-button&gt;
+  &lt;app-retro-button variant=&quot;secondary&quot; size=&quot;sm&quot;&gt;fork&lt;/app-retro-button&gt;
+  &lt;app-retro-button variant=&quot;secondary&quot; size=&quot;sm&quot;&gt;archive&lt;/app-retro-button&gt;
+&lt;/app-retro-button-group&gt;"
+                />
+              }
+            }
+
+            @case ('api-table') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame">
+                  <app-api-table type="input">
+                    <tr><td>name</td><td>string</td><td class="required">required</td><td>rótulo do campo exibido no formulário</td></tr>
+                    <tr><td>value</td><td>string</td><td>''</td><td>valor atual do campo</td></tr>
+                    <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação com o campo</td></tr>
+                  </app-api-table>
+                  <app-api-table type="output" [gap]="true">
+                    <tr><td>valueChange</td><td>string</td><td>emite o novo valor a cada mudança</td></tr>
+                  </app-api-table>
+                  <app-api-table type="method" [gap]="true">
+                    <tr><td>reset</td><td>() → void</td><td>restaura o valor inicial sem emitir evento</td></tr>
+                  </app-api-table>
+                </div>
+              } @else {
+                <app-retro-code language="angular" [framed]="false"
+                  code="&lt;app-api-table type=&quot;input&quot;&gt;
+  &lt;tr&gt;&lt;td&gt;name&lt;/td&gt;&lt;td&gt;string&lt;/td&gt;&lt;td class=&quot;required&quot;&gt;required&lt;/td&gt;&lt;td&gt;rótulo&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;value&lt;/td&gt;&lt;td&gt;string&lt;/td&gt;&lt;td&gt;''&lt;/td&gt;&lt;td&gt;valor atual&lt;/td&gt;&lt;/tr&gt;
+&lt;/app-api-table&gt;
+
+&lt;app-api-table type=&quot;output&quot; [gap]=&quot;true&quot;&gt;
+  &lt;tr&gt;&lt;td&gt;valueChange&lt;/td&gt;&lt;td&gt;string&lt;/td&gt;&lt;td&gt;novo valor&lt;/td&gt;&lt;/tr&gt;
+&lt;/app-api-table&gt;"
+                />
+              }
+            }
+
+            @case ('terminal') {
+              @if (activeTab() === 'preview') {
+                <div style="width:100%;max-width:760px">
+                  <app-retro-terminal
+                    [prompt]="termPrompt()"
+                    [height]="termHeight()"
+                    [typewriterSpeed]="termTypewriterSpeed()"
+                    [commands]="termDemoCommands"
+                    [autofocus]="false"
+                  />
+                </div>
+              } @else {
+                <app-retro-code
+                  language="angular"
+                  [framed]="false"
+                  code="// register commands
+const myCommands: TerminalCommand[] = [
+  {
+    name: 'status',
+    description: 'show service status',
+    run: async () => {
+      const data = await fetchStatus();
+      return data.services.map(s => ({
+        type: s.ok ? 'success' : 'stderr',
+        text: \`\${s.ok ? '●' : '✗'} \${s.name.padEnd(16)} \${s.status}\`,
+      }));
+    },
+  },
+];
+
+// template
+&lt;app-retro-terminal
+  prompt=&quot;user@devboard:~$ &quot;
+  height=&quot;420px&quot;
+  [commands]=&quot;myCommands&quot;
+  (commandRun)=&quot;onCmd(\$event)&quot;
+/&gt;
+
+// inject lines externally
+@ViewChild(RetroTerminalComponent) term!: RetroTerminalComponent;
+this.term.print('server restarted', 'success');
+this.term.clear();"
+                />
+              }
+            }
+
+            @case ('retro-tabs') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame" style="width:100%;max-width:600px">
+                  <app-retro-window title="retro-tabs / preview" padding="none">
+                    <app-retro-tabs
+                      [tabs]="tabsPreviewItems()"
+                      [variant]="tabsVariant()"
+                      [(active)]="tabsActivePreview"
+                    >
+                      <div class="docs-panel">
+                        <div class="docs-panel-kicker">aba ativa: <strong>{{ tabsActivePreview() }}</strong></div>
+                        @for (tab of tabsPreviewItems(); track tab.id) {
+                          @if (tabsActivePreview() === tab.id) {
+                            <div style="font-family:var(--font-mono);font-size:12px;margin-top:10px;opacity:.75">
+                              › conteúdo de <code>{{ tab.label }}</code>
+                              @if (tab.badge != null) { — <code>{{ tab.badge }}</code> itens }
+                            </div>
+                          }
+                        }
+                        <div style="font-family:var(--font-mono);font-size:10px;margin-top:12px;opacity:.4">
+                          ← → move entre abas · Home/End vai ao início/fim
+                        </div>
+                      </div>
+                    </app-retro-tabs>
+                  </app-retro-window>
+                </div>
+              } @else {
+                <app-retro-code language="angular" [framed]="false"
+                  code="export interface RetroTab {
+  id:        string;
+  label:     string;
+  icon?:     string;        // caractere/emoji antes do label
+  badge?:    string | number;
+  disabled?: boolean;
+}
+
+&lt;app-retro-tabs
+  [tabs]=&quot;tabs&quot;
+  [(active)]=&quot;activeTab&quot;
+  variant=&quot;terminal&quot;
+&gt;
+  @switch (activeTab()) {
+    @case ('overview') { &lt;div&gt;...&lt;/div&gt; }
+    @case ('source')   { &lt;div&gt;...&lt;/div&gt; }
+  }
+&lt;/app-retro-tabs&gt;"
+                />
+              }
+            }
+
+            @case ('retro-section') {
+              @if (activeTab() === 'preview') {
+                <div class="preview-frame" style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:420px">
+                  <app-retro-section label="config / network" [variant]="sectionVariant()">
+                    <p style="font-family:var(--font-mono);font-size:12px;margin:0;color:inherit;opacity:.75">
+                      › conteúdo agrupado dentro do fieldset retrô
+                    </p>
+                  </app-retro-section>
+                  <app-retro-section label="status" [variant]="sectionVariant()">
+                    <p style="font-family:var(--font-mono);font-size:12px;margin:0;color:inherit;opacity:.75">
+                      › pode ser usado dentro de qualquer container
+                    </p>
+                  </app-retro-section>
+                </div>
+              } @else {
+                <app-retro-code language="angular" [framed]="false"
+                  code="&lt;app-retro-section label=&quot;config / network&quot; variant=&quot;default&quot;&gt;
+  &lt;!-- ng-content: qualquer conteúdo --&gt;
+&lt;/app-retro-section&gt;"
+                />
+              }
+            }
+
           }
           </div>
           </div>
@@ -494,13 +1080,13 @@
             </div>
             <div class="knob">
               <label class="knob-label">status</label>
-              <select class="knob-select" [ngModel]="winStatus()" (ngModelChange)="winStatus.set($event)">
-                <option value="">— none —</option>
-                <option>idle</option>
-                <option>active</option>
-                <option>loading</option>
-                <option>error</option>
-              </select>
+              <app-retro-select
+                [options]="[{ label: '— none —', value: '' }, { label: 'idle', value: 'idle' }, { label: 'active', value: 'active' }, { label: 'loading', value: 'loading' }, { label: 'error', value: 'error' }]"
+                [value]="winStatus()"
+                size="sm"
+                [fullWidth]="true"
+                (valueChange)="winStatus.set($any($event))"
+              />
             </div>
             <div class="knob">
               <label class="knob-label">controls</label>
@@ -529,37 +1115,21 @@
             </div>
             <div class="knob">
               <label class="knob-label">variant</label>
-              <div class="knob-seg">
-                @for (v of ['primary','secondary','ghost']; track v) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnVariant() === v" (click)="btnVariant.set($any(v))">{{ v }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['primary','secondary','ghost']" [value]="btnVariant()" (valueChange)="btnVariant.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">tone</label>
-              <div class="knob-seg">
-                @for (t of ['default','success','warning','danger']; track t) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnTone() === t" (click)="btnTone.set($any(t))">{{ t }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['default','success','warning','danger']" [value]="btnTone()" (valueChange)="btnTone.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of ['sm','md','lg']; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnSize() === s" (click)="btnSize.set($any(s))">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['sm','md','lg']" [value]="btnSize()" (valueChange)="btnSize.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">icon <span class="knob-hint">(glyph)</span></label>
               <div style="display:flex;gap:6px;align-items:center">
                 <app-retro-input size="sm" [fullWidth]="true" [value]="btnIcon()" placeholder="ex: → + ✕ ↻" (valueChange)="btnIcon.set($event)" />
-                <div class="knob-seg">
-                  @for (p of ['left','right']; track p) {
-                    <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="btnIconPos() === p" (click)="btnIconPos.set($any(p))">{{ p }}</button>
-                  }
-                </div>
+                <app-retro-segmented [options]="['left','right']" [value]="btnIconPos()" (valueChange)="btnIconPos.set($any($event))" />
               </div>
             </div>
             <div class="knob">
@@ -569,6 +1139,10 @@
             <div class="knob">
               <label class="knob-label">href <span class="knob-hint">(renders &lt;a&gt;)</span></label>
               <app-retro-input size="sm" [fullWidth]="true" [value]="btnHref()" placeholder="ex: https://…" (valueChange)="btnHref.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">download <span class="knob-hint">(só com href)</span></label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="btnDownload()" placeholder="ex: arquivo.pdf" (valueChange)="btnDownload.set($event)" />
             </div>
             <div class="knob">
               <app-retro-checkbox size="sm" label="disabled" [checked]="btnDisabled()" (checkedChange)="btnDisabled.set($event)" />
@@ -585,56 +1159,48 @@
           @case ('input') {
             <div class="knob">
               <label class="knob-label">type</label>
-              <div class="knob-seg knob-seg--col">
-                @for (t of inputTypes; track t) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="inputType() === t" (click)="inputType.set(t)">{{ t }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="inputTypes" [value]="inputType()" (valueChange)="inputType.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of inputSizes; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="inputSize() === s" (click)="inputSize.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="inputSizes" [value]="inputSize()" (valueChange)="inputSize.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">prefix</label>
-              <input class="knob-input" [ngModel]="inputPrefix()" (ngModelChange)="inputPrefix.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="inputPrefix()" (valueChange)="inputPrefix.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">suffix</label>
-              <input class="knob-input" [ngModel]="inputSuffix()" (ngModelChange)="inputSuffix.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="inputSuffix()" (valueChange)="inputSuffix.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">placeholder</label>
-              <input class="knob-input" [ngModel]="inputPlaceholder()" (ngModelChange)="inputPlaceholder.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="inputPlaceholder()" (valueChange)="inputPlaceholder.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">helpText</label>
-              <input class="knob-input" [ngModel]="inputHelpText()" (ngModelChange)="inputHelpText.set($event)" placeholder="texto de ajuda" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="inputHelpText()" placeholder="texto de ajuda" (valueChange)="inputHelpText.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputClearable()" (ngModelChange)="inputClearable.set($event)" /><span>clearable</span></label>
+              <app-retro-checkbox size="sm" label="clearable" [checked]="inputClearable()" (checkedChange)="inputClearable.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputReadonly()" (ngModelChange)="inputReadonly.set($event)" /><span>readonly</span></label>
+              <app-retro-checkbox size="sm" label="readonly" [checked]="inputReadonly()" (checkedChange)="inputReadonly.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputInvalid()" (ngModelChange)="inputInvalid.set($event)" /><span>invalid</span></label>
+              <app-retro-checkbox size="sm" label="invalid" [checked]="inputInvalid()" (checkedChange)="inputInvalid.set($event)" />
             </div>
             @if (inputInvalid()) {
               <div class="knob">
                 <label class="knob-label">errorMessage</label>
-                <input class="knob-input" [ngModel]="inputErrorMessage()" (ngModelChange)="inputErrorMessage.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="inputErrorMessage()" (valueChange)="inputErrorMessage.set($event)" />
               </div>
             }
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputDisabled()" (ngModelChange)="inputDisabled.set($event)" /><span>disabled</span></label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="inputDisabled()" (checkedChange)="inputDisabled.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="inputFullWidth()" (ngModelChange)="inputFullWidth.set($event)" /><span>fullWidth</span></label>
+              <app-retro-checkbox size="sm" label="fullWidth" [checked]="inputFullWidth()" (checkedChange)="inputFullWidth.set($event)" />
             </div>
           }
 
@@ -654,7 +1220,7 @@
               />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="selectDisabled()" (ngModelChange)="selectDisabled.set($event)" /><span>disabled</span></label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="selectDisabled()" (checkedChange)="selectDisabled.set($event)" />
             </div>
           }
 
@@ -676,56 +1242,49 @@
               <app-retro-input size="sm" type="number" [fullWidth]="true" [value]="'' + rangeStep()" (valueChange)="rangeStep.set(+$event || 1)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="rangeDisabled()" (ngModelChange)="rangeDisabled.set($event)" /><span>disabled</span></label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="rangeDisabled()" (checkedChange)="rangeDisabled.set($event)" />
             </div>
           }
 
           @case ('checkbox') {
             <div class="knob">
               <label class="knob-label">label</label>
-              <input class="knob-input" [ngModel]="checkboxLabel()" (ngModelChange)="checkboxLabel.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="checkboxLabel()" (valueChange)="checkboxLabel.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of ['sm','md']; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="checkboxSize() === s" (click)="checkboxSize.set($any(s))">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['sm','md']" [value]="checkboxSize()" (valueChange)="checkboxSize.set($any($event))" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxChecked()" (ngModelChange)="checkboxChecked.set($event)" /><span>checked</span></label>
+              <app-retro-checkbox size="sm" label="checked" [checked]="checkboxChecked()" (checkedChange)="checkboxChecked.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxIndeterminate()" (ngModelChange)="checkboxIndeterminate.set($event)" /><span>indeterminate</span></label>
+              <app-retro-checkbox size="sm" label="indeterminate" [checked]="checkboxIndeterminate()" (checkedChange)="checkboxIndeterminate.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxReadonly()" (ngModelChange)="checkboxReadonly.set($event)" /><span>readonly</span></label>
+              <app-retro-checkbox size="sm" label="readonly" [checked]="checkboxReadonly()" (checkedChange)="checkboxReadonly.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxInvalid()" (ngModelChange)="checkboxInvalid.set($event)" /><span>invalid</span></label>
+              <app-retro-checkbox size="sm" label="invalid" [checked]="checkboxInvalid()" (checkedChange)="checkboxInvalid.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="checkboxDisabled()" (ngModelChange)="checkboxDisabled.set($event)" /><span>disabled</span></label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="checkboxDisabled()" (checkedChange)="checkboxDisabled.set($event)" />
             </div>
           }
 
           @case ('kbd') {
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="kbdComboMode()" (ngModelChange)="kbdComboMode.set($event)" />
-                <span>combo mode</span>
-              </label>
+              <app-retro-checkbox size="sm" label="combo mode" [checked]="kbdComboMode()" (checkedChange)="kbdComboMode.set($event)" />
             </div>
             @if (kbdComboMode()) {
               <div class="knob">
                 <label class="knob-label">keys (comma-sep)</label>
-                <input class="knob-input" [ngModel]="kbdComboInput()" (ngModelChange)="updateKbdCombo($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="kbdComboInput()" (valueChange)="updateKbdCombo($event)" />
               </div>
             } @else {
               <div class="knob">
                 <label class="knob-label">key</label>
-                <input class="knob-input" [ngModel]="kbdSingleKey()" (ngModelChange)="kbdSingleKey.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="kbdSingleKey()" (valueChange)="kbdSingleKey.set($event)" />
               </div>
             }
           }
@@ -733,214 +1292,163 @@
           @case ('pill') {
             <div class="knob">
               <label class="knob-label">status</label>
-              <div class="knob-seg knob-seg--col">
-                @for (s of pillStatuses; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="pillStatus() === s" (click)="pillStatus.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="pillStatuses" [value]="pillStatus()" (valueChange)="pillStatus.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of pillSizes; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="pillSize() === s" (click)="pillSize.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="pillSizes" [value]="pillSize()" (valueChange)="pillSize.set($any($event))" />
             </div>
           }
 
           @case ('dot') {
             <div class="knob">
               <label class="knob-label">status</label>
-              <div class="knob-seg knob-seg--col">
-                @for (s of dotStatuses; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="dotStatus() === s" (click)="dotStatus.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="dotStatuses" [value]="dotStatus()" (valueChange)="dotStatus.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of dotSizes; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="dotSize() === s" (click)="dotSize.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="dotSizes" [value]="dotSize()" (valueChange)="dotSize.set($any($event))" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="dotPulse()" (ngModelChange)="dotPulse.set($event)" /><span>pulse</span></label>
+              <app-retro-checkbox size="sm" label="pulse" [checked]="dotPulse()" (checkedChange)="dotPulse.set($event)" />
             </div>
           }
 
           @case ('tag') {
             <div class="knob">
               <label class="knob-label">label</label>
-              <input class="knob-input" [ngModel]="tagLabel()" (ngModelChange)="tagLabel.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="tagLabel()" (valueChange)="tagLabel.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">icon <span class="knob-hint">(glyph)</span></label>
-              <input class="knob-input" [ngModel]="tagIcon()" (ngModelChange)="tagIcon.set($event)" placeholder="ex: ★ ▶ ✓ ⚡" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="tagIcon()" placeholder="ex: ★ ▶ ✓ ⚡" (valueChange)="tagIcon.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">variant</label>
-              <div class="knob-seg knob-seg--col">
-                @for (v of tagVariants; track v) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="tagVariant() === v" (click)="tagVariant.set(v)">{{ v }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="tagVariants" [value]="tagVariant()" (valueChange)="tagVariant.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of ['sm','md']; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="tagSize() === s" (click)="tagSize.set($any(s))">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['sm','md']" [value]="tagSize()" (valueChange)="tagSize.set($any($event))" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="tagRemovable()" (ngModelChange)="tagRemovable.set($event)" /><span>removable</span></label>
+              <app-retro-checkbox size="sm" label="removable" [checked]="tagRemovable()" (checkedChange)="tagRemovable.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="tagDisabled()" (ngModelChange)="tagDisabled.set($event)" /><span>disabled</span></label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="tagDisabled()" (checkedChange)="tagDisabled.set($event)" />
             </div>
           }
 
           @case ('stat') {
             <div class="knob">
               <label class="knob-label">label</label>
-              <input class="knob-input" [ngModel]="statLabel()" (ngModelChange)="statLabel.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="statLabel()" (valueChange)="statLabel.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">value</label>
-              <input class="knob-input" [ngModel]="statValue()" (ngModelChange)="statValue.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="'' + statValue()" (valueChange)="statValue.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">sublabel</label>
-              <input class="knob-input" [ngModel]="statSublabel()" (ngModelChange)="statSublabel.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="statSublabel()" (valueChange)="statSublabel.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">tone</label>
-              <div class="knob-seg knob-seg--col">
-                @for (t of statTones; track t) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="statTone() === t" (click)="statTone.set(t)">{{ t }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="statTones" [value]="statTone()" (valueChange)="statTone.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">trend</label>
-              <div class="knob-seg">
-                @for (t of statTrends; track t) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="(statTrend() ?? 'none') === t" (click)="statTrend.set(t === 'none' ? undefined : $any(t))">{{ t }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="statTrends" [value]="statTrend() ?? 'none'" (valueChange)="statTrend.set($any($event) === 'none' ? undefined : $any($event))" />
             </div>
           }
 
           @case ('progress') {
             <div class="knob">
               <label class="knob-label">mode</label>
-              <div class="knob-seg">
-                @for (m of ['determinate','indeterminate']; track m) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="progressMode() === m" (click)="progressMode.set($any(m))">{{ m }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['determinate','indeterminate']" [value]="progressMode()" (valueChange)="progressMode.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">value ({{ progressValue() }}%)</label>
-              <input type="range" class="knob-range" min="0" max="100" [ngModel]="progressValue()" (ngModelChange)="progressValue.set(+$event)" [disabled]="progressMode() === 'indeterminate'" />
+              <app-retro-range [value]="progressValue()" [min]="0" [max]="100" [fullWidth]="true" [disabled]="progressMode() === 'indeterminate'" (valueChange)="progressValue.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">tone</label>
-              <div class="knob-seg knob-seg--col">
-                @for (t of progressTones; track t) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="progressTone() === t" (click)="progressTone.set(t)">{{ t }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="progressTones" [value]="progressTone()" (valueChange)="progressTone.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">unit</label>
-              <input class="knob-input" [ngModel]="progressUnit()" (ngModelChange)="progressUnit.set($event)" placeholder="ex: % MB/s req/s" [disabled]="progressMode() === 'indeterminate'" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="progressUnit()" placeholder="ex: % MB/s req/s" [disabled]="progressMode() === 'indeterminate'" (valueChange)="progressUnit.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">label</label>
-              <input class="knob-input" [ngModel]="progressLabel()" (ngModelChange)="progressLabel.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="progressLabel()" (valueChange)="progressLabel.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressShowVal()" (ngModelChange)="progressShowVal.set($event)" [disabled]="progressMode() === 'indeterminate'" /><span>showValue</span></label>
+              <app-retro-checkbox size="sm" label="showValue" [checked]="progressShowVal()" [disabled]="progressMode() === 'indeterminate'" (checkedChange)="progressShowVal.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="progressAnimated()" (ngModelChange)="progressAnimated.set($event)" [disabled]="progressMode() === 'indeterminate'" /><span>animated</span></label>
+              <app-retro-checkbox size="sm" label="animated" [checked]="progressAnimated()" [disabled]="progressMode() === 'indeterminate'" (checkedChange)="progressAnimated.set($event)" />
             </div>
           }
 
           @case ('ascii') {
             <div class="knob">
               <label class="knob-label">value ({{ asciiValue() }}%)</label>
-              <input type="range" class="knob-range" min="0" max="100" [ngModel]="asciiValue()" (ngModelChange)="asciiValue.set(+$event)" />
+              <app-retro-range [value]="asciiValue()" [min]="0" [max]="100" [fullWidth]="true" (valueChange)="asciiValue.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">width ({{ asciiWidth() }})</label>
-              <input type="range" class="knob-range" min="5" max="40" [ngModel]="asciiWidth()" (ngModelChange)="asciiWidth.set(+$event)" />
+              <app-retro-range [value]="asciiWidth()" [min]="5" [max]="40" [fullWidth]="true" (valueChange)="asciiWidth.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">filledChar</label>
-              <input class="knob-input" maxlength="1" [ngModel]="asciiFilledChar()" (ngModelChange)="asciiFilledChar.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="asciiFilledChar()" (valueChange)="asciiFilledChar.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">emptyChar</label>
-              <input class="knob-input" maxlength="1" [ngModel]="asciiEmptyChar()" (ngModelChange)="asciiEmptyChar.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="asciiEmptyChar()" (valueChange)="asciiEmptyChar.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="asciiShowValue()" (ngModelChange)="asciiShowValue.set($event)" /><span>showValue</span></label>
+              <app-retro-checkbox size="sm" label="showValue" [checked]="asciiShowValue()" (checkedChange)="asciiShowValue.set($event)" />
             </div>
           }
 
           @case ('toast') {
             <div class="knob">
               <label class="knob-label">message</label>
-              <input class="knob-input" [ngModel]="toastMessage()" (ngModelChange)="toastMessage.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="toastMessage()" (valueChange)="toastMessage.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">type</label>
-              <div class="knob-seg knob-seg--col">
-                @for (t of toastTypes; track t) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="toastType() === t" (click)="toastType.set(t)">{{ t }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="toastTypes" [value]="toastType()" (valueChange)="toastType.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">position</label>
-              <div class="knob-seg knob-seg--col">
-                @for (p of toastPositions; track p) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="toastPosition() === p" (click)="toastPosition.set(p)">{{ p }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="toastPositions" [value]="toastPosition()" (valueChange)="toastPosition.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">maxVisible ({{ toastMaxVisible() }})</label>
-              <input type="range" class="knob-range" min="1" max="10" [ngModel]="toastMaxVisible()" (ngModelChange)="toastMaxVisible.set(+$event)" />
+              <app-retro-range [value]="toastMaxVisible()" [min]="1" [max]="10" [fullWidth]="true" (valueChange)="toastMaxVisible.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="toastWithDetails()" (ngModelChange)="toastWithDetails.set($event)" />
-                <span>with details payload</span>
-              </label>
+              <app-retro-checkbox size="sm" label="with details payload" [checked]="toastWithDetails()" (checkedChange)="toastWithDetails.set($event)" />
             </div>
             @if (toastWithDetails()) {
               <div class="knob">
                 <label class="knob-label">details.code</label>
-                <input class="knob-input" [ngModel]="toastDetailCode()" (ngModelChange)="toastDetailCode.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="toastDetailCode()" (valueChange)="toastDetailCode.set($event)" />
               </div>
               <div class="knob">
                 <label class="knob-label">details.service</label>
-                <input class="knob-input" [ngModel]="toastDetailService()" (ngModelChange)="toastDetailService.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="toastDetailService()" (valueChange)="toastDetailService.set($event)" />
               </div>
               <div class="knob">
                 <label class="knob-label">details.http</label>
-                <input class="knob-input" [ngModel]="toastDetailHttp()" (ngModelChange)="toastDetailHttp.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="toastDetailHttp()" (valueChange)="toastDetailHttp.set($event)" />
               </div>
               <div class="knob">
                 <label class="knob-label">details.trace</label>
-                <input class="knob-input" [ngModel]="toastDetailTrace()" (ngModelChange)="toastDetailTrace.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="toastDetailTrace()" (valueChange)="toastDetailTrace.set($event)" />
               </div>
               <div class="knob">
                 <label class="knob-label">details.stack</label>
@@ -948,24 +1456,19 @@
               </div>
               <div class="knob">
                 <label class="knob-label">action.label</label>
-                <input class="knob-input" [ngModel]="toastDetailActionLabel()" (ngModelChange)="toastDetailActionLabel.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="toastDetailActionLabel()" (valueChange)="toastDetailActionLabel.set($event)" />
               </div>
               <div class="knob">
                 <label class="knob-label">action.url</label>
-                <input class="knob-input" [ngModel]="toastDetailActionUrl()" (ngModelChange)="toastDetailActionUrl.set($event)" />
+                <app-retro-input size="sm" [fullWidth]="true" [value]="toastDetailActionUrl()" (valueChange)="toastDetailActionUrl.set($event)" />
               </div>
             }
             <div class="knob">
               <label class="knob-label">life ({{ toastSticky() ? 'sticky' : toastLife() + 'ms' }})</label>
-              <input type="range" class="knob-range" min="500" max="10000" step="100"
-                [ngModel]="toastLife()" (ngModelChange)="toastLife.set(+$event)"
-                [disabled]="toastSticky()" />
+              <app-retro-range [value]="toastLife()" [min]="500" [max]="10000" [step]="100" [fullWidth]="true" [disabled]="toastSticky()" (valueChange)="toastLife.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="toastSticky()" (ngModelChange)="toastSticky.set($event)" />
-                <span>sticky <span class="knob-hint">(sem auto-dismiss)</span></span>
-              </label>
+              <app-retro-checkbox size="sm" label="sticky (sem auto-dismiss)" [checked]="toastSticky()" (checkedChange)="toastSticky.set($event)" />
             </div>
             <app-retro-button variant="primary" [fullWidth]="true" (pressed)="fireToast()">
               fire toast
@@ -978,119 +1481,386 @@
           @case ('message') {
             <div class="knob">
               <label class="knob-label">severity</label>
-              <div class="knob-seg knob-seg--col">
-                @for (s of msgSeverities; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="msgSeverity() === s" (click)="msgSeverity.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="msgSeverities" [value]="msgSeverity()" (valueChange)="msgSeverity.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">variant</label>
-              <div class="knob-seg knob-seg--col">
-                @for (v of msgVariants; track v) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="msgVariant() === v" (click)="msgVariant.set(v)">{{ v }}</button>
-                }
-              </div>
+              <app-retro-segmented direction="col" [options]="msgVariants" [value]="msgVariant()" (valueChange)="msgVariant.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">text</label>
-              <input class="knob-input" [ngModel]="msgText()" (ngModelChange)="msgText.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="msgText()" (valueChange)="msgText.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">icon <span class="knob-hint">(override glyph)</span></label>
-              <input class="knob-input" [ngModel]="msgIcon()" (ngModelChange)="msgIcon.set($event)" placeholder="ex: ★ ▶ ⚡" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="msgIcon()" placeholder="ex: ★ ▶ ⚡" (valueChange)="msgIcon.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="msgClosable()" (ngModelChange)="msgClosable.set($event)" /><span>closable</span></label>
+              <app-retro-checkbox size="sm" label="closable" [checked]="msgClosable()" (checkedChange)="msgClosable.set($event)" />
             </div>
           }
 
           @case ('skeleton') {
             <div class="knob">
               <label class="knob-label">width</label>
-              <input class="knob-input" [ngModel]="skelWidth()" (ngModelChange)="skelWidth.set($event)" placeholder="ex: 100% 240px" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="skelWidth()" placeholder="ex: 100% 240px" (valueChange)="skelWidth.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">height</label>
-              <input class="knob-input" [ngModel]="skelHeight()" (ngModelChange)="skelHeight.set($event)" placeholder="ex: 14px 40px" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="skelHeight()" placeholder="ex: 14px 40px" (valueChange)="skelHeight.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">shape</label>
-              <div class="knob-seg">
-                @for (s of ['rectangle','circle']; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="skelShape() === s" (click)="skelShape.set($any(s))">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['rectangle','circle']" [value]="skelShape()" (valueChange)="skelShape.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">animation</label>
-              <div class="knob-seg">
-                @for (a of ['wave','pulse','none']; track a) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="skelAnimation() === a" (click)="skelAnimation.set($any(a))">{{ a }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="['wave','pulse','none']" [value]="skelAnimation()" (valueChange)="skelAnimation.set($any($event))" />
             </div>
             <div class="knob">
               <label class="knob-label">count ({{ skelCount() }})</label>
-              <input type="range" class="knob-range" min="1" max="8" [ngModel]="skelCount()" (ngModelChange)="skelCount.set(+$event)" />
+              <app-retro-range [value]="skelCount()" [min]="1" [max]="8" [fullWidth]="true" (valueChange)="skelCount.set($event)" />
             </div>
           }
 
           @case ('modal') {
             <div class="knob">
               <label class="knob-label">title</label>
-              <input class="knob-input" [ngModel]="modalTitle()" (ngModelChange)="modalTitle.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="modalTitle()" (valueChange)="modalTitle.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">subtitle</label>
-              <input class="knob-input" [ngModel]="modalSubtitle()" (ngModelChange)="modalSubtitle.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="modalSubtitle()" (valueChange)="modalSubtitle.set($event)" />
             </div>
             <div class="knob">
               <label class="knob-label">size</label>
-              <div class="knob-seg">
-                @for (s of modalSizes; track s) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="modalSize() === s" (click)="modalSize.set(s)">{{ s }}</button>
-                }
-              </div>
+              <app-retro-segmented [options]="modalSizes" [value]="modalSize()" (valueChange)="modalSize.set($any($event))" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="modalCloseOnBackdrop()" (ngModelChange)="modalCloseOnBackdrop.set($event)" /><span>closeOnBackdrop</span></label>
+              <app-retro-checkbox size="sm" label="closeOnBackdrop" [checked]="modalCloseOnBackdrop()" (checkedChange)="modalCloseOnBackdrop.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="modalShowCloseButton()" (ngModelChange)="modalShowCloseButton.set($event)" /><span>showCloseButton</span></label>
+              <app-retro-checkbox size="sm" label="showCloseButton" [checked]="modalShowCloseButton()" (checkedChange)="modalShowCloseButton.set($event)" />
             </div>
           }
 
           @case ('collapsible') {
             <div class="knob">
               <label class="knob-label">title</label>
-              <input class="knob-input" [ngModel]="collapsibleTitle()" (ngModelChange)="collapsibleTitle.set($event)" />
+              <app-retro-input size="sm" [fullWidth]="true" [value]="collapsibleTitle()" (valueChange)="collapsibleTitle.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="collapsibleCollapsed()" (ngModelChange)="collapsibleCollapsed.set($event)" />
-                <span>collapsed <span class="knob-hint">(two-way)</span></span>
-              </label>
+              <app-retro-checkbox size="sm" label="collapsed (two-way)" [checked]="collapsibleCollapsed()" (checkedChange)="collapsibleCollapsed.set($event)" />
             </div>
             <div class="knob">
-              <label class="knob-toggle">
-                <input type="checkbox" [ngModel]="collapsibleDisabled()" (ngModelChange)="collapsibleDisabled.set($event)" />
-                <span>disabled</span>
-              </label>
+              <app-retro-checkbox size="sm" label="disabled" [checked]="collapsibleDisabled()" (checkedChange)="collapsibleDisabled.set($event)" />
             </div>
           }
 
           @case ('code') {
             <div class="knob">
               <label class="knob-label">language</label>
-              <div class="knob-seg knob-seg--col">
-                @for (l of codeLanguages; track l) {
-                  <button type="button" class="knob-seg-btn" [class.knob-seg-btn--active]="codeLanguage() === l" (click)="codeLanguage.set(l)">{{ l || '(none)' }}</button>
-                }
-              </div>
+              <app-retro-select
+                [options]="[{ label: 'typescript', value: 'typescript' }, { label: 'angular', value: 'angular' }, { label: 'bash', value: 'bash' }, { label: 'json', value: 'json' }, { label: '(none)', value: '' }]"
+                [value]="codeLanguage()"
+                size="sm"
+                [fullWidth]="true"
+                (valueChange)="codeLanguage.set($any($event))"
+              />
             </div>
             <div class="knob">
-              <label class="knob-toggle"><input type="checkbox" [ngModel]="codeFramed()" (ngModelChange)="codeFramed.set($event)" /><span>framed</span></label>
+              <app-retro-checkbox size="sm" label="framed" [checked]="codeFramed()" (checkedChange)="codeFramed.set($event)" />
+            </div>
+          }
+
+          @case ('toolbar-search') {
+            <div class="knob">
+              <label class="knob-label">placeholder</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="toolbarSearchPlaceholder()" (valueChange)="toolbarSearchPlaceholder.set($event)" />
+            </div>
+            <div class="knob-counter">value: <strong>{{ toolbarSearchValue() }}</strong></div>
+          }
+
+          @case ('project-card') {
+            <div class="knob">
+              <label class="knob-label">name</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="projectCardName()" (valueChange)="projectCardName.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">description</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="projectCardDesc()" (valueChange)="projectCardDesc.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">status</label>
+              <app-retro-segmented [options]="['active','paused','completed','archived']" [value]="projectCardStatus()" (valueChange)="projectCardStatus.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">progress</label>
+              <app-retro-range [value]="projectCardProgress()" [min]="0" [max]="100" [step]="5" [fullWidth]="true" [showValue]="true" (valueChange)="projectCardProgress.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">index label <span class="knob-hint">(ex: 01, 02)</span></label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="projectCardIndex()" (valueChange)="projectCardIndex.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">size</label>
+              <app-retro-segmented [options]="['sm','md','lg']" [value]="projectCardSize()" (valueChange)="projectCardSize.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">repository url <span class="knob-hint">(github)</span></label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="projectCardRepoUrl()" (valueChange)="projectCardRepoUrl.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">show github stats</label>
+              <app-retro-checkbox [checked]="projectCardShowGithub()" (valueChange)="projectCardShowGithub.set(!!$event)" />
+            </div>
+          }
+
+          @case ('notif-item') {
+            <div class="knob">
+              <label class="knob-label">type</label>
+              <app-retro-segmented [options]="['event','build','alert']" [value]="notifItemType()" (valueChange)="notifItemType.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">source</label>
+              <app-retro-segmented [options]="['webhook','email','system']" [value]="notifItemSource()" (valueChange)="notifItemSource.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">title</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="notifItemTitle()" (valueChange)="notifItemTitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">subtitle</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="notifItemSubtitle()" (valueChange)="notifItemSubtitle.set($event)" />
+            </div>
+            <div class="knob">
+              <app-retro-checkbox size="sm" label="read" [checked]="notifItemRead()" (checkedChange)="notifItemRead.set($event)" />
+            </div>
+          }
+
+          @case ('notif-stream') {
+            <div class="knob">
+              <app-retro-button size="sm" variant="primary" [fullWidth]="true" (pressed)="notifStreamOpen.set(true)">OPEN STREAM</app-retro-button>
+            </div>
+            <div class="knob">
+              <app-retro-button size="sm" variant="secondary" [fullWidth]="true" (pressed)="addSampleNotif()">+ ADD NOTIF</app-retro-button>
+            </div>
+            <div class="knob-counter">unread: <strong>{{ notifService.unreadCount() }}</strong> · total: <strong>{{ notifService.totalCount() }}</strong></div>
+          }
+
+          @case ('priority-indicator') {
+            <div class="knob">
+              <label class="knob-label">priority</label>
+              <app-retro-segmented [options]="['critical','high','medium','low','none']" [value]="priorityKnob()" (valueChange)="priorityKnob.set($any($event))" />
+            </div>
+          }
+
+          @case ('visibility-chip') {
+            <div class="knob">
+              <label class="knob-label">visibility</label>
+              <app-retro-segmented [options]="['public','private','internal']" [value]="visibilityKnob()" (valueChange)="visibilityKnob.set($any($event))" />
+            </div>
+          }
+
+          @case ('retro-filter-bar') {
+            <div class="knob">
+              <label class="knob-label">mode</label>
+              <app-retro-segmented [options]="['single','multi']" [value]="filterBarMulti() ? 'multi' : 'single'" (valueChange)="filterBarMulti.set($event === 'multi')" />
+            </div>
+            @if (!filterBarMulti()) {
+              <div class="knob">
+                <label class="knob-label">active tab</label>
+                <app-retro-segmented [options]="['all','todo','doing','review','done']" [value]="filterBarActive()" (valueChange)="filterBarActive.set($event)" />
+              </div>
+            } @else {
+              <div class="knob-counter">selected: <strong>{{ filterBarActiveKeys().join(', ') || '—' }}</strong></div>
+            }
+          }
+
+          @case ('task-filter-bar') {
+            <div class="knob">
+              <label class="knob-label">active tab</label>
+              <app-retro-segmented [options]="['all','todo','doing','review','done']" [value]="tfbActive()" (valueChange)="tfbActive.set($event)" />
+            </div>
+            <div class="knob-counter">aba ativa: <strong>{{ tfbActive() }}</strong></div>
+          }
+
+          @case ('retro-grid-row') {
+            <span class="knob-hint">Projeta qualquer filho como célula — sem inputs, sem outputs.</span>
+          }
+
+          @case ('retro-status-bar') {
+            <span class="knob-hint">Dados demo — versão, itens e shortcuts são configuráveis via inputs.</span>
+          }
+
+          @case ('retro-data-grid') {
+            <div class="knob">
+              <app-retro-button size="sm" variant="primary" [fullWidth]="true" (pressed)="addDemoTask()">+ ADD TASK</app-retro-button>
+            </div>
+            <div class="knob">
+              <app-retro-button size="sm" variant="secondary" [fullWidth]="true" (pressed)="resetDemoTasks()">RESET</app-retro-button>
+            </div>
+            <div class="knob-counter">
+              source: <strong>{{ demoTasksSource().length }}</strong> ·
+              filtered: <strong>{{ dataGridTable.totalCount() }}</strong> ·
+              page: <strong>{{ dataGridTable.visibleRows().length }}</strong>
+            </div>
+          }
+
+          @case ('retro-expandable-row') {
+            <div class="knob">
+              <label class="knob-label">expand on click</label>
+              <app-retro-checkbox [checked]="expandableRowExpandOnClick()" (checkedChange)="expandableRowExpandOnClick.set(!!$event)" />
+            </div>
+            <span class="knob-hint">Toggle the first row via button or enable expandOnClick to click anywhere on the row.</span>
+          }
+
+          @case ('retro-paginator') {
+            <div class="knob">
+              <label class="knob-label">total items</label>
+              <app-retro-range [value]="paginatorDemoTotal()" [min]="0" [max]="200" [step]="10" [fullWidth]="true" [showValue]="true" (valueChange)="paginatorDemoTotal.set($event); paginatorDemoPage.set(0)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">page size</label>
+              <app-retro-segmented [options]="['5','10','25','50']" [value]="paginatorDemoPageSize().toString()" (valueChange)="paginatorDemoPageSize.set(+$event); paginatorDemoPage.set(0)" />
+            </div>
+            <div class="knob-counter">total: <strong>{{ paginatorDemoTotal() }}</strong> · page: <strong>{{ paginatorDemoPage() + 1 }}</strong></div>
+          }
+
+          @case ('task-row') {
+            <div class="knob">
+              <label class="knob-label">title</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="taskRowTitle()" (valueChange)="taskRowTitle.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">status</label>
+              <app-retro-segmented [options]="taskRowStatuses" [value]="taskRowStatus()" (valueChange)="taskRowStatus.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">priority</label>
+              <app-retro-segmented [options]="taskRowPriorities" [value]="taskRowPriority()" (valueChange)="taskRowPriority.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">labels <span class="knob-hint">(csv)</span></label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="taskRowLabels()" (valueChange)="taskRowLabels.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">index</label>
+              <app-retro-range [value]="taskRowIndex()" [min]="1" [max]="99" [step]="1" [fullWidth]="true" [showValue]="true" (valueChange)="taskRowIndex.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">due date</label>
+              <app-retro-checkbox size="sm" label="tem prazo" [checked]="taskRowHasDue()" (checkedChange)="taskRowHasDue.set($event)" />
+            </div>
+          }
+
+          @case ('project-detail-header') {
+            <div class="knob">
+              <label class="knob-label">badge</label>
+              <app-retro-segmented [options]="['stable','beta','wip','deprecated']" [value]="detailBadge() ?? 'stable'" (valueChange)="detailBadge.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">visibility</label>
+              <app-retro-segmented [options]="['public','private','internal']" [value]="detailVisibility()" (valueChange)="detailVisibility.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">progress</label>
+              <app-retro-range [value]="detailProgress()" [min]="0" [max]="100" [step]="5" [fullWidth]="true" [showValue]="true" (valueChange)="detailProgress.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">repository url <span class="knob-hint">(github)</span></label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="projectCardRepoUrl()" (valueChange)="projectCardRepoUrl.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">show github stats</label>
+              <app-retro-checkbox [checked]="projectCardShowGithub()" (valueChange)="projectCardShowGithub.set(!!$event)" />
+            </div>
+          }
+
+          @case ('segmented') {
+            <div class="knob">
+              <label class="knob-label">options <span class="knob-hint">separadas por vírgula</span></label>
+              <app-retro-input
+                size="sm" [fullWidth]="true"
+                [value]="segOptions().join(',')"
+                placeholder="ex: alpha,beta,gamma"
+                (valueChange)="segOptions.set($event.split(',').map(s => s.trim()).filter(s => s.length > 0)); segValue.set(segOptions()[0] ?? '')"
+              />
+            </div>
+            <div class="knob">
+              <label class="knob-label">value</label>
+              <app-retro-segmented [options]="segOptions()" [value]="segValue()" (valueChange)="segValue.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">direction</label>
+              <app-retro-segmented [options]="['row','col']" [value]="segDir()" (valueChange)="segDir.set($any($event))" />
+            </div>
+          }
+
+          @case ('button-group') {
+            <div class="knob-counter">
+              wrapper sem inputs — composição por <code>ng-content</code>
+            </div>
+          }
+
+          @case ('api-table') {
+            <div class="knob-counter">
+              sem knobs — estrutura gerada por <code>type</code> + projeção de <code>&lt;tr&gt;</code>
+            </div>
+          }
+
+          @case ('retro-tabs') {
+            <div class="knob">
+              <label class="knob-label">variant</label>
+              <app-retro-select [options]="[{ label: 'default', value: 'default' }, { label: 'terminal', value: 'terminal' }, { label: 'system', value: 'system' }, { label: 'alert', value: 'alert' }, { label: 'ghost', value: 'ghost' }]" [value]="tabsVariant()" size="sm" [fullWidth]="true" (valueChange)="tabsVariant.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">número de abas <span class="knob-hint">{{ tabsCount() }}</span></label>
+              <app-retro-range [value]="tabsCount()" [min]="2" [max]="8" [step]="1" [fullWidth]="true" [showValue]="false" (valueChange)="tabsCount.set($event); tabsActivePreview.set('tab-0')" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">aba ativa</label>
+              <app-retro-select [options]="tabsActiveOptions()" [value]="tabsActivePreview()" size="sm" [fullWidth]="true" (valueChange)="tabsActivePreview.set($any($event))" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">aba desabilitada</label>
+              <app-retro-select [options]="tabsDisabledOptions()" [value]="tabsDisabledIdxStr()" size="sm" [fullWidth]="true" (valueChange)="tabsDisabledIdx.set(+$event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">ícone nas abas</label>
+              <app-retro-checkbox [checked]="tabsShowIcon()" (checkedChange)="tabsShowIcon.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">badge nas abas</label>
+              <app-retro-checkbox [checked]="tabsShowBadge()" (checkedChange)="tabsShowBadge.set($event)" />
+            </div>
+          }
+
+          @case ('retro-section') {
+            <div class="knob">
+              <label class="knob-label">variant</label>
+              <app-retro-select [options]="[{ label: 'default', value: 'default' }, { label: 'terminal', value: 'terminal' }, { label: 'system', value: 'system' }, { label: 'alert', value: 'alert' }, { label: 'ghost', value: 'ghost' }]" [value]="sectionVariant()" size="sm" [fullWidth]="true" (valueChange)="sectionVariant.set($any($event))" />
+            </div>
+          }
+
+            @case ('terminal') {
+            <div class="knob">
+              <label class="knob-label">prompt</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="termPrompt()" (valueChange)="termPrompt.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">height</label>
+              <app-retro-input size="sm" [fullWidth]="true" [value]="termHeight()" (valueChange)="termHeight.set($event)" />
+            </div>
+            <div class="knob">
+              <label class="knob-label">typewriter speed <span class="knob-hint">ms/line · 0 = instant</span></label>
+              <app-retro-range [value]="termTypewriterSpeed()" [min]="0" [max]="80" [step]="4" [fullWidth]="true" [showValue]="true" (valueChange)="termTypewriterSpeed.set($event)" />
+            </div>
+            <div class="knob-counter">
+              <strong>demo commands</strong>: ls · status · ping · tasks · theme
+            </div>
+            <div class="knob-counter">
+              built-ins: help · clear · history · echo · whoami · date
             </div>
           }
 
@@ -1117,27 +1887,11 @@
       subtitle="component.reference"
       padding="none"
     >
-      <div class="docs-tabs">
-        <button
-          type="button"
-          class="docs-tab"
-          [class.docs-tab--active]="activeDocTab() === 'usage'"
-          (click)="setActiveDocTab('usage')"
-        ><span class="docs-tab-marker">›</span><span>template.html</span></button>
-        <button
-          type="button"
-          class="docs-tab"
-          [class.docs-tab--active]="activeDocTab() === 'api'"
-          (click)="setActiveDocTab('api')"
-        ><span class="docs-tab-marker">›</span><span>component.ts</span></button>
-        <button
-          type="button"
-          class="docs-tab"
-          [class.docs-tab--active]="activeDocTab() === 'meta'"
-          (click)="setActiveDocTab('meta')"
-        ><span class="docs-tab-marker">›</span><span>module.tags</span></button>
-      </div>
-
+      <app-retro-tabs
+        [tabs]="[{id:'usage',label:'template.html'},{id:'api',label:'component.ts'},{id:'meta',label:'module.tags'}]"
+        [active]="activeDocTab()"
+        (activeChange)="setActiveDocTab($any($event))"
+      >
       <div class="docs-panel">
         @switch (activeDocTab()) {
           @case ('usage') {
@@ -1159,9 +1913,7 @@
     @switch (activeStory()) {
 
       @case ('win') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>title</td><td>string</td><td class="required">required</td><td>texto no titlebar</td></tr>
             <tr><td>subtitle</td><td>string</td><td>''</td><td>texto secundário no titlebar</td></tr>
             <tr><td>variant</td><td>WindowVariant</td><td>'default'</td><td>tema visual: default | terminal | system | alert | ghost</td></tr>
@@ -1174,8 +1926,7 @@
             <tr><td>scrollable</td><td>boolean</td><td>false</td><td>body com overflow-y auto</td></tr>
             <tr><td>maxHeight</td><td>number</td><td>340</td><td>altura máxima (px) quando scrollable</td></tr>
             <tr><td>loading</td><td>boolean</td><td>false</td><td>barra de progresso animada — ativa automaticamente com status='loading'</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots">
           <span class="api-slot-label">slots</span>
           <code>[window-actions]</code> — titlebar direito &nbsp;·&nbsp;
@@ -1192,28 +1943,24 @@
       }
 
       @case ('button') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>variant</td><td>'primary' | 'secondary' | 'ghost'</td><td>'primary'</td><td>estilo visual</td></tr>
             <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho</td></tr>
             <tr><td>type</td><td>'button' | 'submit' | 'reset'</td><td>'button'</td><td>tipo HTML</td></tr>
             <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
             <tr><td>loading</td><td>boolean</td><td>false</td><td>bloqueia clique e exibe estado</td></tr>
             <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>ocupa 100% da largura</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">output</span> <code>(pressed)</code> — MouseEvent</div>
       }
 
       @case ('input') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>type</td><td>'text' | 'search' | 'number' | 'email' | 'password'</td><td>'text'</td><td>tipo do input</td></tr>
             <tr><td>size</td><td>'sm' | 'md' | 'lg'</td><td>'md'</td><td>tamanho: afeta font-size e padding</td></tr>
             <tr><td>value</td><td>string</td><td>''</td><td>valor atual</td></tr>
             <tr><td>placeholder</td><td>string</td><td>''</td><td>placeholder</td></tr>
+            <tr><td>ariaLabel</td><td>string</td><td>''</td><td>aria-label no &lt;input&gt; nativo — use quando não houver &lt;label&gt; visível associado</td></tr>
             <tr><td>prefix</td><td>string</td><td>''</td><td>símbolo à esquerda (negrito âmbar)</td></tr>
             <tr><td>suffix</td><td>string</td><td>''</td><td>símbolo/texto à direita (muted)</td></tr>
             <tr><td>clearable</td><td>boolean</td><td>false</td><td>botão × quando há valor (inativo em readonly)</td></tr>
@@ -1223,44 +1970,40 @@
             <tr><td>errorMessage</td><td>string</td><td>''</td><td>mensagem de erro abaixo (visível quando invalid=true)</td></tr>
             <tr><td>helpText</td><td>string</td><td>''</td><td>texto de ajuda abaixo (sobrescrito pelo errorMessage quando invalid)</td></tr>
             <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>host width: 100%</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">outputs</span> <code>(valueChange)</code> string &nbsp;·&nbsp; <code>(cleared)</code> void</div>
       }
 
       @case ('select') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrÃ£o</th><th>descriÃ§Ã£o</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>value</td><td>string</td><td>''</td><td>valor selecionado</td></tr>
-            <tr><td>options</td><td>RetroSelectOption[]</td><td class="required">required</td><td>lista com label, value e disabled opcional</td></tr>
+            <tr><td>options</td><td>RetroSelectOption[]</td><td class="required">required</td><td>lista com label, value, disabled e separator opcionais; separator=true insere divisor visual entre grupos</td></tr>
+            <tr><td>placeholder</td><td>string</td><td>''</td><td>texto exibido quando nenhuma opção está selecionada</td></tr>
+            <tr><td>ariaLabel</td><td>string</td><td>''</td><td>aria-label no botão trigger — use quando não houver label visível</td></tr>
             <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho visual</td></tr>
-            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interaÃ§Ã£o</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
             <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>ocupa 100% da largura</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">output</span> <code>(valueChange)</code> string</div>
       }
 
       @case ('range') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrÃ£o</th><th>descriÃ§Ã£o</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>value</td><td>number</td><td>0</td><td>valor atual do slider</td></tr>
             <tr><td>min</td><td>number</td><td>0</td><td>limite inferior</td></tr>
             <tr><td>max</td><td>number</td><td>100</td><td>limite superior</td></tr>
             <tr><td>step</td><td>number</td><td>1</td><td>incremento entre valores</td></tr>
-            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interaÃ§Ã£o</td></tr>
+            <tr><td>label</td><td>string</td><td>''</td><td>label visível acima do slider; também vira aria-label se ariaLabel não for fornecido</td></tr>
+            <tr><td>ariaLabel</td><td>string</td><td>''</td><td>aria-label explícito — sobrepõe label para leitores de tela</td></tr>
+            <tr><td>showValue</td><td>boolean</td><td>false</td><td>exibe o valor atual ao lado do slider</td></tr>
+            <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação</td></tr>
             <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>ocupa 100% da largura</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">output</span> <code>(valueChange)</code> number</div>
       }
 
       @case ('checkbox') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>checked</td><td>boolean</td><td>false</td><td>estado marcado</td></tr>
             <tr><td>label</td><td>string</td><td>''</td><td>texto à direita do checkbox</td></tr>
             <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho da caixa e do label</td></tr>
@@ -1270,74 +2013,58 @@
             <tr><td>indeterminate</td><td>boolean</td><td>false</td><td>estado intermediário (—)</td></tr>
             <tr><td>trueValue</td><td>unknown</td><td>true</td><td>valor emitido em valueChange quando marcado</td></tr>
             <tr><td>falseValue</td><td>unknown</td><td>false</td><td>valor emitido em valueChange quando desmarcado</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">outputs</span> <code>(checkedChange)</code> boolean &nbsp;·&nbsp; <code>(valueChange)</code> trueValue | falseValue</div>
       }
 
       @case ('kbd') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>keys</td><td>string[]</td><td>[]</td><td>lista de teclas para combo (ex: ['⌘','K']); vazio usa ng-content</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — tecla única via ng-content</div>
       }
 
       @case ('pill') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
-            <tr><td>status</td><td>string</td><td class="required">required</td><td>active, paused, completed, archived</td></tr>
+        <app-api-table type="input">
+            <tr><td>status</td><td>string</td><td class="required">required</td><td>active, paused, completed, archived, cursando — extensível via CSS</td></tr>
             <tr><td>size</td><td>'sm' | 'md'</td><td>'sm'</td><td>tamanho da pill</td></tr>
-          </tbody>
-        </table>
+            <tr><td>ariaLabel</td><td>string</td><td>''</td><td>aria-label explícito para leitores de tela; se vazio, o texto visible do status já serve</td></tr>
+          </app-api-table>
       }
 
       @case ('dot') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>status</td><td>string</td><td class="required">required</td><td>active, paused, completed, archived, error, default</td></tr>
             <tr><td>size</td><td>'xs' | 'sm' | 'md'</td><td>'sm'</td><td>diâmetro do dot</td></tr>
+            <tr><td>ariaLabel</td><td>string</td><td>''</td><td>quando fornecido, adiciona role="img" e aria-label para leitores de tela</td></tr>
             <tr><td>pulse</td><td>boolean</td><td>false</td><td>animação de pulso (ideal para status active)</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
       }
 
       @case ('tag') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>label</td><td>string</td><td class="required">required</td><td>texto da tag (prefixado com #)</td></tr>
             <tr><td>icon</td><td>string</td><td>''</td><td>glyph antes do #label (ex: ★ ▶ ⚡)</td></tr>
             <tr><td>variant</td><td>'default' | 'primary' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor de fundo via color-mix</td></tr>
             <tr><td>size</td><td>'sm' | 'md'</td><td>'md'</td><td>tamanho do texto e padding</td></tr>
             <tr><td>removable</td><td>boolean</td><td>false</td><td>exibe botão × de remoção (inativo quando disabled)</td></tr>
             <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita interação — pointer-events: none</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">output</span> <code>(removed)</code> void</div>
       }
 
       @case ('stat') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>label</td><td>string</td><td class="required">required</td><td>rótulo superior</td></tr>
             <tr><td>value</td><td>string | number</td><td class="required">required</td><td>valor em destaque</td></tr>
             <tr><td>sublabel</td><td>string</td><td>''</td><td>texto abaixo do valor</td></tr>
             <tr><td>tone</td><td>'default' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor de destaque</td></tr>
             <tr><td>trend</td><td>'up' | 'down' | 'neutral'</td><td>undefined</td><td>indicador ↑↓→</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
       }
 
       @case ('progress') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>value</td><td>number</td><td>0</td><td>progresso de 0 a 100 (ignorado no modo indeterminate)</td></tr>
             <tr><td>mode</td><td>'determinate' | 'indeterminate'</td><td>'determinate'</td><td>determinate mostra o valor; indeterminate exibe barra de varredura animada</td></tr>
             <tr><td>tone</td><td>'default' | 'success' | 'warning' | 'danger'</td><td>'default'</td><td>cor do fill</td></tr>
@@ -1345,27 +2072,21 @@
             <tr><td>label</td><td>string</td><td>''</td><td>texto acima da barra</td></tr>
             <tr><td>showValue</td><td>boolean</td><td>false</td><td>exibe valor + unit no header (só no modo determinate)</td></tr>
             <tr><td>animated</td><td>boolean</td><td>false</td><td>listras diagonais em movimento (só no modo determinate)</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
       }
 
       @case ('ascii') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>value</td><td>number</td><td class="required">required</td><td>progresso de 0 a 100</td></tr>
             <tr><td>width</td><td>number</td><td>20</td><td>número de caracteres da barra</td></tr>
             <tr><td>filledChar</td><td>string</td><td>'█'</td><td>caractere de preenchimento</td></tr>
             <tr><td>emptyChar</td><td>string</td><td>'░'</td><td>caractere vazio</td></tr>
             <tr><td>showValue</td><td>boolean</td><td>true</td><td>exibe percentual ao final</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
       }
 
       @case ('toast') {
-        <table class="api-table">
-          <thead><tr><th>método (ToastService)</th><th>assinatura</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="method">
             <tr><td>show</td><td>show(msg, type?, duration?, details?, sticky?)</td><td>genérico — type: 'event' | 'success' | 'warning' | 'error'</td></tr>
             <tr><td>event</td><td>event(msg, details?, duration?, sticky?)</td><td>notificação neutra de sistema</td></tr>
             <tr><td>success</td><td>success(msg, details?, duration?, sticky?)</td><td>operação concluída</td></tr>
@@ -1373,26 +2094,19 @@
             <tr><td>error</td><td>error(msg, details?, duration?, sticky?)</td><td>erro com painel de detalhes expansível</td></tr>
             <tr><td>dismiss</td><td>dismiss(id)</td><td>fecha toast pelo id</td></tr>
             <tr><td>clear</td><td>clear()</td><td>fecha todos os toasts visíveis</td></tr>
-          </tbody>
-        </table>
-        <table class="api-table" style="margin-top:8px">
-          <thead><tr><th>ToastDetails</th><th>tipo</th><th>descrição</th></tr></thead>
-          <tbody>
+          </app-api-table>
+        <app-api-table type="input" [gap]="true">
             <tr><td>code</td><td>string</td><td>código do evento/erro (ex: ERR_503, OK_200)</td></tr>
             <tr><td>service</td><td>string</td><td>serviço de origem</td></tr>
             <tr><td>http</td><td>string</td><td>status HTTP</td></tr>
             <tr><td>trace</td><td>string</td><td>trace id</td></tr>
             <tr><td>stack</td><td>string</td><td>stack trace ou log multilinha</td></tr>
             <tr><td>action</td><td>&#123; label, url &#125;</td><td>botão CTA no painel (ex: "OPEN IN JAEGER →")</td></tr>
-          </tbody>
-        </table>
-        <table class="api-table" style="margin-top:8px">
-          <thead><tr><th>input (componente)</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+          </app-api-table>
+        <app-api-table type="input" [gap]="true">
             <tr><td>position</td><td>'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'top-center' | 'bottom-center'</td><td>'bottom-right'</td><td>posição do stack na tela</td></tr>
             <tr><td>maxVisible</td><td>number</td><td>5</td><td>número máximo de toasts simultâneos</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots">
           <span class="api-slot-label">output</span>
           <code>(toastClosed)</code> — emite o <code>ToastMessage</code> quando o usuário fecha manualmente (×)
@@ -1406,16 +2120,13 @@
       }
 
       @case ('message') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>severity</td><td>'info' | 'success' | 'warning' | 'error'</td><td>'info'</td><td>define a paleta de cor e o ícone padrão</td></tr>
             <tr><td>variant</td><td>'filled' | 'outlined' | 'ghost'</td><td>'filled'</td><td>filled = fundo tintado · outlined = sem fundo · ghost = só borda esquerda</td></tr>
             <tr><td>text</td><td>string</td><td>''</td><td>texto principal; se vazio usa ng-content</td></tr>
             <tr><td>icon</td><td>string</td><td>''</td><td>glyph de ícone (override — padrão por severity: ℹ ✓ ⚠ ✕)</td></tr>
             <tr><td>closable</td><td>boolean</td><td>false</td><td>exibe botão × que oculta a mensagem</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots">
           <span class="api-slot-label">output</span> <code>(msgClosed)</code> void — emite ao fechar &nbsp;·&nbsp;
           <span class="api-slot-label">slot</span> <code>default</code> — conteúdo customizado (quando text não é usado)
@@ -1423,59 +2134,346 @@
       }
 
       @case ('skeleton') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>width</td><td>string</td><td>'100%'</td><td>largura do placeholder (CSS: %, px, etc.)</td></tr>
             <tr><td>height</td><td>string</td><td>'14px'</td><td>altura de cada linha/bloco</td></tr>
             <tr><td>shape</td><td>'rectangle' | 'circle'</td><td>'rectangle'</td><td>circle usa height como width também (quadrado perfeito)</td></tr>
             <tr><td>animation</td><td>'wave' | 'pulse' | 'none'</td><td>'wave'</td><td>wave = shimmer horizontal · pulse = fade in/out · none = estático</td></tr>
             <tr><td>count</td><td>number</td><td>1</td><td>número de linhas de skeleton empilhadas com gap</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
       }
 
       @case ('modal') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>open</td><td>boolean</td><td>false</td><td>controla visibilidade</td></tr>
             <tr><td>title</td><td>string</td><td>''</td><td>título no titlebar</td></tr>
             <tr><td>subtitle</td><td>string</td><td>''</td><td>subtítulo</td></tr>
             <tr><td>size</td><td>'sm' | 'md' | 'lg'</td><td>'md'</td><td>largura: 420 / 560 / 760px</td></tr>
-            <tr><td>closeOnBackdrop</td><td>boolean</td><td>true</td><td>fecha ao clicar fora</td></tr>
+            <tr><td>closeOnBackdrop</td><td>boolean</td><td>true</td><td>fecha ao clicar fora do modal</td></tr>
+            <tr><td>closeOnEscape</td><td>boolean</td><td>true</td><td>fecha ao pressionar Esc</td></tr>
             <tr><td>showCloseButton</td><td>boolean</td><td>true</td><td>exibe × no titlebar</td></tr>
-          </tbody>
-        </table>
-        <div class="api-slots"><span class="api-slot-label">slots</span> <code>[modal-body]</code> &nbsp;·&nbsp; <code>[modal-actions]</code> &nbsp;·&nbsp; <span class="api-slot-label">output</span> <code>(closed)</code> void</div>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">slots</span> default (body) &nbsp;·&nbsp; <code>[modal-actions]</code> &nbsp;·&nbsp; <span class="api-slot-label">output</span> <code>(closed)</code> void</div>
       }
 
       @case ('collapsible') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>title</td><td>string</td><td class="required">required</td><td>texto exibido no cabeçalho</td></tr>
             <tr><td>collapsed</td><td>boolean</td><td>false</td><td>estado recolhido — two-way bindável com [(collapsed)]</td></tr>
             <tr><td>disabled</td><td>boolean</td><td>false</td><td>desabilita o toggle; aparência desbotada e cursor not-allowed</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots">
-          <span class="api-slot-label">output</span>
-          <code>(collapsedChange)</code> — emite o novo estado boolean (auto-gerado pelo model())
+          <span class="api-slot-label">slots</span> default (body) &nbsp;·&nbsp; <code>[collapsible-actions]</code> (header, lado direito) &nbsp;·&nbsp;
+          <span class="api-slot-label">output</span> <code>(collapsedChange)</code> boolean
         </div>
         <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — conteúdo recolhível</div>
       }
 
       @case ('code') {
-        <table class="api-table">
-          <thead><tr><th>input</th><th>tipo</th><th>padrão</th><th>descrição</th></tr></thead>
-          <tbody>
+        <app-api-table type="input">
             <tr><td>code</td><td>string</td><td class="required">required</td><td>conteúdo do bloco</td></tr>
             <tr><td>language</td><td>string</td><td>''</td><td>rótulo da linguagem no header</td></tr>
             <tr><td>framed</td><td>boolean</td><td>true</td><td>exibe borda e sombra retro</td></tr>
-          </tbody>
-        </table>
+          </app-api-table>
         <div class="api-slots"><span class="api-slot-label">método</span> <code>copy()</code> — copia para clipboard com feedback visual</div>
+      }
+
+      @case ('toolbar-search') {
+        <app-api-table type="input">
+            <tr><td>value</td><td>string</td><td>''</td><td>valor atual do campo</td></tr>
+            <tr><td>placeholder</td><td>string</td><td>'search...'</td><td>texto de placeholder</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>valueChange</td><td>string</td><td>emite a cada keystroke</td></tr>
+            <tr><td>cleared</td><td>void</td><td>emite quando o botão × é clicado</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">note</span> wrapper sobre <code>RetroInput</code> — suporta CVA via delegação</div>
+      }
+
+      @case ('project-card') {
+        <app-api-table type="input">
+            <tr><td>project</td><td>Project</td><td class="required">required</td><td>objeto de projeto completo</td></tr>
+            <tr><td>indexLabel</td><td>string</td><td class="required">required</td><td>rótulo de índice exibido no header (ex: proj/01)</td></tr>
+            <tr><td>status</td><td>string</td><td class="required">required</td><td>status textual para o StatusPill</td></tr>
+            <tr><td>progress</td><td>number</td><td class="required">required</td><td>percentual de conclusão (0-100)</td></tr>
+            <tr><td>size</td><td>'sm'|'md'|'lg'</td><td>'md'</td><td>densidade visual do card — sm compacto, lg espaçoso</td></tr>
+            <tr><td>showGithubStats</td><td>boolean</td><td>true</td><td>quando true busca language e stars via GitHub API a partir de repositoryUrl</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">composto por</span> <code>RetroWindow</code> + <code>StatusPill</code></div>
+      }
+
+      @case ('notif-item') {
+        <app-api-table type="input">
+            <tr><td>type</td><td>'event'|'build'|'alert'</td><td class="required">required</td><td>tipo determina cor do badge</td></tr>
+            <tr><td>source</td><td>'webhook'|'email'|'system'</td><td class="required">required</td><td>origem da notificação</td></tr>
+            <tr><td>timestamp</td><td>Date</td><td class="required">required</td><td>data/hora usada no RelativeTimePipe</td></tr>
+            <tr><td>title</td><td>string</td><td class="required">required</td><td>texto principal do item</td></tr>
+            <tr><td>subtitle</td><td>string</td><td>undefined</td><td>linha de detalhe abaixo do título</td></tr>
+            <tr><td>read</td><td>boolean</td><td>false</td><td>altera estilo visual para lido</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>itemRead</td><td>void</td><td>emite ao clicar no item</td></tr>
+          </app-api-table>
+      }
+
+      @case ('notif-stream') {
+        <app-api-table type="input">
+            <tr><td>open</td><td>boolean</td><td>false</td><td>controla visibilidade do painel (slide-in)</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>closed</td><td>void</td><td>emite ao clicar × ou pressionar Esc</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — projeta <code>app-retro-notif-item</code></div>
+        <div class="api-slots"><span class="api-slot-label">injeta</span> <code>NotifService</code> — acessa items, unreadCount, markAllRead, clear</div>
+      }
+
+      @case ('priority-indicator') {
+        <app-api-table type="input">
+            <tr><td>priority</td><td>'critical'|'high'|'medium'|'low'|'none'</td><td>'none'</td><td>determina símbolo e cor — !!, !, •, ·, –</td></tr>
+          </app-api-table>
+      }
+
+      @case ('visibility-chip') {
+        <app-api-table type="input">
+            <tr><td>visibility</td><td>'public'|'private'|'internal'</td><td>'public'</td><td>[PUB] verde · [PRIV] vermelho · [INT] âmbar</td></tr>
+          </app-api-table>
+      }
+
+      @case ('retro-filter-bar') {
+        <app-api-table type="input">
+            <tr><td>tabs</td><td>FilterTab[]</td><td>[]</td><td>lista de abas — <code>&#123; key, label, count?, disabled? &#125;</code></td></tr>
+            <tr><td>active</td><td>string</td><td>''</td><td>key ativa (single-select)</td></tr>
+            <tr><td>multiSelect</td><td>boolean</td><td>false</td><td>habilita seleção múltipla — usa <code>activeKeys</code> / <code>keysChange</code></td></tr>
+            <tr><td>activeKeys</td><td>string[]</td><td>[]</td><td>keys ativas (multi-select)</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>tabChange</td><td>string</td><td>key clicada (single-select)</td></tr>
+            <tr><td>keysChange</td><td>string[]</td><td>novo array de keys (multi-select)</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>[filter-end]</code> — projeta controles no lado direito da barra (checkbox, kbd hint, select, etc.)</div>
+        <div class="api-slots"><span class="api-slot-label">note</span> use como slot <code>[grid-filter]</code> em <code>RetroDataGrid</code> para posicionamento automático</div>
+      }
+
+      @case ('task-filter-bar') {
+        <app-api-table type="input">
+            <tr><td>tabs</td><td>FilterTab[]</td><td>[]</td><td>abas — <code>&#123; key, label, count? &#125;</code> — count exibe badge numérico</td></tr>
+            <tr><td>active</td><td>string</td><td>''</td><td>key da aba ativa</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>tabChange</td><td>string</td><td>key da aba clicada</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">note</span> o host tem <code>role="tablist"</code> — use em conjunto com a lógica de filtro de tarefas para filtrar a lista ativa</div>
+      }
+
+      @case ('retro-grid-row') {
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — projeta qualquer filho como célula com padding e estilo mono</div>
+        <div class="api-slots"><span class="api-slot-label">note</span> herda <code>--grid-cols</code> do <code>RetroDataGrid</code> pai via CSS cascade</div>
+      }
+
+      @case ('retro-status-bar') {
+        <app-api-table type="input">
+            <tr><td>version</td><td>string</td><td>''</td><td>string de versão exibida em âmbar à esquerda</td></tr>
+            <tr><td>items</td><td>StatusItem[]</td><td>[]</td><td>itens com label e value opcional em verde</td></tr>
+            <tr><td>shortcuts</td><td>StatusShortcut[]</td><td>[]</td><td>atalhos de teclado exibidos à direita com RetroKbd</td></tr>
+          </app-api-table>
+      }
+
+      @case ('retro-data-grid') {
+        <app-api-table type="input">
+            <tr><td>title</td><td>string</td><td class="required">required</td><td>título principal na titlebar</td></tr>
+            <tr><td>subtitle</td><td>string</td><td>''</td><td>subtítulo após →</td></tr>
+            <tr><td>columns</td><td>GridColumn[]</td><td>[]</td><td>define headers e template CSS; <code>noResize</code> bloqueia resize por coluna</td></tr>
+            <tr><td>rowCount</td><td>number|null</td><td>null</td><td>total de linhas filtradas — exibido na titlebar</td></tr>
+            <tr><td>addLabel</td><td>string|null</td><td>null</td><td>label do botão + ADD na titlebar</td></tr>
+            <tr><td>resizable</td><td>boolean</td><td>false</td><td>habilita redimensionamento de colunas por drag</td></tr>
+            <tr><td>columnPicker</td><td>boolean</td><td>false</td><td>habilita botão COLS para toggle de visibilidade</td></tr>
+            <tr><td>filterRulesEnabled</td><td>boolean</td><td>false</td><td>habilita painel FILTER com regras dinâmicas</td></tr>
+            <tr><td>searchable</td><td>boolean</td><td>false</td><td>exibe campo de busca global na titlebar</td></tr>
+            <tr><td>sortState</td><td>SortState</td><td>&#123; field: '', dir: null &#125;</td><td>estado do sort atual (de createRetroTable)</td></tr>
+            <tr><td>columnFilters</td><td>Record&lt;string,string[]&gt;</td><td>&#123;&#125;</td><td>filtros por checkbox por coluna</td></tr>
+            <tr><td>filterOptionsMap</td><td>Record&lt;string,string[]&gt;</td><td>&#123;&#125;</td><td>opções disponíveis por coluna (de createRetroTable)</td></tr>
+            <tr><td>filterRules</td><td>FilterRule[]</td><td>[]</td><td>regras avançadas (column+op+value)</td></tr>
+            <tr><td>hiddenCols</td><td>Set&lt;string&gt;</td><td>Set()</td><td>chaves de colunas ocultadas</td></tr>
+            <tr><td>colWidths</td><td>Record&lt;string,number&gt;</td><td>&#123;&#125;</td><td>larguras em px após resize</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>addClick</td><td>void</td><td>emite ao clicar + ADD</td></tr>
+            <tr><td>sortChange</td><td>string</td><td>key da coluna clicada — consumir via <code>table.toggleSort($event)</code></td></tr>
+            <tr><td>searchChange</td><td>string</td><td>valor do campo de busca</td></tr>
+            <tr><td>columnFilterChange</td><td>&#123;field, values&#125;</td><td>filtro por checkbox alterado</td></tr>
+            <tr><td>filterRuleAdd</td><td>void</td><td>usuário pediu nova regra</td></tr>
+            <tr><td>filterRuleRemove</td><td>string</td><td>id da regra a remover</td></tr>
+            <tr><td>filterRuleUpdate</td><td>&#123;id&#125; &amp; Partial&lt;FilterRule&gt;</td><td>patch de uma regra existente (live enquanto digita)</td></tr>
+            <tr><td>filterRuleClear</td><td>void</td><td>limpar todas as regras</td></tr>
+            <tr><td>colVisibilityToggle</td><td>string</td><td>key da coluna a mostrar/ocultar</td></tr>
+            <tr><td>colVisibilityShowAll</td><td>void</td><td>mostrar todas as colunas</td></tr>
+            <tr><td>colWidthChange</td><td>&#123;key, width&#125;</td><td>nova largura em px após drag-resize</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>[grid-filter]</code> — slot acima das linhas (ex: <code>app-retro-filter-bar</code>)</div>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — projeta linhas que herdam <code>--grid-cols</code></div>
+        <div class="api-slots"><span class="api-slot-label">helper</span> <code>createRetroTable()</code> — state manager reativo: sort, busca, filtros, regras, paginação, expansão, visibilidade, widths</div>
+      }
+
+      @case ('retro-expandable-row') {
+        <app-api-table type="input">
+            <tr><td>expanded</td><td>boolean</td><td>false</td><td>two-way bindable via model() — controla se o detalhe está visível</td></tr>
+            <tr><td>expandOnClick</td><td>boolean</td><td>false</td><td>quando true, clicar na linha principal alterna expanded</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>expandedChange</td><td>boolean</td><td>emite ao mudar estado — par do model() para two-way binding</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>default</code> — células da linha principal, renderizadas via <code>grid-template-columns: var(--grid-cols)</code></div>
+        <div class="api-slots"><span class="api-slot-label">slot</span> <code>[detail]</code> — conteúdo do painel expansível animado abaixo da linha</div>
+        <div class="api-slots"><span class="api-slot-label">note</span> chame <code>toggle()</code> via template ref para alternar de dentro do conteúdo projetado</div>
+      }
+
+      @case ('retro-paginator') {
+        <app-api-table type="input">
+            <tr><td>page</td><td>number</td><td>0</td><td>índice da página atual (zero-based)</td></tr>
+            <tr><td>pageSize</td><td>number</td><td>10</td><td>quantidade de linhas por página</td></tr>
+            <tr><td>total</td><td>number</td><td>0</td><td>total de registros (após filtros)</td></tr>
+            <tr><td>pageSizeOptions</td><td>number[]</td><td>[5,10,25,50]</td><td>opções do seletor de tamanho de página</td></tr>
+            <tr><td>showPageSize</td><td>boolean</td><td>true</td><td>exibe ou oculta o seletor de pageSize</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>pageChange</td><td>number</td><td>emite o novo índice de página (zero-based) ao navegar</td></tr>
+            <tr><td>pageSizeChange</td><td>number</td><td>emite o novo pageSize ao selecionar no dropdown</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">note</span> combina com <code>createRetroTable()</code> para integração completa de paginação, sort e filtro</div>
+      }
+
+      @case ('task-row') {
+        <app-api-table type="input">
+            <tr><td>task</td><td>Task</td><td class="required">required</td><td>objeto de tarefa completo</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>deleted</td><td>void</td><td>emite ao clicar × — consumer é responsável pela remoção</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">note</span> alinha colunas via <code>grid-template-columns: var(--grid-cols)</code> herdado do <code>RetroDataGrid</code></div>
+      }
+
+      @case ('project-detail-header') {
+        <app-api-table type="input">
+            <tr><td>project</td><td>Project</td><td class="required">required</td><td>objeto de projeto</td></tr>
+            <tr><td>status</td><td>string</td><td class="required">required</td><td>status para o StatusPill na titlebar</td></tr>
+            <tr><td>badge</td><td>'stable'|'beta'|'wip'|'deprecated'|null</td><td>null</td><td>badge inline ao nome do projeto</td></tr>
+            <tr><td>visibility</td><td>'public'|'private'|'internal'</td><td>'public'</td><td>chip [PUB]/[PRIV]/[INT] na linha de meta</td></tr>
+            <tr><td>taskStats</td><td>TaskStats</td><td>zeros</td><td>contadores TODO/DOING/REVIEW/DONE</td></tr>
+            <tr><td>progress</td><td>number</td><td>0</td><td>percentual para o AsciiBar de progresso geral</td></tr>
+            <tr><td>showGithubStats</td><td>boolean</td><td>true</td><td>busca language, stars e description do GitHub</td></tr>
+            <tr><td>showControls</td><td>boolean</td><td>false</td><td>exibe botões minimize/maximize/close no RetroWindow</td></tr>
+          </app-api-table>
+        <div class="api-slots"><span class="api-slot-label">composto por</span> <code>RetroWindow</code> + <code>StatusPill</code> + <code>AsciiBar</code> + <code>VisibilityChip</code> + <code>RetroTag</code></div>
+      }
+
+      @case ('api-table') {
+        <app-api-table type="input">
+          <tr><td>type</td><td>'input'|'output'|'method'</td><td>'input'</td><td>define os cabeçalhos da tabela automaticamente</td></tr>
+          <tr><td>gap</td><td>boolean</td><td>false</td><td>adiciona margin-top: 8px — para tabelas consecutivas</td></tr>
+          <tr><td>headers</td><td>string[]</td><td>[]</td><td>sobrescreve os cabeçalhos automáticos com colunas customizadas</td></tr>
+        </app-api-table>
+        <div class="api-slots">
+          <span class="api-slot-label">ng-content</span>
+          <code>&lt;tr&gt;</code> — linhas projetadas diretamente no <code>&lt;tbody&gt;</code>
+        </div>
+        <div class="api-slots">
+          <span class="api-slot-label">encapsulation</span>
+          <code>ViewEncapsulation.None</code> — estilos globais para alcançar conteúdo projetado
+        </div>
+      }
+
+      @case ('retro-tabs') {
+        <app-api-table type="input">
+          <tr><td>tabs</td><td>RetroTab[]</td><td>[]</td><td>lista de abas — ver interface abaixo</td></tr>
+          <tr><td>active</td><td>string (model)</td><td>''</td><td>id da aba ativa — two-way via <code>[(active)]</code></td></tr>
+          <tr><td>variant</td><td>'default' | 'terminal' | 'system' | 'alert' | 'ghost'</td><td>'default'</td><td>tema visual da barra — espelha as variantes do retro-window</td></tr>
+        </app-api-table>
+        <app-api-table [gap]="true" [headers]="['RetroTab — interface', 'tipo', 'obrigatório', 'descrição']">
+          <tr><td>id</td><td>string</td><td class="required">✓</td><td>identificador único — usado no binding <code>active</code></td></tr>
+          <tr><td>label</td><td>string</td><td class="required">✓</td><td>texto exibido na aba</td></tr>
+          <tr><td>icon</td><td>string</td><td>—</td><td>caractere/emoji exibido antes do label — substitui o marcador <code>›</code></td></tr>
+          <tr><td>badge</td><td>string | number</td><td>—</td><td>contador compacto exibido após o label</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>—</td><td>bloqueia interação — aba fica opaca e sem cursor</td></tr>
+        </app-api-table>
+        <div class="api-slots">
+          <span class="api-slot-label">ng-content</span>
+          <code>default</code> — conteúdo de todas as abas (o pai faz o switch via &#64;switch/active())
+        </div>
+        <div class="api-slots">
+          <span class="api-slot-label">teclado</span>
+          <code>←→</code> move entre abas &nbsp;·&nbsp; <code>Home/End</code> vai à primeira/última
+        </div>
+      }
+
+      @case ('retro-section') {
+        <app-api-table type="input">
+          <tr><td>label</td><td>string</td><td>''</td><td>texto exibido na legenda da borda — deixar vazio oculta a legenda</td></tr>
+          <tr><td>variant</td><td>'default' | 'terminal' | 'system' | 'alert' | 'ghost'</td><td>'default'</td><td>tema visual do fieldset — espelha as variantes do retro-window</td></tr>
+        </app-api-table>
+        <div class="api-slots">
+          <span class="api-slot-label">ng-content</span>
+          <code>default</code> — qualquer conteúdo projetado dentro do fieldset
+        </div>
+        <div class="api-slots">
+          <span class="api-slot-label">pattern</span>
+          use dentro de <code>app-retro-window</code> para subdividir o corpo em grupos semânticos
+        </div>
+      }
+
+            @case ('terminal') {
+        <app-api-table type="input">
+            <tr><td>prompt</td><td>string</td><td>'user@devboard:~$ '</td><td>string exibida antes do input — suporta qualquer formato</td></tr>
+            <tr><td>greeting</td><td>string[]</td><td>['DevBoard Terminal…']</td><td>linhas impressas ao inicializar o componente</td></tr>
+            <tr><td>commands</td><td>TerminalCommand[]</td><td>[]</td><td>comandos customizados registrados pelo consumer</td></tr>
+            <tr><td>maxLines</td><td>number</td><td>500</td><td>limite do scrollback buffer — linhas mais antigas são descartadas</td></tr>
+            <tr><td>typewriterSpeed</td><td>number</td><td>16</td><td>delay em ms entre cada linha de output — 0 desativa o efeito</td></tr>
+            <tr><td>height</td><td>string</td><td>'400px'</td><td>altura do terminal (qualquer valor CSS válido)</td></tr>
+            <tr><td>windowTitle</td><td>string</td><td>'terminal'</td><td>título exibido no RetroWindow</td></tr>
+            <tr><td>autofocus</td><td>boolean</td><td>true</td><td>foca o input automaticamente após a view ser montada</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>commandRun</td><td>&#123; cmd: string; args: string[] &#125;</td><td>emite cada vez que um comando é executado — útil para analytics ou side effects</td></tr>
+          </app-api-table>
+        <app-api-table type="method" [gap]="true">
+            <tr><td>print</td><td>(text: string, type?: TerminalLineType) → void</td><td>injeta uma linha no output de fora do componente</td></tr>
+            <tr><td>clear</td><td>() → void</td><td>limpa todo o histórico de output</td></tr>
+            <tr><td>focus</td><td>() → void</td><td>foca o input programaticamente</td></tr>
+          </app-api-table>
+        <div class="api-slots">
+          <span class="api-slot-label">built-ins</span>
+          <code>help</code> <code>clear</code> <code>cls</code> <code>history</code> <code>echo</code> <code>whoami</code> <code>date</code>
+        </div>
+        <div class="api-slots" style="margin-top:4px">
+          <span class="api-slot-label">keyboard</span>
+          <code>↑↓ history</code> <code>Tab autocomplete</code> <code>Ctrl+C cancel</code> <code>Ctrl+L clear</code>
+          <code>Ctrl+A/E home/end</code> <code>Ctrl+U/K delete to start/end</code>
+        </div>
+      }
+
+      @case ('segmented') {
+        <app-api-table type="input">
+            <tr><td>options</td><td>readonly string[]</td><td>[]</td><td>lista de opções exibidas como segmentos clicáveis</td></tr>
+            <tr><td>value</td><td>string</td><td>''</td><td>opção selecionada — sincroniza com CVA via ngModel</td></tr>
+            <tr><td>direction</td><td>'row' | 'col'</td><td>'row'</td><td>orientação do grupo de segmentos</td></tr>
+          </app-api-table>
+        <app-api-table type="output" [gap]="true">
+            <tr><td>valueChange</td><td>string</td><td>emite a opção clicada — compatível com ngModel e [(value)]</td></tr>
+          </app-api-table>
+        <div class="api-slots">
+          <span class="api-slot-label">cva</span>
+          <code>NG_VALUE_ACCESSOR</code> <code>writeValue</code> <code>registerOnChange</code> <code>setDisabledState</code>
+        </div>
+      }
+
+      @case ('button-group') {
+        <div class="api-slots">
+          <span class="api-slot-label">ng-content</span>
+          <code>RetroButtonComponent</code>
+        </div>
+        <div class="api-slots" style="margin-top:8px">
+          <span class="api-slot-label">sem inputs</span>
+          wrapper puro — agrupa qualquer número de <code>app-retro-button</code> removendo bordas duplicadas adjacentes
+        </div>
       }
 
     }
@@ -1488,10 +2486,10 @@
               <p class="docs-copy">{{ activeDocMeta().summary }}</p>
             </div>
 
-            <div class="docs-stat-grid">
-              <app-stat-box label="Inputs" [value]="activeDocMeta().inputs" sublabel="public api" />
-              <app-stat-box label="Outputs" [value]="activeDocMeta().outputs" sublabel="events" />
-              <app-stat-box label="Slots" [value]="activeDocMeta().slots" sublabel="content projection" />
+            <div class="docs-stat-chips">
+              <span class="docs-stat-chip"><strong>{{ activeDocMeta().inputs }}</strong> inputs</span>
+              <span class="docs-stat-chip"><strong>{{ activeDocMeta().outputs }}</strong> outputs</span>
+              <span class="docs-stat-chip"><strong>{{ activeDocMeta().slots }}</strong> slots</span>
             </div>
 
             <div class="docs-meta-list">
@@ -1515,6 +2513,7 @@
           }
         }
       </div>
+      </app-retro-tabs>
     </app-retro-window>
   </section>
   }
@@ -1522,6 +2521,21 @@
 
 <!-- Toast host (fora do shell) -->
 <app-retro-toast [position]="toastPosition()" [maxVisible]="toastMaxVisible()" />
+
+<!-- Notif stream host (fora do shell para fixed position funcionar) -->
+<app-retro-notif-stream [open]="notifStreamOpen()" (closed)="notifStreamOpen.set(false)">
+  @for (item of notifService.items(); track item.id) {
+    <app-retro-notif-item
+      [type]="item.type"
+      [source]="item.source"
+      [timestamp]="item.timestamp"
+      [title]="item.title"
+      [subtitle]="item.subtitle"
+      [read]="item.read"
+      (itemRead)="notifService.markRead(item.id)"
+    />
+  }
+</app-retro-notif-stream>
 
 <!-- Modal host (fora do shell para overlay funcionar) -->
 <app-retro-modal

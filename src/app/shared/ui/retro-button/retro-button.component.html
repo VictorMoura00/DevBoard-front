@@ -18,8 +18,11 @@
 @if (href()) {
   <a
     [href]="href()"
+    [attr.download]="download() || null"
     [class]="classes()"
+    [attr.aria-label]="ariaLabel() || null"
     [attr.aria-disabled]="disabled() || loading() || null"
+    [attr.aria-busy]="loading() ? 'true' : null"
     [tabindex]="disabled() ? -1 : 0"
     (click)="onClick($event)"
     (focus)="onFocus($event)"
@@ -30,6 +33,8 @@
     [type]="type()"
     [disabled]="disabled() || loading()"
     [class]="classes()"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-busy]="loading() ? 'true' : null"
     (click)="onClick($event)"
     (focus)="onFocus($event)"
     (blur)="onBlur($event)"

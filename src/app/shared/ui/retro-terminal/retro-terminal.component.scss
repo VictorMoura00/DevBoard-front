@@ -1,0 +1,209 @@
+:host {
+  display: block;
+  font-family: var(--font-mono);
+
+  // ── Theme tokens (override per-project if needed) ─────────────────────────
+  --term-bg:      #060c06;
+  --term-stdout:  #5de05d;
+  --term-success: #96ff96;
+  --term-stderr:  #ff4d6a;
+  --term-muted:   #2c4c2c;
+  --term-system:  #3e6b3e;
+}
+
+// ── Terminal body ──────────────────────────────────────────────────────────
+
+.term-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--term-bg);
+  // CRT horizontal scanlines
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    color-mix(in srgb, #000 18%, transparent) 2px,
+    color-mix(in srgb, #000 18%, transparent) 3px
+  );
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: text;
+  position: relative;
+
+  // Subtle phosphor screen vignette
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, color-mix(in srgb, #000 35%, transparent) 100%);
+    pointer-events: none;
+  }
+}
+
+// ── Output history ─────────────────────────────────────────────────────────
+
+.term-output {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 16px 6px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--term-stdout) 14%, transparent) transparent;
+  min-height: 0;
+
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--term-stdout) 18%, transparent); }
+}
+
+// ── Line types ─────────────────────────────────────────────────────────────
+
+.term-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 1.6em;
+
+  &--input {
+    color: var(--term-stdout);
+    opacity: 0.9;
+  }
+
+  &--stdout {
+    color: var(--term-stdout);
+    text-shadow: 0 0 7px color-mix(in srgb, var(--term-stdout) 22%, transparent);
+  }
+
+  &--success {
+    color: var(--term-success);
+    font-weight: 700;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--term-success) 35%, transparent);
+  }
+
+  &--warn {
+    color: var(--amber, #ffbc40);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--amber, #ffbc40) 28%, transparent);
+  }
+
+  &--stderr {
+    color: var(--term-stderr);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--term-stderr) 30%, transparent);
+  }
+
+  &--muted {
+    color: var(--term-muted);
+  }
+
+  &--system {
+    color: var(--term-system);
+    font-style: italic;
+  }
+}
+
+// ── Input area ─────────────────────────────────────────────────────────────
+
+.term-input-area {
+  padding: 2px 16px 6px;
+  flex-shrink: 0;
+}
+
+.term-input-row {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.term-prompt {
+  color: var(--amber, #ffbc40);
+  font-weight: 700;
+  flex-shrink: 0;
+  white-space: pre;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--amber, #ffbc40) 30%, transparent);
+  user-select: none;
+}
+
+// ── Field: fake text + cursor + hidden input ───────────────────────────────
+
+.term-field {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.term-text {
+  color: var(--term-stdout);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--term-stdout) 18%, transparent);
+}
+
+.term-cursor {
+  display: inline-block;
+  min-width: 0.6ch;
+  background: var(--term-stdout);
+  color: var(--term-bg);
+  text-shadow: none;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--term-stdout) 60%, transparent);
+  animation: term-blink 1.1s step-end infinite;
+
+  &--unfocused {
+    background: transparent;
+    color: var(--term-stdout);
+    outline: 1px solid var(--term-stdout);
+    box-shadow: none;
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
+@keyframes term-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+// Hidden real input — covers .term-field for keyboard capture
+.term-hidden-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: text;
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: transparent;
+  outline: none;
+  caret-color: transparent;
+  color: transparent;
+  z-index: 1;
+  padding: 0;
+  margin: 0;
+}
+
+// ── Busy indicator ─────────────────────────────────────────────────────────
+
+.term-busy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+
+  span {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: var(--amber, #ffbc40);
+    border-radius: 0; // retro: square dots
+    animation: term-dot 1.2s step-end infinite;
+
+    &:nth-child(1) { animation-delay: 0s;    }
+    &:nth-child(2) { animation-delay: 0.4s;  }
+    &:nth-child(3) { animation-delay: 0.8s;  }
+  }
+}
+
+@keyframes term-dot {
+  0%, 100% { opacity: 0.15; }
+  50%       { opacity: 1;    }
+}

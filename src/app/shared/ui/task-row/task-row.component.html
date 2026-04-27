@@ -1,0 +1,33 @@
+<span class="tr__index" role="cell">{{ indexLabel() }}</span>
+
+<span class="tr__priority" role="cell">
+  <app-priority-indicator [priority]="task().priority" />
+</span>
+
+<span class="tr__status tr__status--{{ task().status }}" role="cell">
+  <span>{{ statusLabel() }}</span>
+</span>
+
+<span class="tr__title" role="cell">{{ task().title }}</span>
+
+<span class="tr__labels" role="cell">
+  @for (label of task().labels; track label) {
+    <span class="tr__label">#{{ label }}</span>
+  }
+  @if (!task().labels.length) {
+    <span class="tr__dash">—</span>
+  }
+</span>
+
+<span class="tr__due" role="cell">
+  {{ task().dueDate ? (task().dueDate! | date:'yyyy-MM-dd') : '—' }}
+</span>
+
+<span class="tr__updated" role="cell">{{ task().updatedAt | relativeTime }}</span>
+
+<button
+  type="button"
+  class="tr__delete"
+  (click)="deleted.emit()"
+  aria-label="delete task"
+>×</button>

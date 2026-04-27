@@ -14,7 +14,6 @@ export class RetroToastComponent {
   readonly position   = input<ToastPosition>('bottom-right');
   readonly maxVisible = input(5);
 
-  /** Emitted whenever the user manually closes a toast via the × button. */
   readonly toastClosed = output<ToastMessage>();
 
   protected readonly service = inject(ToastService);
@@ -24,10 +23,10 @@ export class RetroToastComponent {
   );
 
   private readonly expandedIds = signal(new Set<string>());
+  private readonly pausedIds   = signal(new Set<string>());
 
-  protected isExpanded(id: string): boolean {
-    return this.expandedIds().has(id);
-  }
+  protected isExpanded(id: string): boolean { return this.expandedIds().has(id); }
+  protected isPaused(id: string):   boolean { return this.pausedIds().has(id); }
 
   protected toggleExpanded(id: string): void {
     this.expandedIds.update((prev) => {
@@ -37,8 +36,19 @@ export class RetroToastComponent {
     });
   }
 
+  protected onMouseEnter(id: string): void {
+    this.service.pause(id);
+    this.pausedIds.update((prev) => new Set([...prev, id]));
+  }
+
+  protected onMouseLeave(id: string): void {
+    this.service.resume(id);
+    this.pausedIds.update((prev) => { const n = new Set(prev); n.delete(id); return n; });
+  }
+
   protected dismiss(toast: ToastMessage): void {
     this.expandedIds.update((prev) => { const n = new Set(prev); n.delete(toast.id); return n; });
+    this.pausedIds.update((prev)   => { const n = new Set(prev); n.delete(toast.id); return n; });
     this.service.dismiss(toast.id);
     this.toastClosed.emit(toast);
   }
@@ -51,11 +61,11 @@ export class RetroToastComponent {
     const d = toast.details;
     if (!d) return;
     const lines = [
-      d.code    ? `code: ${d.code}`       : null,
-      d.service ? `service: ${d.service}` : null,
-      d.http    ? `http: ${d.http}`       : null,
-      d.trace   ? `trace: ${d.trace}`     : null,
-      d.stack   ? `\n// STACK\n${d.stack}`: null,
+      d.code    ? `code: ${d.code}`        : null,
+      d.service ? `service: ${d.service}`  : null,
+      d.http    ? `http: ${d.http}`        : null,
+      d.trace   ? `trace: ${d.trace}`      : null,
+      d.stack   ? `\n// STACK\n${d.stack}` : null,
     ].filter(Boolean).join('\n');
     navigator.clipboard.writeText(lines);
   }

@@ -1,0 +1,13 @@
+<div
+  class="row-main"
+  [class.row-main--clickable]="expandOnClick()"
+  (click)="handleRowClick()"
+>
+  <ng-content />
+</div>
+
+@if (expanded()) {
+  <div class="row-detail">
+    <ng-content select="[detail]" />
+  </div>
+}

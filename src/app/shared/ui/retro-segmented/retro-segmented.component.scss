@@ -1,0 +1,41 @@
+:host {
+  display: flex;
+  border: 2px solid var(--line);
+
+  &.is-col {
+    flex-direction: column;
+  }
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 5px 8px;
+  border: none;
+  border-right: 1px solid var(--line-soft);
+  cursor: pointer;
+  background: var(--panel-alt);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &--active {
+    background: var(--line);
+    color: var(--amber);
+  }
+
+  :host.is-col & {
+    border-right: none;
+    border-bottom: 1px solid var(--line-soft);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

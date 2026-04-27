@@ -1,0 +1,67 @@
+<app-retro-window
+  [title]="windowTitle()"
+  [subtitle]="_windowSubtitle()"
+  padding="none"
+>
+  <div
+    class="term-body"
+    [style.height]="height()"
+    (click)="onTermClick()"
+    role="application"
+    aria-label="interactive terminal"
+  >
+    <!-- ── Output history ───────────────────────────────────────────────── -->
+    <div
+      #outputEl
+      class="term-output"
+      role="log"
+      aria-live="polite"
+      aria-label="terminal output"
+    >
+      @for (line of _lines(); track line.id) {
+        <div class="term-line term-line--{{ line.type }}">{{ line.text }}</div>
+      }
+    </div>
+
+    <!-- ── Input area ──────────────────────────────────────────────────── -->
+    <div class="term-input-area">
+      <div class="term-input-row">
+        <span class="term-prompt" aria-hidden="true">{{ prompt() }}</span>
+
+        @if (_busy()) {
+          <!-- Busy indicator while async command runs -->
+          <div class="term-busy" aria-label="processing">
+            <span></span><span></span><span></span>
+          </div>
+        } @else {
+          <!-- Visual text + block cursor + hidden real input -->
+          <div class="term-field">
+            <span class="term-text" aria-hidden="true">{{ _beforeCursor() }}</span><span
+              class="term-cursor"
+              [class.term-cursor--unfocused]="!_focused()"
+              aria-hidden="true"
+            >{{ _cursorChar() }}</span><span
+              class="term-text"
+              aria-hidden="true"
+            >{{ _afterCursor() }}</span>
+
+            <input
+              #inputEl
+              class="term-hidden-input"
+              type="text"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="none"
+              spellcheck="false"
+              [attr.aria-label]="'terminal input — ' + prompt()"
+              (input)="onInput($event)"
+              (keydown)="onKeydown($event)"
+              (focus)="_focused.set(true)"
+              (blur)="_focused.set(false)"
+            />
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</app-retro-window>

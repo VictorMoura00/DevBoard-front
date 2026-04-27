@@ -13,7 +13,7 @@
   padding: 10px 14px;
   font-family: var(--font-mono);
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.5;
   border: 1.5px solid var(--line);
   border-left-width: 4px;
 
@@ -103,8 +103,6 @@
   padding: 0;
   transition: opacity 80ms, border-color 80ms;
 
-  &:hover {
-    opacity: 1;
-    border-color: var(--line);
-  }
+  &:hover         { opacity: 1; border-color: var(--line); }
+  &:focus-visible { opacity: 1; outline: 2px solid var(--amber); outline-offset: 1px; }
 }

@@ -4,7 +4,7 @@
 }
 
 .code-wrap {
-  background: #0a0e0a;
+  background: var(--code-bg, #0a0e0a);
   overflow: hidden;
 
   &--framed {
@@ -20,8 +20,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 5px 10px 5px 12px;
-  background: rgba(255, 176, 0, 0.06);
-  border-bottom: 1px solid rgba(255, 176, 0, 0.12);
+  background: color-mix(in srgb, var(--amber) 6%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--amber) 12%, transparent);
 }
 
 .code-lang {
@@ -53,7 +53,7 @@
   letter-spacing: 0.08em;
   color: var(--amber);
   background: transparent;
-  border: 1px solid rgba(255, 176, 0, 0.25);
+  border: 1px solid color-mix(in srgb, var(--amber) 25%, transparent);
   padding: 2px 8px;
   cursor: pointer;
   opacity: 0.55;
@@ -63,11 +63,11 @@
 
   &:hover {
     opacity: 1;
-    background: rgba(255, 176, 0, 0.1);
+    background: color-mix(in srgb, var(--amber) 10%, transparent);
   }
 
   &:active {
-    background: rgba(255, 176, 0, 0.2);
+    background: color-mix(in srgb, var(--amber) 20%, transparent);
   }
 }
 
@@ -85,7 +85,7 @@
     pointer-events: none;
     background: repeating-linear-gradient(
       0deg,
-      rgba(255, 176, 0, 0.03) 0 1px,
+      color-mix(in srgb, var(--amber) 3%, transparent) 0 1px,
       transparent 1px 3px
     );
     z-index: 1;
@@ -97,7 +97,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
+    background: radial-gradient(ellipse at center, transparent 50%, color-mix(in srgb, #000 50%, transparent) 100%);
     z-index: 1;
   }
 }
@@ -108,10 +108,20 @@
   margin: 0;
   padding: 14px 16px;
   color: var(--amber);
-  text-shadow: 0 0 10px rgba(255, 176, 0, 0.3);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--amber) 30%, transparent);
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.8;
   white-space: pre;
   overflow: visible;
+
+  // ── Syntax tokens ────────────────────────────────────────────────────────
+  .tok-kw        { color: var(--tok-kw, #ffdd44); font-weight: 600; }
+  .tok-type      { color: var(--tok-type, #e8a020); }
+  .tok-bool      { color: var(--tok-bool, #ffd700); font-weight: 600; }
+  .tok-decorator { color: var(--tok-decorator, #ffd700); }
+  .tok-str       { color: var(--tok-str, color-mix(in srgb, var(--amber) 55%, transparent)); }
+  .tok-comment   { color: var(--tok-comment, color-mix(in srgb, var(--amber) 28%, transparent)); font-style: italic; }
+  .tok-num       { color: var(--tok-num, #ffbb33); }
+  .tok-key       { color: var(--tok-key, #e8a020); }
 }

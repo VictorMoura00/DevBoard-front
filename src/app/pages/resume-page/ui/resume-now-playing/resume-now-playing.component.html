@@ -1,0 +1,44 @@
+<div class="np" [class.np--paused]="!playing()">
+
+  <div class="np-eq" aria-hidden="true">
+    <span class="np-eq-bar"></span>
+    <span class="np-eq-bar"></span>
+    <span class="np-eq-bar"></span>
+    <span class="np-eq-bar"></span>
+  </div>
+
+  <span class="np-label">TOCANDO AGORA</span>
+
+  <span class="np-track">
+    <strong>{{ track() }}</strong>
+    <span class="np-sep">—</span>
+    <span class="np-artist">{{ artist() }}</span>
+  </span>
+
+  <div class="np-bar" role="progressbar" [attr.aria-valuenow]="progress()" aria-valuemin="0" aria-valuemax="100">
+    <div class="np-progress" [style.width.%]="progress()"></div>
+  </div>
+
+  <div class="np-controls">
+    <app-retro-button
+      variant="ghost"
+      size="sm"
+      [ariaLabel]="playing() ? 'pausar' : 'tocar'"
+      (pressed)="toggle.emit()"
+    >{{ playing() ? '⏸' : '▶' }}</app-retro-button>
+
+    <div class="np-vol">
+      <span class="np-vol-icon" aria-hidden="true">{{ volume() === 0 ? '✕' : '♪' }}</span>
+      <div class="np-vol-slider">
+        <app-retro-range
+          [value]="volume()"
+          [min]="0"
+          [max]="1"
+          [step]="0.01"
+          (valueChange)="volumeChange.emit($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+</div>

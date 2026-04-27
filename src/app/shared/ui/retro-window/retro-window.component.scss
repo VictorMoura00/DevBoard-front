@@ -253,6 +253,12 @@
   );
 }
 
+.titlebar-icon {
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .titlebar-mark {
   width: 7px;
   height: 7px;
@@ -266,7 +272,10 @@
 .titlebar-sub {
   opacity: 0.5;
   font-weight: 400;
-  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .titlebar-collapsed-hint {

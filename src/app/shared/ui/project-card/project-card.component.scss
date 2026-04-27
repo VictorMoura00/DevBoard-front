@@ -2,6 +2,32 @@
   display: block;
 }
 
+// Space after the status pill in the titlebar
+.card-status-wrap {
+  display: inline-flex;
+  margin-right: 12px;
+}
+
+// ── Size variants ─────────────────────────────────────────────────────────────
+
+:host-context([data-size='sm']),
+:host([data-size='sm']) {
+  h3 { font-size: 1.4rem; }
+  .project-description { font-size: 0.75rem; min-height: 40px; }
+  .mini-stats strong { font-size: 1rem; }
+  .mini-stats span { font-size: 0.52rem; }
+  .progress-row, .project-footer { font-size: 0.62rem; }
+}
+
+:host-context([data-size='lg']),
+:host([data-size='lg']) {
+  h3 { font-size: 2.6rem; }
+  .project-description { font-size: 0.9rem; min-height: 70px; }
+  .mini-stats strong { font-size: 1.7rem; }
+  .tag-row { gap: 6px; }
+  .progress-bar { height: 10px; }
+}
+
 h3 {
   margin: 0;
   font-family: var(--font-display);
@@ -47,7 +73,7 @@ h3 {
 .project-description {
   min-height: 54px;
   margin: 12px 0 0;
-  color: #3a3a35;
+  color: var(--muted);
   font-family: var(--font-mono);
   font-size: 0.82rem;
   line-height: 1.6;
@@ -125,10 +151,16 @@ h3 {
   font-size: 0.68rem;
 }
 
-.project-footer span:first-child {
+.repo-link {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--muted);
+  text-decoration: none;
+
+  &:hover { color: var(--amber); text-decoration: underline; }
+
+  &--none { opacity: 0.5; }
 }
 
 @media (max-width: 640px) {

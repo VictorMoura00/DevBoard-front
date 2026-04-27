@@ -17,27 +17,67 @@ import { APP_THEMES, ThemeName } from '../../core/theme/theme.model';
 import { ThemeService } from '../../core/theme/theme.service';
 import {
   AsciiBarComponent,
+  FilterRule,
+  FilterTab,
+  GridColumn,
+  RetroFilterBarComponent,
+  RetroGridRowComponent,
+  NotifService,
+  NotifSource,
+  NotifType,
+  Priority,
+  PriorityIndicatorComponent,
+  ProjectCardComponent,
+  ProjectDetailHeaderComponent,
+  ProjectBadge,
   RetroButtonComponent,
   RetroButtonGroupComponent,
   RetroCheckboxComponent,
   RetroCodeComponent,
   RetroCollapsibleComponent,
+  RetroDataGridComponent,
+  RetroExpandableRowComponent,
+  RetroPaginatorComponent,
+  RelativeTimePipe,
+  createRetroTable,
   RetroInputComponent,
   RetroKbdComponent,
   RetroMessageComponent,
   RetroModalComponent,
+  RetroNotifItemComponent,
+  RetroNotifStreamComponent,
   RetroProgressComponent,
   RetroRangeComponent,
+  RetroSegmentedComponent,
   RetroSelectComponent,
   RetroSkeletonComponent,
+  RetroStatusBarComponent,
   RetroTagComponent,
   RetroToastComponent,
   RetroWindowComponent,
   StatBoxComponent,
   StatusDotComponent,
+  StatusItem,
   StatusPillComponent,
+  StatusShortcut,
+  Task,
+  TaskPriority,
+  TaskFilterBarComponent,
+  TaskRowComponent,
+  TaskStats,
+  TaskStatus,
   ToastService,
+  ToolbarSearchComponent,
+  Visibility,
+  VisibilityChipComponent,
+  RetroTerminalComponent,
+  ApiTableComponent,
+  RetroTabsComponent,
+  RetroSectionComponent,
+  RetroTab,
 } from '../../shared/ui';
+import type { TerminalCommand, TerminalLineType } from '../../shared/ui';
+import { Project, ProjectStatus } from '../../models/project.model';
 import { RetroButtonIconPos, RetroButtonTone, RetroButtonVariant } from '../../shared/ui/retro-button/retro-button.component';
 import { RetroCheckboxSize } from '../../shared/ui/retro-checkbox/retro-checkbox.component';
 import { RetroInputSize, RetroInputType } from '../../shared/ui/retro-input/retro-input.component';
@@ -55,7 +95,14 @@ type StoryId =
   | 'win' | 'button' | 'input' | 'select' | 'range' | 'checkbox' | 'kbd'
   | 'pill' | 'dot' | 'tag' | 'stat'
   | 'progress' | 'ascii' | 'toast' | 'message' | 'skeleton'
-  | 'modal' | 'collapsible' | 'code';
+  | 'modal' | 'collapsible' | 'code'
+  | 'toolbar-search' | 'project-card' | 'notif-item' | 'notif-stream'
+  | 'priority-indicator' | 'visibility-chip' | 'retro-filter-bar' | 'retro-grid-row'
+  | 'retro-status-bar' | 'retro-data-grid' | 'task-row' | 'retro-expandable-row' | 'retro-paginator'
+  | 'project-detail-header' | 'terminal'
+  | 'segmented' | 'button-group'
+  | 'api-table' | 'retro-tabs' | 'retro-section'
+  | 'task-filter-bar';
 type StoryTab = 'preview' | 'code';
 type DocTab = 'usage' | 'api' | 'meta';
 
@@ -89,6 +136,7 @@ interface StoryDocMeta {
     RetroModalComponent,
     RetroProgressComponent,
     RetroRangeComponent,
+    RetroSegmentedComponent,
     RetroSelectComponent,
     RetroSkeletonComponent,
     RetroTagComponent,
@@ -97,6 +145,26 @@ interface StoryDocMeta {
     StatBoxComponent,
     StatusDotComponent,
     StatusPillComponent,
+    ProjectCardComponent,
+    ToolbarSearchComponent,
+    RetroNotifItemComponent,
+    RetroNotifStreamComponent,
+    PriorityIndicatorComponent,
+    VisibilityChipComponent,
+    RetroFilterBarComponent,
+    TaskFilterBarComponent,
+    RetroGridRowComponent,
+    RetroStatusBarComponent,
+    RetroDataGridComponent,
+    RetroExpandableRowComponent,
+    RetroPaginatorComponent,
+    RelativeTimePipe,
+    TaskRowComponent,
+    ProjectDetailHeaderComponent,
+    RetroTerminalComponent,
+    ApiTableComponent,
+    RetroTabsComponent,
+    RetroSectionComponent,
   ],
   templateUrl: './ui-library-page.component.html',
   styleUrl: './ui-library-page.component.scss',
@@ -106,6 +174,7 @@ export class UiLibraryPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   protected readonly toastService  = inject(ToastService);
+  protected readonly notifService  = inject(NotifService);
   private readonly storySearchInput = viewChild<RetroInputComponent>('storySearchInput');
   private readonly previewViewportElement = viewChild<ElementRef<HTMLElement>>('previewViewportEl');
   private readonly hydrated = signal(false);
@@ -113,10 +182,18 @@ export class UiLibraryPageComponent implements OnInit {
 
   protected readonly themes       = APP_THEMES;
   protected readonly currentTheme = this.themeService.currentTheme;
-  protected readonly themeOptions = APP_THEMES.map((theme) => ({
-    label: theme.label,
-    value: theme.name,
-  }));
+  protected readonly themeOptions = (() => {
+    const opts: { label: string; value: string; separator?: boolean }[] = [];
+    let hadDark = false;
+    for (const theme of APP_THEMES) {
+      if (theme.dark && !hadDark) {
+        opts.push({ label: '', value: '__sep__', separator: true });
+        hadDark = true;
+      }
+      opts.push({ label: theme.label, value: theme.name });
+    }
+    return opts;
+  })();
 
   protected readonly sidebarCollapsed = signal(false);
   protected toggleSidebar(): void { this.sidebarCollapsed.update(v => !v); }
@@ -136,45 +213,86 @@ export class UiLibraryPageComponent implements OnInit {
     {
       group: 'containers',
       items: [
-        { id: 'win',         label: 'Window Frame' },
-        { id: 'modal',       label: 'Modal' },
-        { id: 'collapsible', label: 'Collapsible' },
+        { id: 'win',            label: 'Window Frame' },
+        { id: 'retro-section',  label: 'Section' },
+        { id: 'modal',          label: 'Modal' },
+        { id: 'collapsible',    label: 'Collapsible' },
       ],
     },
     {
       group: 'form',
       items: [
-        { id: 'button',   label: 'Button' },
-        { id: 'input',    label: 'Input' },
-        { id: 'select',   label: 'Select' },
-        { id: 'range',    label: 'Range' },
-        { id: 'checkbox', label: 'Checkbox' },
-        { id: 'kbd',      label: 'Kbd' },
+        { id: 'button',         label: 'Button' },
+        { id: 'button-group',   label: 'Button Group' },
+        { id: 'segmented',      label: 'Segmented' },
+        { id: 'input',          label: 'Input' },
+        { id: 'select',         label: 'Select' },
+        { id: 'range',          label: 'Range' },
+        { id: 'checkbox',       label: 'Checkbox' },
+        { id: 'kbd',            label: 'Kbd' },
+        { id: 'toolbar-search', label: 'Toolbar Search' },
       ],
     },
     {
       group: 'display',
       items: [
-        { id: 'stat',     label: 'Stat Box' },
-        { id: 'progress', label: 'Progress' },
-        { id: 'ascii',    label: 'Ascii Bar' },
-        { id: 'code',     label: 'Code Block' },
-      ],
-    },
-    {
-      group: 'labels',
-      items: [
-        { id: 'pill', label: 'Status Pill' },
-        { id: 'dot',  label: 'Status Dot' },
-        { id: 'tag',  label: 'Tag' },
+        { id: 'stat',      label: 'Stat Box' },
+        { id: 'progress',  label: 'Progress' },
+        { id: 'ascii',     label: 'Ascii Bar' },
+        { id: 'code',      label: 'Code Block' },
+        { id: 'api-table',   label: 'API Table' },
+        { id: 'retro-tabs', label: 'Tabs' },
       ],
     },
     {
       group: 'feedback',
       items: [
-        { id: 'toast',    label: 'Toast' },
-        { id: 'message',  label: 'Message' },
-        { id: 'skeleton', label: 'Skeleton' },
+        { id: 'toast',        label: 'Toast' },
+        { id: 'message',      label: 'Message' },
+        { id: 'skeleton',     label: 'Skeleton' },
+        { id: 'notif-item',   label: 'Notif Item' },
+        { id: 'notif-stream', label: 'Notif Stream' },
+      ],
+    },
+    {
+      group: 'labels',
+      items: [
+        { id: 'pill',               label: 'Status Pill' },
+        { id: 'dot',                label: 'Status Dot' },
+        { id: 'tag',                label: 'Tag' },
+        { id: 'priority-indicator', label: 'Priority Indicator' },
+        { id: 'visibility-chip',    label: 'Visibility Chip' },
+      ],
+    },
+    {
+      group: 'data',
+      items: [
+        { id: 'retro-filter-bar',    label: 'Filter Bar' },
+        { id: 'task-filter-bar',     label: 'Task Filter Bar' },
+        { id: 'retro-grid-row',      label: 'Grid Row' },
+        { id: 'retro-expandable-row', label: 'Expandable Row' },
+        { id: 'retro-paginator',     label: 'Paginator' },
+        { id: 'retro-data-grid',     label: 'Data Grid' },
+        { id: 'task-row',            label: 'Task Row' },
+      ],
+    },
+    {
+      group: 'shell',
+      items: [
+        { id: 'retro-status-bar', label: 'Status Bar' },
+      ],
+    },
+    {
+      group: 'composite',
+      items: [
+        { id: 'project-card',           label: 'Project Card' },
+        { id: 'project-detail-header',  label: 'Project Detail Header' },
+      ],
+    },
+    {
+      group: 'interactive',
+      items: [
+        { id: 'terminal', label: 'Terminal' },
       ],
     },
   ];
@@ -256,8 +374,29 @@ export class UiLibraryPageComponent implements OnInit {
       message:    'retro-message.component.ts',
       skeleton:   'retro-skeleton.component.ts',
       modal:      'retro-modal.component.ts',
-      collapsible:'retro-collapsible.component.ts',
-      code:       'retro-code.component.ts',
+      collapsible:      'retro-collapsible.component.ts',
+      code:             'retro-code.component.ts',
+      'toolbar-search': 'toolbar-search.component.ts',
+      'project-card':   'project-card.component.ts',
+      'notif-item':             'retro-notif-item.component.ts',
+      'notif-stream':           'retro-notif-stream.component.ts',
+      'priority-indicator':     'priority-indicator.component.ts',
+      'visibility-chip':        'visibility-chip.component.ts',
+      'retro-filter-bar':       'retro-filter-bar.component.ts',
+      'task-filter-bar':        'task-filter-bar.component.ts',
+      'retro-grid-row':         'retro-grid-row.component.ts',
+      'retro-expandable-row':   'retro-expandable-row.component.ts',
+      'retro-paginator':        'retro-paginator.component.ts',
+      'retro-status-bar':       'retro-status-bar.component.ts',
+      'retro-data-grid':        'retro-data-grid.component.ts',
+      'task-row':               'task-row.component.ts',
+      'project-detail-header':  'project-detail-header.component.ts',
+      'terminal':               'retro-terminal.component.ts',
+      'segmented':              'retro-segmented.component.ts',
+      'button-group':           'retro-button-group.component.ts',
+      'api-table':              'api-table.component.ts',
+      'retro-tabs':             'retro-tabs.component.ts',
+      'retro-section':          'retro-section.component.ts',
     };
     return map[this.activeStory()];
   });
@@ -265,14 +404,14 @@ export class UiLibraryPageComponent implements OnInit {
   protected readonly activeDocMeta = computed<StoryDocMeta>(() => {
     const docs: Record<StoryId, StoryDocMeta> = {
       win: { selector: 'app-retro-window', summary: 'Janela base para shells, painéis e blocos do design system retrô.', inputs: 11, outputs: 4, slots: 3 },
-      button: { selector: 'app-retro-button', summary: 'Botão principal da biblioteca com variantes, loading e link rendering.', inputs: 6, outputs: 1, slots: 1 },
-      input: { selector: 'app-retro-input', summary: 'Campo de entrada retrô com prefixo, suffix, clearable e estados visuais.', inputs: 12, outputs: 2, slots: 0 },
-      select: { selector: 'app-retro-select', summary: 'Select retrô para listas pequenas e configurações rápidas do sistema.', inputs: 4, outputs: 1, slots: 0 },
-      range: { selector: 'app-retro-range', summary: 'Slider retrô para ajustes de valor contínuo com feedback imediato.', inputs: 6, outputs: 1, slots: 0 },
+      button: { selector: 'app-retro-button', summary: 'Botão principal da biblioteca com variantes, loading e link rendering.', inputs: 7, outputs: 1, slots: 1 },
+      input: { selector: 'app-retro-input', summary: 'Campo de entrada retrô com prefixo, suffix, clearable e estados visuais.', inputs: 14, outputs: 2, slots: 0 },
+      select: { selector: 'app-retro-select', summary: 'Select retrô para listas pequenas e configurações rápidas do sistema.', inputs: 7, outputs: 1, slots: 0 },
+      range: { selector: 'app-retro-range', summary: 'Slider retrô para ajustes de valor contínuo com feedback imediato.', inputs: 9, outputs: 1, slots: 0 },
       checkbox: { selector: 'app-retro-checkbox', summary: 'Checkbox standalone com estados checked, readonly, invalid e indeterminate.', inputs: 9, outputs: 2, slots: 0 },
       kbd: { selector: 'app-retro-kbd', summary: 'Representação visual de teclas únicas ou combos de atalhos.', inputs: 1, outputs: 0, slots: 1 },
-      pill: { selector: 'app-status-pill', summary: 'Pill compacta para estados de workflow e status categóricos.', inputs: 2, outputs: 0, slots: 0 },
-      dot: { selector: 'app-status-dot', summary: 'Indicador pontual de estado com opção de pulso para atividade.', inputs: 3, outputs: 0, slots: 0 },
+      pill: { selector: 'app-status-pill', summary: 'Pill compacta para estados de workflow e status categóricos.', inputs: 3, outputs: 0, slots: 0 },
+      dot: { selector: 'app-status-dot', summary: 'Indicador pontual de estado com opção de pulso para atividade.', inputs: 4, outputs: 0, slots: 0 },
       tag: { selector: 'app-retro-tag', summary: 'Tag textual para labels, filtros e taxonomias do projeto.', inputs: 6, outputs: 1, slots: 0 },
       stat: { selector: 'app-stat-box', summary: 'Caixa métrica para KPIs, contadores e resumos do dashboard.', inputs: 5, outputs: 0, slots: 0 },
       progress: { selector: 'app-retro-progress', summary: 'Barra de progresso com modos determinate e indeterminate.', inputs: 7, outputs: 0, slots: 0 },
@@ -281,8 +420,29 @@ export class UiLibraryPageComponent implements OnInit {
       message: { selector: 'app-retro-message', summary: 'Mensagem inline com severidade, variante e fechamento opcional.', inputs: 5, outputs: 1, slots: 1 },
       skeleton: { selector: 'app-retro-skeleton', summary: 'Placeholder visual para carregamento com wave, pulse ou estado estático.', inputs: 5, outputs: 0, slots: 0 },
       modal: { selector: 'app-retro-modal', summary: 'Modal standalone com overlay, backdrop close, teclado e slots nomeados.', inputs: 6, outputs: 1, slots: 2 },
-      collapsible: { selector: 'app-retro-collapsible', summary: 'Bloco expansível para seções de documentação e conteúdo progressivo.', inputs: 3, outputs: 1, slots: 1 },
-      code: { selector: 'app-retro-code', summary: 'Bloco de código com linguagem, borda opcional e ação de cópia.', inputs: 3, outputs: 0, slots: 0 },
+      collapsible:      { selector: 'app-retro-collapsible',   summary: 'Bloco expansível para seções de documentação e conteúdo progressivo.', inputs: 3, outputs: 1, slots: 1 },
+      code:             { selector: 'app-retro-code',          summary: 'Bloco de código com linguagem, borda opcional e ação de cópia.', inputs: 3, outputs: 0, slots: 0 },
+      'toolbar-search': { selector: 'app-toolbar-search',      summary: 'Campo de busca pré-configurado para toolbars — wraps RetroInput com prefix $ e clearable.', inputs: 2, outputs: 2, slots: 0 },
+      'project-card':   { selector: 'app-project-card',        summary: 'Card composto de projeto — combina RetroWindow, StatusPill e métricas de tarefas. Busca language e stars via GitHub API.', inputs: 6, outputs: 0, slots: 0 },
+      'notif-item':             { selector: 'app-retro-notif-item',         summary: 'Linha individual de notificação com badge de tipo, fonte, timestamp relativo e subtítulo.', inputs: 6, outputs: 1, slots: 0 },
+      'notif-stream':           { selector: 'app-retro-notif-stream',        summary: 'Painel lateral de notificações com slide-in, ações em lote e projeção de NotifItem.', inputs: 1, outputs: 1, slots: 1 },
+      'priority-indicator':     { selector: 'app-priority-indicator',        summary: 'Indicador de prioridade em estilo terminal: !!, !, •, · ou — por nível.', inputs: 1, outputs: 0, slots: 0 },
+      'visibility-chip':        { selector: 'app-visibility-chip',           summary: 'Chip de visibilidade [PUB]/[PRIV]/[INT] com cor semântica por tipo.', inputs: 1, outputs: 0, slots: 0 },
+      'retro-filter-bar':       { selector: 'app-retro-filter-bar',          summary: 'Barra de filtros genérica com single/multi-select, disabled por tab e slot [filter-end] para controles extras.', inputs: 5, outputs: 2, slots: 1 },
+      'task-filter-bar':        { selector: 'app-task-filter-bar',           summary: 'Barra de abas para filtro de tarefas — botões role="tab" com contadores opcionais e active highlight.', inputs: 2, outputs: 1, slots: 0 },
+      'retro-grid-row':         { selector: 'app-retro-grid-row',            summary: 'Linha genérica de grid — projeta qualquer filho como célula e herda --grid-cols.', inputs: 0, outputs: 0, slots: 1 },
+      'retro-expandable-row':   { selector: 'app-retro-expandable-row',      summary: 'Linha expansível com painel de detalhe animado — herda --grid-cols e usa model(expanded).', inputs: 1, outputs: 1, slots: 2 },
+      'retro-paginator':        { selector: 'app-retro-paginator',           summary: 'Barra de paginação com navegação de páginas, janela inteligente de números e seletor de page size.', inputs: 5, outputs: 2, slots: 0 },
+      'retro-status-bar':       { selector: 'app-retro-status-bar',          summary: 'Barra de status fixa com versão, itens de sistema e atalhos de teclado.', inputs: 3, outputs: 0, slots: 0 },
+      'retro-data-grid':        { selector: 'app-retro-data-grid',           summary: 'Grid de dados com sort, busca, filtros por checkbox, regras avançadas (column+op+value), redimensionamento de colunas e visibilidade dinâmica.', inputs: 18, outputs: 11, slots: 2 },
+      'task-row':               { selector: 'app-task-row',                  summary: 'Linha de tarefa com índice, prioridade, status, título, labels, due e updated. Alinha via --grid-cols.', inputs: 1, outputs: 1, slots: 0 },
+      'project-detail-header':  { selector: 'app-project-detail-header',     summary: 'Header expandido de projeto com badge, meta GitHub, tags, progress bar e stats de tarefas.', inputs: 8, outputs: 0, slots: 0 },
+      'terminal':               { selector: 'app-retro-terminal',            summary: 'Terminal interativo com histórico, tab completion, typewriter, cursor de bloco e comandos registráveis.', inputs: 7, outputs: 1, slots: 0 },
+      'segmented':              { selector: 'app-retro-segmented',           summary: 'Seletor segmentado compatível com CVA — alterna entre opções de texto em layout row ou col.', inputs: 3, outputs: 1, slots: 0 },
+      'button-group':           { selector: 'app-retro-button-group',        summary: 'Wrapper semântico que agrupa botões adjacentes removendo bordas internas duplicadas.', inputs: 0, outputs: 0, slots: 1 },
+      'api-table':              { selector: 'app-api-table',                 summary: 'Tabela de referência de API — renderiza cabeçalhos tipados (input/output/method) e projeta linhas via ng-content.', inputs: 3, outputs: 0, slots: 1 },
+      'retro-tabs':             { selector: 'app-retro-tabs',                summary: 'Barra de abas estilo terminal com disabled, icon, badge por aba, navegação por teclado (← → Home End) e cinco variantes visuais.', inputs: 3, outputs: 1, slots: 1 },
+      'retro-section':          { selector: 'app-retro-section',             summary: 'Contêiner estilo fieldset com label na borda — versão leve do window frame para agrupar conteúdo internamente.', inputs: 2, outputs: 0, slots: 1 },
     };
 
     return docs[this.activeStory()];
@@ -328,6 +488,139 @@ export class UiLibraryPageComponent implements OnInit {
     this.previewFullscreen.set(false);
     this.syncUrlState();
   });
+
+  // ── Terminal ──────────────────────────────────────────────────────────────
+
+  protected readonly termPrompt          = signal('user@devboard:~$ ');
+  protected readonly termHeight          = signal('420px');
+  protected readonly termTypewriterSpeed = signal(16);
+
+  protected readonly segOptions  = signal<string[]>(['alpha', 'beta', 'gamma']);
+  protected readonly segValue    = signal('alpha');
+  protected readonly segDir      = signal<'row' | 'col'>('row');
+
+  protected readonly tabsVariant      = signal<WindowVariant>('default');
+  protected readonly tabsCount        = signal(3);
+  protected readonly tabsActivePreview = signal('tab-0');
+  protected readonly tabsDisabledIdx  = signal(-1);
+  protected readonly tabsShowIcon     = signal(false);
+  protected readonly tabsShowBadge    = signal(false);
+
+  private readonly TAB_ICONS   = ['▶', '⚙', '⚠', '◈', '✦', '◉', '▣', '⬡'];
+  private readonly TAB_BADGES  = [null, 3, 12, 1, null, 7, 2, 5];
+
+  protected readonly tabsPreviewItems = computed<RetroTab[]>(() => {
+    const labels = ['overview', 'source', 'config', 'output', 'tests', 'history', 'deploy', 'logs'];
+    return Array.from({ length: this.tabsCount() }, (_, i) => ({
+      id:       `tab-${i}`,
+      label:    labels[i] ?? `tab-${i + 1}`,
+      icon:     this.tabsShowIcon() ? this.TAB_ICONS[i] : undefined,
+      badge:    (this.tabsShowBadge() && this.TAB_BADGES[i] != null) ? this.TAB_BADGES[i]! : undefined,
+      disabled: i === this.tabsDisabledIdx(),
+    }));
+  });
+
+  protected readonly tabsDisabledOptions = computed(() => [
+    { label: 'nenhuma', value: '-1' },
+    ...Array.from({ length: this.tabsCount() }, (_, i) => ({
+      label: `tab ${i + 1}`,
+      value: String(i),
+    })),
+  ]);
+
+  protected readonly tabsDisabledIdxStr = computed(() => String(this.tabsDisabledIdx()));
+
+  protected readonly tabsActiveOptions = computed(() =>
+    this.tabsPreviewItems()
+      .filter(t => !t.disabled)
+      .map(t => ({ label: t.label, value: t.id })),
+  );
+
+  protected readonly sectionVariant = signal<WindowVariant>('default');
+
+
+  protected readonly termDemoCommands: TerminalCommand[] = [
+    {
+      name: 'ls',
+      description: 'list items in the current directory',
+      run: () => [
+        { type: 'stdout', text: 'projects/   tasks/   config.json   README.md' },
+      ],
+    },
+    {
+      name: 'status',
+      description: 'show system service status',
+      run: async () => {
+        await new Promise(r => setTimeout(r, 600));
+        return [
+          { type: 'success', text: '● api-server     running   pid 4821  uptime 3d 14h' },
+          { type: 'success', text: '● task-worker    running   pid 4822  uptime 3d 14h' },
+          { type: 'warn',    text: '▲ db-primary     degraded  1 of 3 nodes responding' },
+          { type: 'stderr',  text: '✗ cache-service  stopped   last exit code 1' },
+        ];
+      },
+    },
+    {
+      name: 'ping',
+      description: 'send ICMP packets to a host',
+      usage: 'host',
+      run: async (args) => {
+        const host = args[0] ?? 'devboard.local';
+        await new Promise(r => setTimeout(r, 350));
+        return [
+          { type: 'muted',  text: `PING ${host}: 56 data bytes` },
+          ...Array.from({ length: 4 }, (_, i) => ({
+            type: 'stdout' as TerminalLineType,
+            text: `64 bytes from ${host}: icmp_seq=${i + 1} ttl=64 time=${(Math.random() * 8 + 0.4).toFixed(2)} ms`,
+          })),
+          { type: 'muted', text: `--- ${host} ping statistics ---` },
+          { type: 'success', text: '4 packets transmitted, 4 received, 0% packet loss' },
+        ];
+      },
+    },
+    {
+      name: 'tasks',
+      description: 'list recent tasks',
+      usage: 'status?',
+      run: async (args) => {
+        await new Promise(r => setTimeout(r, 280));
+        const filter = args[0];
+        const items = [
+          { s: 'done',   id: '#042', title: 'Fix retro-select keyboard nav' },
+          { s: 'doing',  id: '#043', title: 'Build retro-terminal component' },
+          { s: 'review', id: '#044', title: 'Add retro-sparkline' },
+          { s: 'todo',   id: '#045', title: 'Write component docs' },
+          { s: 'todo',   id: '#046', title: 'Configure CI pipeline' },
+        ].filter(t => !filter || t.s === filter);
+        if (!items.length) return [{ type: 'muted', text: `  no tasks matching '${filter}'` }];
+        const typeMap: Record<string, TerminalLineType> = {
+          done: 'success', doing: 'warn', review: 'warn', todo: 'stdout',
+        };
+        return [
+          { type: 'muted', text: '  ID      STATUS    TITLE' },
+          { type: 'muted', text: '  ' + '─'.repeat(42) },
+          ...items.map(t => ({
+            type: typeMap[t.s] ?? 'stdout' as TerminalLineType,
+            text: `  ${t.id}   ${t.s.padEnd(8)}  ${t.title}`,
+          })),
+        ];
+      },
+    },
+    {
+      name: 'theme',
+      description: 'get or set the active UI theme',
+      usage: 'name?',
+      run: (args) => {
+        if (args[0]) {
+          return [
+            { type: 'warn',   text: `switching theme to '${args[0]}'...` },
+            { type: 'success', text: `theme applied: ${args[0]}` },
+          ];
+        }
+        return [{ type: 'stdout', text: `current theme: ${this.currentTheme()}` }];
+      },
+    },
+  ];
 
   // ── Win ─────────────────────────────────────────────────────────────────
 
@@ -386,6 +679,7 @@ export class UiLibraryPageComponent implements OnInit {
   protected readonly btnIconPos   = signal<RetroButtonIconPos>('left');
   protected readonly btnBadge     = signal('');
   protected readonly btnHref      = signal('');
+  protected readonly btnDownload  = signal('');
   protected readonly btnDisabled  = signal(false);
   protected readonly btnLoading   = signal(false);
   protected readonly btnFullWidth = signal(false);
@@ -401,6 +695,7 @@ export class UiLibraryPageComponent implements OnInit {
       this.btnIcon() && this.btnIconPos() !== 'left' ? `  iconPos="${this.btnIconPos()}"` : null,
       this.btnBadge()                   ? `  badge="${this.btnBadge()}"` : null,
       this.btnHref()                    ? `  href="${this.btnHref()}"` : null,
+      this.btnDownload()                ? `  download="${this.btnDownload()}"` : null,
       this.btnDisabled()                ? `  [disabled]="true"` : null,
       this.btnLoading()                 ? `  [loading]="true"` : null,
       this.btnFullWidth()               ? `  [fullWidth]="true"` : null,
@@ -533,7 +828,7 @@ export class UiLibraryPageComponent implements OnInit {
 
   protected readonly pillStatus   = signal('active');
   protected readonly pillSize     = signal<StatusPillSize>('sm');
-  protected readonly pillStatuses = ['active', 'paused', 'completed', 'archived'] as const;
+  protected readonly pillStatuses = ['active', 'paused', 'completed', 'archived', 'cursando'] as const;
   protected readonly pillSizes: StatusPillSize[] = ['sm', 'md'];
   protected readonly pillCode = computed(
     () => `<app-status-pill\n  status="${this.pillStatus()}"\n  size="${this.pillSize()}" />`,
@@ -857,6 +1152,270 @@ const answer = 42;`,
     ].filter((l) => l !== null).join('\n'),
   );
 
+  // ── Toolbar Search ───────────────────────────────────────────────────────
+
+  protected readonly toolbarSearchValue       = signal('');
+  protected readonly toolbarSearchPlaceholder = signal('search...');
+
+  protected readonly toolbarSearchCode = computed(() =>
+    [
+      `<app-toolbar-search`,
+      this.toolbarSearchPlaceholder() !== 'search...' ? `  placeholder="${this.toolbarSearchPlaceholder()}"` : null,
+      `  [value]="searchQuery"`,
+      `  (valueChange)="searchQuery = $event"`,
+      `  (cleared)="searchQuery = ''"`,
+      `/>`,
+    ].filter(l => l !== null).join('\n'),
+  );
+
+  // ── Project Card ──────────────────────────────────────────────────────────
+
+  protected readonly projectCardName        = signal('pg-tenant-isolator');
+  protected readonly projectCardDesc        = signal('Pool de conexões PostgreSQL por tenant. Schema-per-service. Health checks nativos.');
+  protected readonly projectCardStatus      = signal('active');
+  protected readonly projectCardProgress    = signal(65);
+  protected readonly projectCardIndex       = signal('01');
+  protected readonly projectCardTags        = signal(['postgres', 'infra']);
+  protected readonly projectCardSize        = signal<'sm' | 'md' | 'lg'>('md');
+  protected readonly projectCardRepoUrl     = signal('https://github.com/angular/angular');
+  protected readonly projectCardShowGithub  = signal(true);
+
+  protected readonly projectCardMock = computed<Project>(() => ({
+    id:            'demo',
+    name:          this.projectCardName(),
+    description:   this.projectCardDesc(),
+    repositoryUrl: this.projectCardRepoUrl() || null,
+    status:        ProjectStatus.Active,
+    tags:          this.projectCardTags(),
+    createdAt:     '2025-04-01',
+    updatedAt:     null,
+    archivedAt:    null,
+  }));
+
+  protected readonly projectCardCode = computed(() =>
+    `<app-project-card\n  [project]="project"\n  indexLabel="${this.projectCardIndex()}"\n  status="${this.projectCardStatus()}"\n  [progress]="${this.projectCardProgress()}"\n  size="${this.projectCardSize()}"\n  [showGithubStats]="${this.projectCardShowGithub()}"\n/>`,
+  );
+
+  // ── Notif Item ────────────────────────────────────────────────────────────
+
+  protected readonly notifItemNow      = new Date();
+  protected readonly notifItemType     = signal<NotifType>('event');
+  protected readonly notifItemSource   = signal<NotifSource>('webhook');
+  protected readonly notifItemTitle    = signal('TaskCompleted → webhook slack');
+  protected readonly notifItemSubtitle = signal('proj_02 · t4 entregou 200 OK em 142ms');
+  protected readonly notifItemRead     = signal(false);
+
+  protected readonly notifItemCode = computed(() =>
+    [
+      `<app-retro-notif-item`,
+      `  type="${this.notifItemType()}"`,
+      `  source="${this.notifItemSource()}"`,
+      `  [timestamp]="item.timestamp"`,
+      `  title="${this.notifItemTitle()}"`,
+      this.notifItemSubtitle() ? `  subtitle="${this.notifItemSubtitle()}"` : null,
+      this.notifItemRead()     ? `  [read]="true"` : null,
+      `  (itemRead)="markRead(item.id)"`,
+      `/>`,
+    ].filter(l => l !== null).join('\n'),
+  );
+
+  // ── Notif Stream ──────────────────────────────────────────────────────────
+
+  protected readonly notifStreamOpen = signal(false);
+
+  protected readonly notifStreamCode = `<app-retro-notif-stream [open]="streamOpen" (closed)="streamOpen = false">
+  @for (item of notifService.items(); track item.id) {
+    <app-retro-notif-item
+      [type]="item.type"
+      [source]="item.source"
+      [timestamp]="item.timestamp"
+      [title]="item.title"
+      [subtitle]="item.subtitle"
+      [read]="item.read"
+      (itemRead)="notifService.markRead(item.id)"
+    />
+  }
+</app-retro-notif-stream>`;
+
+  protected addSampleNotif(): void {
+    const samples: Array<Parameters<NotifService['add']>[0]> = [
+      { type: 'event', source: 'webhook', title: 'TaskCompleted → webhook slack', subtitle: 'proj_02 · t4 entregou 200 OK em 142ms' },
+      { type: 'build', source: 'email',   title: 'CI: signals-kanban verde',      subtitle: 'pipeline #412 concluído em 3m 22s' },
+      { type: 'alert', source: 'email',   title: 'DLQ threshold: devboard-notif', subtitle: "queue 'notif.dlq' atingiu 3 mensagens" },
+    ];
+    this.notifService.add(samples[this.notifService.totalCount() % samples.length]);
+  }
+
+  // ── Priority Indicator ────────────────────────────────────────────────────
+
+  protected readonly priorityKnob = signal<Priority>('high');
+
+  // ── Visibility Chip ───────────────────────────────────────────────────────
+
+  protected readonly visibilityKnob = signal<Visibility>('public');
+
+  // ── Retro Filter Bar ─────────────────────────────────────────────────────
+
+  protected readonly filterBarActive     = signal('all');
+  protected readonly filterBarMulti      = signal(false);
+  protected readonly filterBarActiveKeys = signal<string[]>(['todo', 'doing']);
+  protected readonly filterBarTabs: FilterTab[] = [
+    { key: 'all',    label: 'ALL' },
+    { key: 'todo',   label: 'TODO',   count: 2 },
+    { key: 'doing',  label: 'DOING',  count: 2 },
+    { key: 'review', label: 'REVIEW', count: 1 },
+    { key: 'done',   label: 'DONE',   count: 3, disabled: false },
+  ];
+
+  // ── Task Filter Bar ───────────────────────────────────────────────────────
+
+  protected readonly tfbActive = signal('all');
+  protected readonly tfbTabs: FilterTab[] = [
+    { key: 'all',    label: 'ALL' },
+    { key: 'todo',   label: 'TODO',   count: 4 },
+    { key: 'doing',  label: 'DOING',  count: 2 },
+    { key: 'review', label: 'REVIEW', count: 1 },
+    { key: 'done',   label: 'DONE',   count: 7 },
+  ];
+
+  // ── Retro Status Bar ──────────────────────────────────────────────────────
+
+  protected readonly statusBarItems: StatusItem[] = [
+    { label: 'YARP gateway', value: ':8080' },
+    { label: 'services', value: 4 },
+    { label: 'pg instances', value: 4 },
+    { label: 'broker', value: 1 },
+  ];
+  protected readonly statusBarShortcuts: StatusShortcut[] = [
+    { key: 'N', label: 'new' },
+    { key: 'G', label: 'dashboard' },
+    { key: 'A', label: 'arch' },
+    { key: '⌘ K', label: 'search' },
+  ];
+
+  // ── Task Row & Data Grid ──────────────────────────────────────────────────
+
+  private readonly _initialTasks: Task[] = [
+    { id: 't1',  index: 1,  priority: 'critical', status: 'done',   title: 'Setup inicial do repositório',    labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 86400000)   },
+    { id: 't2',  index: 2,  priority: 'critical', status: 'done',   title: 'Definir contratos de API',        labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 172800000)  },
+    { id: 't3',  index: 3,  priority: 'high',     status: 'done',   title: 'Dockerfile + compose',            labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 259200000)  },
+    { id: 't4',  index: 4,  priority: 'critical', status: 'doing',  title: 'Implementar endpoint principal',  labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 345600000)  },
+    { id: 't5',  index: 5,  priority: 'high',     status: 'doing',  title: 'Testes unitários do domínio',     labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 432000000)  },
+    { id: 't6',  index: 6,  priority: 'low',      status: 'todo',   title: 'Documentação README',             labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 518400000)  },
+    { id: 't7',  index: 7,  priority: 'high',     status: 'todo',   title: 'CI/CD pipeline GitHub Actions',   labels: ['devops'],   dueDate: null, updatedAt: new Date(Date.now() - 604800000)  },
+    { id: 't8',  index: 8,  priority: 'critical', status: 'review', title: 'Revisão de segurança',            labels: ['security'], dueDate: null, updatedAt: new Date(Date.now() - 691200000)  },
+    { id: 't9',  index: 9,  priority: 'medium',   status: 'todo',   title: 'Implementar cache Redis',         labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 777600000)  },
+    { id: 't10', index: 10, priority: 'low',      status: 'todo',   title: 'Configurar Grafana',              labels: ['devops'],   dueDate: null, updatedAt: new Date(Date.now() - 864000000)  },
+    { id: 't11', index: 11, priority: 'high',     status: 'doing',  title: 'Rate limiting no gateway',        labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 950400000)  },
+    { id: 't12', index: 12, priority: 'medium',   status: 'review', title: 'Adicionar testes de integração',  labels: ['qa'],       dueDate: null, updatedAt: new Date(Date.now() - 1036800000) },
+    { id: 't13', index: 13, priority: 'low',      status: 'done',   title: 'Documentar endpoints OpenAPI',    labels: ['docs'],     dueDate: null, updatedAt: new Date(Date.now() - 1123200000) },
+    { id: 't14', index: 14, priority: 'critical', status: 'todo',   title: 'Migração schema v2',              labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 1209600000) },
+    { id: 't15', index: 15, priority: 'none',     status: 'todo',   title: 'Refactor módulo de auth',         labels: ['backend'],  dueDate: null, updatedAt: new Date(Date.now() - 1296000000) },
+  ];
+
+  protected readonly demoTasksSource = signal<Task[]>([...this._initialTasks]);
+
+  protected readonly dataGridTable = createRetroTable({
+    rows: this.demoTasksSource,
+    searchFields: ['title', 'status', 'priority'],
+    filterFields: ['status', 'priority'],
+    pageSize: 5,
+    pageSizeOptions: [5, 10, 15],
+  });
+
+  protected readonly taskGridColumns: GridColumn[] = [
+    { key: 'exp',     label: '',        width: '28px',            align: 'center', noResize: true },
+    { key: '#',       label: '#',       width: '30px',            align: 'right',  sortable: true  },
+    { key: 'pri',     label: '',        width: '28px',            align: 'center', noResize: true },
+    { key: 'status',  label: 'status',  width: '80px',            sortable: true,  filterable: true },
+    { key: 'title',   label: 'title',   width: 'minmax(0, 1fr)', sortable: true                   },
+    { key: 'labels',  label: 'labels',  width: '110px'                                            },
+    { key: 'updated', label: 'updated', width: '76px',            sortable: true                   },
+    { key: 'del',     label: '',        width: '28px',            align: 'center', noResize: true },
+  ];
+
+  private _taskCounter = 16;
+  private readonly _addTitles = [
+    'Implementar cache Redis', 'Configurar monitoramento Grafana', 'Migração schema v3',
+    'Lint e formatação do projeto', 'Rate limiting no gateway', 'Adicionar testes e2e',
+    'Documentar endpoints gRPC',
+  ];
+  private readonly _addStatuses: Task['status'][] = ['todo', 'doing', 'review'];
+  private readonly _addPriorities: Task['priority'][] = ['critical', 'high', 'medium', 'low'];
+
+  protected addDemoTask(): void {
+    const idx = this._taskCounter++;
+    this.demoTasksSource.update(tasks => [...tasks, {
+      id: `t${idx}`, index: idx,
+      priority: this._addPriorities[idx % this._addPriorities.length],
+      status:   this._addStatuses[idx % this._addStatuses.length],
+      title:    this._addTitles[idx % this._addTitles.length],
+      labels:   ['backend'], dueDate: null, updatedAt: new Date(),
+    }]);
+  }
+
+  protected resetDemoTasks(): void {
+    this.demoTasksSource.set([...this._initialTasks]);
+    this.dataGridTable.clearAllFilters();
+    this.dataGridTable.collapseAll();
+  }
+
+  protected deleteTask(id: string): void {
+    this.demoTasksSource.update(tasks => tasks.filter(t => t.id !== id));
+  }
+
+  // ── Project Detail Header ─────────────────────────────────────────────────
+
+  protected readonly detailBadge      = signal<ProjectBadge | null>('stable');
+  protected readonly detailVisibility = signal<Visibility>('public');
+  protected readonly detailProgress   = signal(75);
+  protected readonly detailTaskStats  = signal<TaskStats>({ todo: 2, doing: 2, review: 1, done: 3 });
+
+  // ── Task Row (standalone demo) ────────────────────────────────────────────
+
+  protected readonly taskRowStatuses:  TaskStatus[]   = ['todo', 'doing', 'review', 'done'];
+  protected readonly taskRowPriorities: TaskPriority[] = ['critical', 'high', 'medium', 'low', 'none'];
+
+  protected readonly taskRowStatus   = signal<TaskStatus>('doing');
+  protected readonly taskRowPriority = signal<TaskPriority>('high');
+  protected readonly taskRowTitle    = signal('Implementar endpoint principal');
+  protected readonly taskRowIndex    = signal(4);
+  protected readonly taskRowHasDue   = signal(false);
+  protected readonly taskRowLabels   = signal('backend');
+
+  protected readonly taskRowDemoTask = computed<Task>(() => ({
+    id: 'demo',
+    index:    this.taskRowIndex(),
+    priority: this.taskRowPriority(),
+    status:   this.taskRowStatus(),
+    title:    this.taskRowTitle(),
+    labels:   this.taskRowLabels().split(',').map(l => l.trim()).filter(Boolean),
+    dueDate:  this.taskRowHasDue() ? new Date(Date.now() + 7 * 86400000) : null,
+    updatedAt: new Date(Date.now() - 345600000),
+  }));
+
+  protected readonly taskRowColumns: GridColumn[] = [
+    { key: '#',       label: '#',       width: '30px',            align: 'right'  },
+    { key: 'pri',     label: '',        width: '28px',            align: 'center' },
+    { key: 'status',  label: 'status',  width: '76px'                             },
+    { key: 'title',   label: 'title',   width: 'minmax(0, 1fr)'                   },
+    { key: 'labels',  label: 'labels',  width: '130px'                            },
+    { key: 'due',     label: 'due',     width: '76px'                             },
+    { key: 'updated', label: 'updated', width: '76px'                             },
+    { key: 'del',     label: '',        width: '28px',            align: 'center' },
+  ];
+
+  // ── Expandable Row (standalone demo) ─────────────────────────────────────
+
+  protected readonly expandableRowExpanded    = signal(false);
+  protected readonly expandableRowExpandOnClick = signal(false);
+
+  // ── Paginator (standalone demo) ───────────────────────────────────────────
+
+  protected readonly paginatorDemoPage     = signal(0);
+  protected readonly paginatorDemoTotal    = signal(50);
+  protected readonly paginatorDemoPageSize = signal(10);
+
   // ── Usage snippet ─────────────────────────────────────────────────────────
 
   protected readonly usageCodeSnippet = `// standalone component import
@@ -1143,6 +1702,7 @@ export class MyFeaturePage {}`;
           iconPos: this.btnIconPos(),
           badge: this.btnBadge(),
           href: this.btnHref(),
+          download: this.btnDownload(),
           disabled: this.btnDisabled(),
           loading: this.btnLoading(),
           fullWidth: this.btnFullWidth(),
@@ -1288,10 +1848,76 @@ export class MyFeaturePage {}`;
           disabled: this.collapsibleDisabled(),
         };
       case 'code':
+        return { language: this.codeLanguage(), framed: this.codeFramed() };
+      case 'toolbar-search':
+        return { placeholder: this.toolbarSearchPlaceholder() };
+      case 'project-card':
         return {
-          language: this.codeLanguage(),
-          framed: this.codeFramed(),
+          name: this.projectCardName(), desc: this.projectCardDesc(),
+          status: this.projectCardStatus(), progress: this.projectCardProgress(),
+          index: this.projectCardIndex(), size: this.projectCardSize(),
+          repoUrl: this.projectCardRepoUrl(), showGithub: this.projectCardShowGithub(),
         };
+      case 'notif-item':
+        return {
+          type: this.notifItemType(), source: this.notifItemSource(),
+          title: this.notifItemTitle(), subtitle: this.notifItemSubtitle(),
+          read: this.notifItemRead(),
+        };
+      case 'notif-stream':
+        return {};
+      case 'priority-indicator':
+        return { priority: this.priorityKnob() };
+      case 'visibility-chip':
+        return { visibility: this.visibilityKnob() };
+      case 'retro-filter-bar':
+        return { active: this.filterBarActive() };
+      case 'task-filter-bar':
+        return { active: this.tfbActive() };
+      case 'retro-grid-row':
+        return {};
+      case 'retro-expandable-row':
+        return {};
+      case 'retro-paginator':
+        return {};
+      case 'retro-status-bar':
+        return {};
+      case 'retro-data-grid':
+        return {};
+      case 'task-row':
+        return {};
+      case 'project-detail-header':
+        return {
+          badge: this.detailBadge(), visibility: this.detailVisibility(),
+          progress: this.detailProgress(),
+        };
+      case 'terminal':
+        return {
+          prompt: this.termPrompt(),
+          height: this.termHeight(),
+          typewriterSpeed: this.termTypewriterSpeed(),
+        };
+      case 'segmented':
+        return {
+          options: this.segOptions(),
+          value: this.segValue(),
+          direction: this.segDir(),
+        };
+      case 'button-group':
+        return {};
+      case 'api-table':
+        return {};
+      case 'retro-tabs':
+        return {
+          variant:      this.tabsVariant(),
+          count:        this.tabsCount(),
+          disabledIdx:  this.tabsDisabledIdx(),
+          showIcon:     this.tabsShowIcon(),
+          showBadge:    this.tabsShowBadge(),
+        };
+      case 'retro-section':
+        return { variant: this.sectionVariant() };
+
     }
   }
 
@@ -1323,6 +1949,7 @@ export class MyFeaturePage {}`;
         if (state.iconPos === 'left' || state.iconPos === 'right') this.btnIconPos.set(state.iconPos);
         if (typeof state.badge === 'string') this.btnBadge.set(state.badge);
         if (typeof state.href === 'string') this.btnHref.set(state.href);
+        if (typeof state.download === 'string') this.btnDownload.set(state.download);
         if (typeof state.disabled === 'boolean') this.btnDisabled.set(state.disabled);
         if (typeof state.loading === 'boolean') this.btnLoading.set(state.loading);
         if (typeof state.fullWidth === 'boolean') this.btnFullWidth.set(state.fullWidth);
@@ -1462,6 +2089,82 @@ export class MyFeaturePage {}`;
         if (typeof state.language === 'string') this.codeLanguage.set(state.language);
         if (typeof state.framed === 'boolean') this.codeFramed.set(state.framed);
         break;
+      case 'toolbar-search':
+        if (typeof state.placeholder === 'string') this.toolbarSearchPlaceholder.set(state.placeholder);
+        break;
+      case 'project-card':
+        if (typeof state.name === 'string')     this.projectCardName.set(state.name);
+        if (typeof state.desc === 'string')     this.projectCardDesc.set(state.desc);
+        if (typeof state.status === 'string')   this.projectCardStatus.set(state.status);
+        if (typeof state.progress === 'number') this.projectCardProgress.set(state.progress);
+        if (typeof state.index === 'string')    this.projectCardIndex.set(state.index.replace(/^proj\//, ''));
+        if (state.size === 'sm' || state.size === 'md' || state.size === 'lg') this.projectCardSize.set(state.size);
+        if (typeof state.repoUrl === 'string')    this.projectCardRepoUrl.set(state.repoUrl);
+        if (typeof state.showGithub === 'boolean') this.projectCardShowGithub.set(state.showGithub);
+        break;
+      case 'notif-item':
+        if (state.type === 'event' || state.type === 'build' || state.type === 'alert') this.notifItemType.set(state.type);
+        if (state.source === 'webhook' || state.source === 'email' || state.source === 'system') this.notifItemSource.set(state.source);
+        if (typeof state.title === 'string')    this.notifItemTitle.set(state.title);
+        if (typeof state.subtitle === 'string') this.notifItemSubtitle.set(state.subtitle);
+        if (typeof state.read === 'boolean')    this.notifItemRead.set(state.read);
+        break;
+      case 'notif-stream':
+        break;
+      case 'priority-indicator':
+        if (['critical','high','medium','low','none'].includes(state.priority)) this.priorityKnob.set(state.priority);
+        break;
+      case 'visibility-chip':
+        if (['public','private','internal'].includes(state.visibility)) this.visibilityKnob.set(state.visibility);
+        break;
+      case 'retro-filter-bar':
+        if (typeof state.active === 'string') this.filterBarActive.set(state.active);
+        break;
+      case 'task-filter-bar':
+        if (typeof state.active === 'string') this.tfbActive.set(state.active);
+        break;
+      case 'retro-grid-row':
+        break;
+      case 'retro-expandable-row':
+        break;
+      case 'retro-paginator':
+        break;
+      case 'retro-status-bar':
+        break;
+      case 'retro-data-grid':
+        break;
+      case 'task-row':
+        break;
+      case 'project-detail-header':
+        if (['stable','beta','wip','deprecated',null].includes(state.badge)) this.detailBadge.set(state.badge);
+        if (['public','private','internal'].includes(state.visibility)) this.detailVisibility.set(state.visibility);
+        if (typeof state.progress === 'number') this.detailProgress.set(state.progress);
+        break;
+      case 'terminal':
+        if (typeof state.prompt === 'string') this.termPrompt.set(state.prompt);
+        if (typeof state.height === 'string') this.termHeight.set(state.height);
+        if (typeof state.typewriterSpeed === 'number') this.termTypewriterSpeed.set(state.typewriterSpeed);
+        break;
+      case 'segmented':
+        if (Array.isArray(state.options) && state.options.every((o: any) => typeof o === 'string')) this.segOptions.set(state.options);
+        if (typeof state.value === 'string') this.segValue.set(state.value);
+        if (state.direction === 'row' || state.direction === 'col') this.segDir.set(state.direction);
+        break;
+      case 'button-group':
+        break;
+      case 'api-table':
+        break;
+      case 'retro-tabs':
+        if (state.variant === 'default' || state.variant === 'terminal' || state.variant === 'system' || state.variant === 'alert' || state.variant === 'ghost') this.tabsVariant.set(state.variant);
+        if (typeof state.count === 'number' && state.count >= 2 && state.count <= 8) this.tabsCount.set(state.count);
+        if (typeof state.disabledIdx === 'number') this.tabsDisabledIdx.set(state.disabledIdx);
+        if (typeof state.showIcon === 'boolean') this.tabsShowIcon.set(state.showIcon);
+        if (typeof state.showBadge === 'boolean') this.tabsShowBadge.set(state.showBadge);
+        break;
+      case 'retro-section':
+        if (state.variant === 'default' || state.variant === 'terminal' || state.variant === 'system' || state.variant === 'alert' || state.variant === 'ghost') this.sectionVariant.set(state.variant);
+        break;
+
     }
   }
 }

@@ -1,0 +1,22 @@
+@for (tab of tabs(); track tab.key) {
+  <button
+    type="button"
+    role="tab"
+    class="filter-tab"
+    [class.filter-tab--active]="isActive(tab.key)"
+    [class.filter-tab--disabled]="tab.disabled"
+    [attr.aria-selected]="isActive(tab.key)"
+    [attr.aria-disabled]="tab.disabled || null"
+    (click)="select(tab.key, tab.disabled)"
+  >
+    {{ tab.label }}
+    @if (tab.count !== undefined) {
+      <span class="filter-tab__count">{{ tab.count }}</span>
+    }
+  </button>
+}
+
+<span class="filter-bar__fill"></span>
+<div class="filter-bar__end">
+  <ng-content select="[filter-end]" />
+</div>

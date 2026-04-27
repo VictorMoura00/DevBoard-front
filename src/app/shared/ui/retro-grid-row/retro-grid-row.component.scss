@@ -1,0 +1,20 @@
+:host {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: var(--row-font-size, 10px);
+  color: var(--text);
+  transition: background 60ms;
+
+  &:hover { background: color-mix(in srgb, var(--amber) 10%, transparent); }
+
+  > * {
+    padding: var(--row-cell-padding, 5px 8px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+}

@@ -1,0 +1,11 @@
+<div class="retro-section retro-section--{{ variant() }}">
+  @if (label()) {
+    <div class="section-header">
+      <span class="section-mark"></span>
+      <span class="section-label">{{ label() }}</span>
+    </div>
+  }
+  <div class="section-body">
+    <ng-content />
+  </div>
+</div>

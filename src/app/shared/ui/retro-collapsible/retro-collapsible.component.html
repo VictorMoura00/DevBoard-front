@@ -3,19 +3,22 @@
   [class.collapsible--collapsed]="collapsed()"
   [class.collapsible--disabled]="disabled()"
 >
-  <button
-    type="button"
-    class="collapsible-header"
-    [disabled]="disabled()"
-    (click)="toggle()"
-  >
-    <span class="collapsible-title">· {{ title() }} ·</span>
-    <span class="collapsible-icon">{{ collapsed() ? '[+]' : '[–]' }}</span>
-  </button>
+  <div class="collapsible-header">
+    <button
+      type="button"
+      class="collapsible-trigger"
+      [disabled]="disabled()"
+      (click)="toggle()"
+    >
+      <span class="collapsible-title">· {{ title() }} ·</span>
+      <span class="collapsible-icon">{{ collapsed() ? '[+]' : '[–]' }}</span>
+    </button>
+    <ng-content select="[collapsible-actions]" />
+  </div>
 
-  @if (!collapsed()) {
+  <div class="collapsible-body-wrap">
     <div class="collapsible-body">
       <ng-content />
     </div>
-  }
+  </div>
 </div>

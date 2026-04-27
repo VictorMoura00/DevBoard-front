@@ -10,8 +10,9 @@ export type StatusPillSize = 'sm' | 'md';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusPillComponent {
-  readonly status = input.required<string>();
-  readonly size = input<StatusPillSize>('sm');
+  readonly status    = input.required<string>();
+  readonly size      = input<StatusPillSize>('sm');
+  readonly ariaLabel = input('');
 
   protected readonly pillClass = computed(
     () => `status-pill status-pill--${this.status()} status-pill--${this.size()}`,

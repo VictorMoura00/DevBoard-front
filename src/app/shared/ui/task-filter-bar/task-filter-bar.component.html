@@ -1,0 +1,15 @@
+@for (tab of tabs(); track tab.key) {
+  <button
+    type="button"
+    role="tab"
+    class="filter-tab"
+    [class.filter-tab--active]="active() === tab.key"
+    [attr.aria-selected]="active() === tab.key"
+    (click)="tabChange.emit(tab.key)"
+  >
+    {{ tab.label }}
+    @if (tab.count !== undefined) {
+      <span class="filter-tab__count">{{ tab.count }}</span>
+    }
+  </button>
+}

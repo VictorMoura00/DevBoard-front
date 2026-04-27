@@ -1,0 +1,414 @@
+<!-- ── Top Navigation ──────────────────────────────────────────────────────── -->
+<nav class="cv-nav">
+  <div class="cv-nav-top">
+    <div class="cv-nav-brand">
+      <span class="cv-brand-diamond">♦</span>
+      <span class="cv-brand-name">VICTOR.MOURA</span>
+      <span class="cv-brand-sep">·</span>
+      <span class="cv-brand-meta">Desenvolvedor Full Stack · <app-status-dot status="active" size="xs" [pulse]="true" /> aberto a oportunidades</span>
+    </div>
+    <div class="cv-nav-actions">
+      <div class="cv-theme-dots">
+        @for (theme of themes; track theme.name) {
+          <button
+            type="button"
+            class="cv-theme-dot"
+            [class.cv-theme-dot--active]="currentTheme() === theme.name"
+            [style.background]="theme.accent"
+            [title]="theme.label"
+            (click)="setTheme(theme.name)"
+          ></button>
+        }
+      </div>
+      <app-retro-button
+        variant="ghost"
+        size="sm"
+        [tone]="audioPlaying() ? 'success' : 'default'"
+        [ariaLabel]="audioPlaying() ? 'pausar música' : 'tocar música'"
+        (pressed)="togglePlay()"
+      >{{ audioPlaying() ? '♪ ON' : '♪ OFF' }}</app-retro-button>
+      <app-retro-button
+        variant="secondary"
+        size="sm"
+        href="/assets/cv-victor-moura.pdf"
+        download="cv-victor-moura.pdf"
+        icon="↓"
+      >PDF</app-retro-button>
+    </div>
+  </div>
+
+  <div class="cv-nav-tabs" role="tablist">
+    @for (item of navItems; track item.id) {
+      <button
+        type="button"
+        role="tab"
+        class="cv-tab"
+        [class.cv-tab--active]="activeTab() === item.id"
+        [attr.aria-selected]="activeTab() === item.id"
+        (click)="activeTab.set(item.id)"
+      >{{ item.label }}</button>
+    }
+  </div>
+</nav>
+
+<!-- ── Hero (only on about) ───────────────────────────────────────────────── -->
+@if (activeTab() === 'about') {
+  <section
+    class="cv-hero"
+    [class.cv-hero--lit]="heroHover()"
+    [style]="heroStyle()"
+    (mousemove)="onHeroMove($event)"
+    (mouseleave)="heroHover.set(false)"
+  >
+    <div class="cv-hero-inner">
+      <h1 class="cv-hero-name cv-hero-name--glitch">VICTOR MOURA<span class="cv-cursor">█</span></h1>
+      <p class="cv-hero-tagline">
+        › construindo APIs em .NET, integrando ERPs em ADVPL e quebrando galhos com Angular —<br>
+        entre um café e outro.
+      </p>
+      <div class="cv-hero-meta">
+        <span class="cv-meta-role">Desenvolvedor Full Stack</span>
+        <app-status-dot status="active" />
+        <span class="cv-meta-loc">Camaçari · Bahia · <img src="/brasil.png" class="cv-flag" alt="BR" /></span>
+        <app-status-dot status="active" [pulse]="true" />
+        <span class="cv-meta-open">aberto a oportunidades</span>
+        <span class="cv-meta-divider">|</span>
+        @for (item of statusItems(); track item.label) {
+          <span class="cv-meta-stat">
+            <span class="cv-meta-stat-label">{{ item.label }}:</span>
+            <span class="cv-meta-stat-value">{{ item.value }}</span>
+          </span>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ── Main Content ───────────────────────────────────────────────────────── -->
+<main class="cv-main">
+
+  <!-- ══ ABOUT ══════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'about') {
+
+    <!-- Now Playing -->
+    <app-resume-now-playing
+      [playing]="audioPlaying()"
+      [volume]="audioVolume()"
+      [progress]="audioProgress()"
+      track="Coming Of Age"
+      artist="Hazelwood"
+      (toggle)="togglePlay()"
+      (volumeChange)="setVolume($event)"
+    />
+
+    <!-- Whoami block -->
+    <div class="cv-whoami-block">
+      <div class="cv-path-divider">~/profile/victormoura/whoami.md</div>
+      <h2 class="cv-section-title">whoami</h2>
+
+      <div class="cv-whoami-layout">
+        <div class="cv-whoami-main">
+          <p class="cv-body-text">
+            Dev full-stack baseado em Camaçari/BA, focado em APIs .NET de alta performance
+            e em colocar dados de ERP no lugar certo, na hora certa.
+          </p>
+          <p class="cv-body-text">
+            Comecei como aprendiz escrevendo testes E2E e conduzindo sessões de usabilidade —
+            o que me ensinou cedo que código sem usuário em mente é só linha bonita. Hoje passo
+            o dia entre C#, ADVPL e SQL pesado, transformando processos manuais em rotinas automatizadas.
+          </p>
+          <p class="cv-body-text">
+            Gosto de microserviços, fluxos event-driven e ferramentas que somem do caminho.
+            Curto especialmente projetos onde dá pra reduzir clique humano e ganhar previsibilidade.
+          </p>
+        </div>
+
+        <div class="cv-whoami-sidebar">
+          <app-retro-window title="id.card" padding="none" status="active" statusLabel="aberto a oportunidades">
+            <div class="cv-idcard-body">
+              <div class="cv-idcard-avatar">VM</div>
+              <div class="cv-idcard-fields">
+                <div class="cv-idcard-row">
+                  <span class="cv-idcard-key">NAME</span>
+                  <span class="cv-idcard-val">Victor Moura</span>
+                </div>
+                <div class="cv-idcard-row">
+                  <span class="cv-idcard-key">ROLE</span>
+                  <span class="cv-idcard-val">Desenvolvedor Full Stack</span>
+                </div>
+                <div class="cv-idcard-row">
+                  <span class="cv-idcard-key">LOC</span>
+                  <span class="cv-idcard-val">Camaçari · Bahia · <img src="/brasil.png" class="cv-flag" alt="BR" /></span>
+                </div>
+                <div class="cv-idcard-row">
+                  <span class="cv-idcard-key">TEL</span>
+                  <span class="cv-idcard-val">71 98358-1359</span>
+                </div>
+                <div class="cv-idcard-row">
+                  <span class="cv-idcard-key">UID</span>
+                  <span class="cv-idcard-val">1001 · /bin/zsh</span>
+                </div>
+              </div>
+            </div>
+          </app-retro-window>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub grid: connect + stats -->
+    <div class="cv-github-grid">
+
+      <!-- Left: connect links + download -->
+      <app-retro-window title="connect" padding="none">
+        <div class="cv-ghcard-links">
+          <a class="cv-connect-item" href="https://github.com/VictorMoura00" target="_blank" rel="noopener">
+            <span class="cv-connect-icon">♦</span>
+            <span class="cv-connect-url">github.com/VictorMoura00</span>
+            <span class="cv-connect-arrow">›</span>
+          </a>
+          <a class="cv-connect-item" href="https://www.linkedin.com/in/victor-moura-69a284212/" target="_blank" rel="noopener">
+            <span class="cv-connect-icon">▣</span>
+            <span class="cv-connect-url">linkedin.com/in/victor-moura</span>
+            <span class="cv-connect-arrow">›</span>
+          </a>
+          <a class="cv-connect-item" href="mailto:victormoura@proton.me">
+            <span class="cv-connect-icon">✉</span>
+            <span class="cv-connect-url">victormoura&#64;proton.me</span>
+            <span class="cv-connect-arrow">›</span>
+          </a>
+        </div>
+        <div window-footer class="cv-ghcard-download">
+          <app-retro-button
+            variant="ghost"
+            size="sm"
+            icon="↓"
+            [fullWidth]="true"
+            href="/assets/cv-victor-moura.pdf"
+            download="cv-victor-moura.pdf"
+          >DOWNLOAD CV.PDF</app-retro-button>
+        </div>
+      </app-retro-window>
+
+      <!-- Right: GitHub public stats + contribution heatmap -->
+      <app-retro-window
+        title="github.com/victormoura00"
+        padding="none"
+        [loading]="githubLoading()"
+        [status]="githubLoading() ? null : 'active'"
+        statusLabel="LIVE"
+      >
+        @if (!githubLoading()) {
+          <div class="cv-gh-stats">
+            <div class="cv-gh-stat">
+              <span class="cv-gh-stat-val">{{ githubStats()?.ships ?? '—' }}</span>
+              <span class="cv-gh-stat-label">repos</span>
+            </div>
+            <div class="cv-gh-stat">
+              <span class="cv-gh-stat-val">{{ githubStats()?.stars ?? '—' }}</span>
+              <span class="cv-gh-stat-label">stars</span>
+            </div>
+            <div class="cv-gh-stat">
+              <span class="cv-gh-stat-val">{{ githubStats()?.followers ?? '—' }}</span>
+              <span class="cv-gh-stat-label">followers</span>
+            </div>
+            <div class="cv-gh-stat">
+              <span class="cv-gh-stat-val">{{ githubStats()?.following ?? '—' }}</span>
+              <span class="cv-gh-stat-label">following</span>
+            </div>
+          </div>
+
+          <div class="cv-contrib-wrap">
+            <div class="cv-contrib-months-wrap">
+              @for (m of contribMonths(); track m.label) {
+                <span class="cv-contrib-month" [style.left.px]="m.col * 12">{{ m.label }}</span>
+              }
+            </div>
+            <div class="cv-contrib-grid">
+              @for (week of contributionWeeks(); track $index) {
+                <div class="cv-contrib-week">
+                  @for (day of week; track day.date) {
+                    <div
+                      class="cv-contrib-day"
+                      [class]="'cv-contrib-day--' + day.level"
+                      [title]="day.date + ': ' + day.count + ' contribuições'"
+                    ></div>
+                  }
+                </div>
+              }
+            </div>
+            <span class="cv-contrib-total">{{ contribTotal() | number:'1.0-0':'pt-BR' }} contribuições no último ano</span>
+          </div>
+        }
+      </app-retro-window>
+    </div>
+
+    <!-- Tech Stack -->
+    <app-retro-window title="tech stack" subtitle="stacks/" padding="none">
+      <div class="cv-stack-grid">
+        @for (group of techGroups; track group.label) {
+          <div class="cv-stack-card">
+            <div class="cv-stack-card-header">{{ group.label }}</div>
+            <div class="cv-stack-tags">
+              @for (tag of group.tags; track tag) {
+                <app-retro-tag [label]="tag" />
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </app-retro-window>
+
+    <!-- Terminal -->
+    <div class="cv-terminal-wrap">
+      <app-retro-terminal
+        windowTitle="victormoura@devboard:~"
+        prompt="victormoura@devboard:~$ "
+        [greeting]="terminalGreeting"
+        [commands]="terminalCommands"
+        [typewriterSpeed]="14"
+        height="320px"
+      />
+    </div>
+  }
+
+
+  <!-- ══ EXPERIENCE ═════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'experience') {
+    <div class="cv-section">
+
+      <!-- Career -->
+      <div class="cv-section-header">
+        <h2 class="cv-section-title">career.log</h2>
+        <span class="cv-section-sub">~/profile/career.log</span>
+      </div>
+
+      <div class="cv-exp-list">
+        @for (job of experience; track job.path) {
+          <app-retro-window [title]="job.path" padding="none">
+            <span window-actions class="cv-exp-period">{{ job.period }}</span>
+            <div class="cv-exp-body">
+              <div class="cv-exp-sidebar">
+                <div class="cv-exp-company">{{ job.company }}</div>
+                <div class="cv-exp-role-name">{{ job.role }}</div>
+                <div class="cv-exp-meta">{{ job.type }} · {{ job.duration }}</div>
+                <div class="cv-exp-meta">{{ job.location }} · {{ job.mode }}</div>
+              </div>
+              <div class="cv-exp-content">
+                <ul class="cv-exp-items">
+                  @for (item of job.items; track item) {
+                    <li class="cv-exp-item">› {{ item }}</li>
+                  }
+                </ul>
+                <div class="cv-exp-stack">
+                  @for (tag of job.stack; track tag) {
+                    <app-retro-tag [label]="tag" />
+                  }
+                </div>
+              </div>
+            </div>
+          </app-retro-window>
+        }
+      </div>
+
+      <!-- Education -->
+      <div class="cv-section-header">
+        <h2 class="cv-section-title">education</h2>
+        <span class="cv-section-sub">~/profile/edu.log</span>
+      </div>
+
+      <div class="cv-edu-card">
+        <div class="cv-edu-degree">
+          Análise e Desenvolvimento de Sistemas
+          <span class="cv-edu-status">em curso</span>
+        </div>
+        <div class="cv-edu-meta">Anhaguera · 2025 → 2027</div>
+        <app-status-pill status="cursando" />
+      </div>
+
+      <app-retro-data-grid
+        title="COURSES.LOG"
+        subtitle="certificados"
+        [columns]="courseColumns"
+        [rowCount]="courseTable.totalCount()"
+        rowSize="lg"
+        [searchable]="true"
+        searchPlaceholder="buscar curso ou instrutor..."
+        [searchQuery]="courseTable.searchQuery()"
+        (searchChange)="courseTable.setSearch($event)"
+        [columnFilters]="courseTable.columnFilters()"
+        (columnFilterChange)="courseTable.setColumnFilter($event.field, $event.values)"
+        [filterOptionsMap]="courseTable.filterOptionsMap()"
+        [sortState]="courseTable.sortState()"
+        (sortChange)="courseTable.toggleSort($event)"
+        [filterRulesEnabled]="true"
+        [filterRules]="courseTable.filterRules()"
+        (filterRuleAdd)="courseTable.addFilterRule()"
+        (filterRuleRemove)="courseTable.removeFilterRule($event)"
+        (filterRuleUpdate)="courseTable.updateFilterRule($event.id, $event)"
+        (filterRuleClear)="courseTable.clearFilterRules()"
+        [columnPicker]="true"
+        [hiddenCols]="courseTable.hiddenCols()"
+        (colVisibilityToggle)="courseTable.toggleColVisibility($event)"
+        [resizable]="true"
+        [colWidths]="courseTable.colWidths()"
+        (colWidthChange)="courseTable.setColWidth($event.key, $event.width)"
+      >
+        @for (course of courseTable.filteredRows(); track course.name; let i = $index) {
+          <app-retro-grid-row>
+            <span class="cv-courses-id">{{ i + 1 }}</span>
+            <span>{{ course.name }}</span>
+            <span style="text-align:center">{{ course.instructor }}</span>
+            <span style="text-align:center">{{ course.platform }}</span>
+            <app-status-pill status="completed" style="justify-self:center" />
+          </app-retro-grid-row>
+        }
+      </app-retro-data-grid>
+
+    </div>
+  }
+
+  <!-- ══ PROJECTS ═══════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'projects') {
+    <div class="cv-section">
+      <div class="cv-section-header">
+        <h2 class="cv-section-title">projects/</h2>
+        <div class="cv-path-divider">~/projects/</div>
+      </div>
+
+      <div class="cv-projects-grid">
+        @for (proj of projects; track proj.name) {
+          <app-retro-window
+            [title]="proj.name"
+            [subtitle]="proj.status"
+            padding="md"
+          >
+            <p class="cv-proj-desc">{{ proj.desc }}</p>
+
+            <div class="cv-proj-stack">
+              @for (tag of proj.stack; track tag) {
+                <app-retro-tag [label]="tag" />
+              }
+            </div>
+
+            @if (proj.link) {
+              <div class="cv-proj-link">
+                <app-retro-button variant="ghost" size="sm" [href]="'https://' + proj.link">
+                  ↗ {{ proj.link }}
+                </app-retro-button>
+              </div>
+            }
+          </app-retro-window>
+        }
+      </div>
+    </div>
+  }
+
+
+</main>
+
+<!-- ── Status Bar ─────────────────────────────────────────────────────────── -->
+<app-retro-status-bar
+  version="v1.0.0"
+  [items]="statusItems()"
+  [shortcuts]="[{ key: 'O', label: 'open section' }, { key: '?', label: 'help' }]"
+/>

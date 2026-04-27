@@ -1,19 +1,30 @@
-<app-retro-window [title]="'proj/' + indexLabel()" [subtitle]="project().name | lowercase | slice: 0 : 18">
-  <app-status-pill window-actions [status]="status()" />
+<app-retro-window
+  [title]="'proj/' + indexLabel()"
+  [subtitle]="(displayName() ?? '') | lowercase | slice: 0 : 18"
+  [padding]="size() === 'sm' ? 'sm' : size() === 'lg' ? 'lg' : 'md'"
+>
+  <span class="card-status-wrap" window-actions>
+    <app-status-pill [status]="status()" />
+  </span>
 
   <div class="project-heading">
     <div>
-      <h3>{{ project().name }}</h3>
+      <h3>{{ displayName() ?? '—' }}</h3>
       <div class="project-facts">
-        <span class="fact-chip">c#</span>
-        <span class="fact-chip">{{ project().repositoryUrl ? 'repo' : 'local' }}</span>
-        <span class="fact-meta">★ {{ project().tags.length * 17 }}</span>
+        @if (project().repositoryUrl) {
+          <span class="fact-chip">{{ repoData()?.language ?? '…' }}</span>
+          @if (showGithubStats()) {
+            <span class="fact-meta">★ {{ repoData()?.stargazers_count ?? '—' }}</span>
+          }
+        } @else {
+          <span class="fact-chip">local</span>
+        }
       </div>
     </div>
   </div>
 
   <p class="project-description">
-    {{ project().description || 'Projeto sem descricao por enquanto.' }}
+    {{ displayDescription() ?? 'Projeto sem descricao por enquanto.' }}
   </p>
 
   <div class="tag-row">
@@ -50,7 +61,11 @@
   </div>
 
   <footer class="project-footer">
-    <span>&gt; {{ project().repositoryUrl || 'sem repositorio definido' }}</span>
+    @if (repoSlug()) {
+      <a class="repo-link" [href]="project().repositoryUrl!" target="_blank" rel="noopener noreferrer" [attr.aria-label]="repoSlug() + ' — abre em nova guia'">&gt; {{ repoSlug() }}</a>
+    } @else {
+      <span class="repo-link repo-link--none">&gt; sem repositorio</span>
+    }
     <span>{{ project().createdAt | date: 'yyyy-MM-dd' }}</span>
   </footer>
 </app-retro-window>

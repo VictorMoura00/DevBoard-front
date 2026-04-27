@@ -1,0 +1,110 @@
+:host {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  border-bottom: 1px solid var(--line-soft);
+  transition: background 60ms;
+
+  &:hover { background: rgba(255, 176, 0, 0.1); }
+
+  &.is-done .tr__title { text-decoration: line-through; opacity: 0.45; }
+  &.is-done .tr__index { opacity: 0.4; }
+}
+
+// ── Shared cell base ─────────────────────────────────────────────────────────
+
+%cell {
+  padding: var(--row-cell-padding, 5px 8px);
+  font-family: var(--font-mono);
+  font-size: var(--row-font-size, 10px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Cells ─────────────────────────────────────────────────────────────────────
+
+.tr__index {
+  @extend %cell;
+  color: var(--muted);
+  text-align: right;
+  opacity: 0.6;
+}
+
+.tr__priority {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--row-cell-padding, 5px 8px);
+  padding-inline: 0;
+}
+
+.tr__status {
+  @extend %cell;
+  font-size: calc(var(--row-font-size, 10px) - 1px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+
+  span {
+    padding: 1px 5px;
+    border: 1px solid currentColor;
+  }
+
+  &--todo   { color: var(--muted); }
+  &--doing  { color: var(--line); span { background: var(--amber); border-color: var(--amber); } }
+  &--review { color: var(--phosphor); }
+  &--done   { color: var(--phosphor); span { background: rgba(51, 255, 102, 0.15); } }
+}
+
+.tr__title {
+  @extend %cell;
+  color: var(--text);
+}
+
+.tr__labels {
+  @extend %cell;
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.tr__label {
+  font-size: calc(var(--row-font-size, 10px) - 1px);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tr__dash { color: var(--muted); opacity: 0.4; }
+
+.tr__due,
+.tr__updated {
+  @extend %cell;
+  color: var(--muted);
+  font-size: calc(var(--row-font-size, 10px) - 1px);
+}
+
+.tr__delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--row-cell-padding, 5px 8px);
+  padding-inline: 0;
+  font-family: var(--font-mono);
+  font-size: calc(var(--row-font-size, 10px) + 4px);
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 80ms, color 80ms;
+
+  :host:hover & {
+    opacity: 0.5;
+    &:hover { opacity: 1; color: var(--red); }
+  }
+}

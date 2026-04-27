@@ -1,0 +1,219 @@
+<!-- ── Titlebar ────────────────────────────────────────────────────────────── -->
+<header class="grid__titlebar">
+  <span class="grid__mark">■</span>
+  <span class="grid__title">{{ title() }}</span>
+  @if (subtitle()) {
+    <span class="grid__arrow">→</span>
+    <span class="grid__subtitle">{{ subtitle() }}</span>
+  }
+  @if (rowCount() !== null) {
+    <span class="grid__count">— {{ rowCount() }} ROWS</span>
+  }
+  <span class="grid__fill"></span>
+
+  @if (searchable()) {
+    <input
+      class="grid__search"
+      type="text"
+      [placeholder]="searchPlaceholder()"
+      [value]="searchQuery()"
+      (input)="searchChange.emit($any($event.target).value)"
+      (click)="$event.stopPropagation()"
+    />
+  }
+
+  @if (filterRulesEnabled()) {
+    <button
+      type="button"
+      class="grid__tb-btn"
+      [class.grid__tb-btn--active]="showRulesPanel() || activeRulesCount() > 0"
+      (click)="toggleRulesPanel($event)"
+      title="Regras de filtro"
+    >
+      FILTER@if (activeRulesCount() > 0) {<em class="grid__tb-badge">{{ activeRulesCount() }}</em>}
+    </button>
+  }
+
+  @if (columnPicker()) {
+    <!-- wrapper gives the popover a local positioning context -->
+    <div class="grid__tb-group">
+      <button
+        type="button"
+        class="grid__tb-btn"
+        [class.grid__tb-btn--active]="showColPicker() || hiddenCols().size > 0"
+        (click)="toggleColPicker($event)"
+        title="Colunas visíveis"
+      >
+        COLS@if (hiddenCols().size > 0) {<em class="grid__tb-badge">{{ hiddenCols().size }}</em>}
+      </button>
+
+      @if (showColPicker()) {
+        <div class="grid__col-picker" (click)="$event.stopPropagation()">
+          <div class="grid__col-picker-hdr">
+            <span>COLUNAS</span>
+            <button type="button" (click)="colVisibilityShowAll.emit()">MOSTRAR TODAS</button>
+          </div>
+          @for (col of columns(); track col.key) {
+            @if (col.label) {
+              <label class="grid__col-pick-item">
+                <input
+                  type="checkbox"
+                  [checked]="!hiddenCols().has(col.key)"
+                  (change)="colVisibilityToggle.emit(col.key)"
+                />
+                {{ col.label }}
+              </label>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (addLabel()) {
+    <button type="button" class="grid__add-btn" (click)="addClick.emit()">
+      + {{ addLabel() }}
+    </button>
+  }
+</header>
+
+<!-- ── Optional filter slot (e.g. RetroFilterBar) ────────────────────────── -->
+<ng-content select="[grid-filter]" />
+
+<!-- ── Advanced filter rules panel ───────────────────────────────────────── -->
+@if (showRulesPanel() && filterRulesEnabled()) {
+  <div class="grid__rules" (click)="$event.stopPropagation()">
+    @for (rule of filterRules(); track rule.id) {
+      <div class="grid__rule">
+        <select
+          class="grid__rule-select grid__rule-select--col"
+          [value]="rule.field"
+          (change)="filterRuleUpdate.emit({ id: rule.id, field: $any($event.target).value })"
+        >
+          <option value="">— coluna —</option>
+          @for (col of filterableCols(); track col.key) {
+            <option [value]="col.key">{{ col.label }}</option>
+          }
+        </select>
+
+        <select
+          class="grid__rule-select grid__rule-select--op"
+          [value]="rule.op"
+          (change)="filterRuleUpdate.emit({ id: rule.id, op: $any($event.target).value })"
+        >
+          @for (op of filterOps; track op.value) {
+            <option [value]="op.value">{{ op.label }}</option>
+          }
+        </select>
+
+        @if (ruleNeedsValue(rule.op)) {
+          <input
+            class="grid__rule-val"
+            type="text"
+            [value]="rule.value"
+            placeholder="valor…"
+            (input)="filterRuleUpdate.emit({ id: rule.id, value: $any($event.target).value })"
+          />
+        }
+
+        <button type="button" class="grid__rule-rm" (click)="filterRuleRemove.emit(rule.id)" title="Remover regra">×</button>
+      </div>
+    }
+
+    <div class="grid__rules-footer">
+      <button type="button" class="grid__rules-add" (click)="filterRuleAdd.emit()">
+        + REGRA
+      </button>
+      @if (filterRules().length > 0) {
+        <button type="button" class="grid__rules-clear" (click)="filterRuleClear.emit()">
+          LIMPAR TUDO
+        </button>
+      }
+      @if (filterRules().length === 0) {
+        <span class="grid__rules-hint">Nenhuma regra activa — clique + REGRA para adicionar.</span>
+      }
+    </div>
+  </div>
+}
+
+<!-- ── Inner: column headers + projected rows ─────────────────────────────── -->
+<div class="grid__inner"
+  [style.--grid-cols]="colTemplate()"
+  [style.--row-font-size]="rowSize() === 'sm' ? '9px' : rowSize() === 'lg' ? '12px' : null"
+  [style.--row-cell-padding]="rowSize() === 'sm' ? '3px 6px' : rowSize() === 'lg' ? '8px 10px' : null"
+>
+
+  <div class="grid__header" role="row">
+    @for (col of visibleCols(); track col.key) {
+      <div
+        class="grid__th"
+        [class.grid__th--center]="col.align === 'center'"
+        [class.grid__th--right]="col.align === 'right'"
+        [class.grid__th--sorted]="isSorted(col.key)"
+        role="columnheader"
+      >
+        @if (col.sortable) {
+          <button
+            type="button"
+            class="grid__th-btn"
+            (click)="sortChange.emit(col.key)"
+          >
+            {{ col.label }}
+            <span class="grid__sort-icon" [class.grid__sort-icon--active]="isSorted(col.key)">
+              {{ sortIcon(col.key) }}
+            </span>
+          </button>
+        } @else {
+          <span class="grid__th-label">{{ col.label }}</span>
+        }
+
+        @if (col.filterable) {
+          <button
+            type="button"
+            class="grid__filter-btn"
+            [class.grid__filter-btn--active]="isFiltered(col.key)"
+            [attr.aria-expanded]="activeFilterCol() === col.key"
+            (click)="toggleFilterCol(col.key, $event)"
+            title="Filtrar {{ col.label }}"
+          >{{ isFiltered(col.key) ? '◉' : '◎' }}</button>
+
+          @if (activeFilterCol() === col.key) {
+            <div class="grid__filter-pop" role="dialog" (click)="$event.stopPropagation()">
+              @for (opt of filterOptionsFor(col); track opt) {
+                <label class="grid__filter-opt">
+                  <input
+                    type="checkbox"
+                    [checked]="isOptSelected(col.key, opt)"
+                    (change)="toggleOpt(col.key, opt)"
+                  />
+                  {{ opt }}
+                </label>
+              }
+              @if (filterOptionsFor(col).length === 0) {
+                <span class="grid__filter-empty">sem opções</span>
+              }
+              @if (isFiltered(col.key)) {
+                <div class="grid__filter-actions">
+                  <button type="button" (click)="clearFilter(col.key)">LIMPAR</button>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        @if (resizable() && !col.noResize) {
+          <div class="grid__resize-handle" (mousedown)="startResize(col.key, $event)"></div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="grid__body" role="rowgroup">
+    @if (isEmpty()) {
+      <div class="grid__empty">{{ emptyMessage() }}</div>
+    } @else {
+      <ng-content />
+    }
+  </div>
+
+</div>

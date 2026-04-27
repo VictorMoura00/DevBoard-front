@@ -3,7 +3,7 @@
   [class.input-shell--sm]="size() === 'sm'"
   [class.input-shell--lg]="size() === 'lg'"
   [class.input-shell--invalid]="invalid()"
-  [class.input-shell--disabled]="disabled()"
+  [class.input-shell--disabled]="disabled() || _cvaDisabled()"
   [class.input-shell--readonly]="readonly()"
 >
   @if (prefix()) {
@@ -14,11 +14,13 @@
     #inputEl
     class="input-field"
     [type]="type()"
-    [value]="value()"
+    [value]="_value()"
     [placeholder]="placeholder()"
-    [disabled]="disabled()"
+    [attr.aria-label]="ariaLabel() || null"
+    [disabled]="disabled() || _cvaDisabled()"
     [attr.readonly]="readonly() ? '' : null"
     (input)="onInput($event)"
+    (blur)="onBlur()"
   />
 
   @if (showClear()) {
